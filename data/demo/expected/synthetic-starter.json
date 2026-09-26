@@ -1,0 +1,12 @@
+{
+  "fixture_id": "synthetic-starter-v1",
+  "validation_status": "not_run",
+  "expectations_are_not_analysis_results": true,
+  "scenarios": [
+    {"module": "quotes", "expectation": "The quoted sentence is not an exact match to the synthetic source."},
+    {"module": "propositions", "expectation": "The categorical claim conflicts with the synthetic source's review condition."},
+    {"module": "court_rules", "expectation": "Disclosure text required only by the synthetic profile is absent."},
+    {"module": "privacy", "expectation": "SSN-like, full date-of-birth and contextual account-number strings warrant review."},
+    {"module": "citations", "expectation": "No live citation result is prescribed. This fabricated example has not been checked against a provider."}
+  ]
+}

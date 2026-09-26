@@ -1,0 +1,19 @@
+{
+  "id": "synthetic-demo-v1",
+  "version": 1,
+  "name": "Synthetic Demo Court - not a real court",
+  "is_demo": true,
+  "status": "fixture_only",
+  "schema_status": "Draft resource contract; runtime validation is T028.",
+  "jurisdiction": "synthetic",
+  "source_url": null,
+  "verified_at": null,
+  "rules": [
+    {
+      "id": "demo-ai-disclosure",
+      "when_ai_used": true,
+      "required_text": "AI use disclosure: This fictional document used generative AI.",
+      "requirement": "Synthetic exercise requires this disclosure text; not a real legal requirement."
+    }
+  ]
+}

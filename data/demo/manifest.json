@@ -1,0 +1,17 @@
+{
+  "fixture_id": "synthetic-starter-v1",
+  "mode": "synthetic",
+  "validation_status": "not_run",
+  "is_real_legal_material": false,
+  "description": "Invented starter material; not the final SRS acceptance fixture.",
+  "filing_path": "filings/synthetic-starter.txt",
+  "authority_path": "authorities/synthetic-source.txt",
+  "expected_path": "expected/synthetic-starter.json",
+  "authority_id": "synthetic-authority-001",
+  "court_profile_id": "synthetic-demo-v1",
+  "attribution": "Original fictional project test fixture; no real court or authority represented.",
+  "document_sha256": null,
+  "source_sha256": null,
+  "hash_status": "Populate and verify in T014-T016 before enabling fixture replay.",
+  "live_lookup_result": null
+}

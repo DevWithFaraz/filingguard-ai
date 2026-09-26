@@ -1,0 +1,15 @@
+{
+  "name": "filingguard-ai",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/web"],
+  "engines": { "node": ">=24 <25", "npm": ">=10" },
+  "scripts": {
+    "dev:api": "uv run --directory apps/api uvicorn filingguard.main:app --reload --host 127.0.0.1 --port 8000",
+    "typecheck": "npm run typecheck --workspace @filingguard/web",
+    "lint:api": "uv run --directory apps/api ruff check .",
+    "test:api": "uv run --directory apps/api pytest",
+    "contracts:export": "uv run --directory apps/api python scripts/export_openapi.py",
+    "contracts:generate": "npm run contracts:generate --workspace @filingguard/web"
+  }
+}

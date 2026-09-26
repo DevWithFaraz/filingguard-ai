@@ -1,0 +1,21 @@
+{
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "absolute",
+  "useMarkdownLinks": false,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "docs/inbox",
+  "attachmentFolderPath": "docs/attachments",
+  "showUnsupportedFiles": false,
+  "userIgnoreFilters": [
+    "node_modules/",
+    "apps/web/node_modules/",
+    "apps/api/.venv/",
+    ".git/",
+    ".runtime/",
+    "apps/api/.runtime/",
+    "apps/web/dist/",
+    "coverage/",
+    "playwright-report/",
+    "test-results/"
+  ]
+}

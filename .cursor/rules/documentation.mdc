@@ -1,0 +1,10 @@
+---
+description: Maintain the FilingGuard AI Obsidian documentation with project work
+alwaysApply: true
+---
+
+Follow the repository's `AGENTS.md` documentation workflow.
+Start at `Home.md`; keep `TDOD.md` as the single task-status checklist.
+Use `docs/knowledge/Documentation Workflow.md` and the templates under
+`docs/templates` to record material decisions, actual issues and evidenced lessons.
+The user's current request takes precedence over this project guidance.

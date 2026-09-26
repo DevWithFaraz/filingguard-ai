@@ -1,0 +1,19 @@
+SYNTHETIC TEST DOCUMENT - NOT A LEGAL FILING
+Fixture: synthetic-starter-v1
+Court profile: synthetic-demo-v1
+AI used: yes
+
+This invented document exists only to exercise the FilingGuard development fixtures.
+
+Argument
+Every filing is accepted without review. Fictional Example v. Fictional Sample,
+999 F.3d 1234 (2099).
+
+The fictional source states: "A filing may be accepted without required review."
+
+Synthetic personal details
+Test subject SSN: 000-12-3456
+Test subject date of birth: January 2, 2012
+Test financial account number: 000000123456
+
+The synthetic profile's disclosure statement is deliberately omitted.

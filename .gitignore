@@ -1,0 +1,31 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.runtime/
+*.log
+playwright-report/
+test-results/
+.DS_Store
+Thumbs.db
+.idea/
+# Per-device Obsidian state; shared vault settings remain versioned.
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspaces.json
+.obsidian/cache/
+.obsidian/plugins/
+.obsidian/trash/
+.trash/
+# Commit package-lock.json and apps/api/uv.lock after dependency installation.
