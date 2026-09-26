@@ -14,7 +14,7 @@ React browser -> FastAPI routes -> analysis orchestrator -> feature modules
                                       |                      |
                                  PostgreSQL           provider adapters
                                                       /              \
-                                                CourtListener       OpenAI
+                                                CourtListener       Groq
 ```
 
 ## Technology choices
@@ -36,11 +36,14 @@ scanned/poorly extracted documents. RapidFuzz complements exact and normalized
 quote comparison. These are separate checks: extraction is not verification and
 text similarity is not a finding of legal support.
 
-OpenAI structured outputs serve bounded claim extraction and proposition review.
-Choose the actual model through `OPENAI_MODEL` after account access, fixture
+Groq was selected by the user on September 27 under a free-credits-only budget.
+Use its OpenAI-compatible API for bounded claim extraction and proposition review.
+Choose the actual model through `GROQ_MODEL` after account access, fixture
 quality and latency are measured. Prompt version, model ID, evidence IDs and
 uncertainty must be recorded. Validate passages against stored sources even when
 the response obeys its schema. No live provider integration exists yet.
+See [[docs/decisions/ADR-003 - Free-tier Groq evaluation]]. The installed OpenAI
+SDK is a client library, not a commitment to paid OpenAI-hosted inference.
 
 ## MVP execution plan
 

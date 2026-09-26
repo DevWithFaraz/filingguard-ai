@@ -1,8 +1,11 @@
 # Delivery guide
 
-The root [TDOD.md](../../TDOD.md) is the ordered task source. Do not duplicate its
+The root [TODO.md](../../TODO.md) is the ordered task source. Do not duplicate its
 checkboxes here. This directory holds confirmed event instructions, acceptance
 evidence, deployment notes and the final submission checklist as work progresses.
+
+See [[docs/delivery/LexHack requirements]] for the checked event requirements and
+pending participant/account confirmations.
 
 ## Working order
 
@@ -17,7 +20,7 @@ evidence, deployment notes and the final submission checklist as work progresses
 
 ## Definition of done
 
-A task is done when its actual behavior passes the TDOD completion condition,
+A task is done when its actual behavior passes the TODO completion condition,
 relevant tests pass, and its limitation/status is documented. A mock alone does
 not establish live-provider behavior. A schema-valid LLM answer does not establish
 correctness. Missing sources and failed checks remain visibly incomplete.

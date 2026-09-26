@@ -5,11 +5,12 @@
   "workspaces": ["apps/web"],
   "engines": { "node": ">=24 <25", "npm": ">=10" },
   "scripts": {
-    "dev:api": "uv run --directory apps/api uvicorn filingguard.main:app --reload --host 127.0.0.1 --port 8000",
+    "setup:api": "node scripts/api.mjs sync --locked",
+    "dev:api": "node scripts/api.mjs run uvicorn filingguard.main:app --reload --host 127.0.0.1 --port 8000",
     "typecheck": "npm run typecheck --workspace @filingguard/web",
-    "lint:api": "uv run --directory apps/api ruff check .",
-    "test:api": "uv run --directory apps/api pytest",
-    "contracts:export": "uv run --directory apps/api python scripts/export_openapi.py",
+    "lint:api": "node scripts/api.mjs run ruff check .",
+    "test:api": "node scripts/api.mjs run pytest",
+    "contracts:export": "node scripts/api.mjs run python scripts/export_openapi.py",
     "contracts:generate": "npm run contracts:generate --workspace @filingguard/web"
   }
 }

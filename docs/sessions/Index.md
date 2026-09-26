@@ -4,9 +4,10 @@ tags: [sessions]
 ---
 # Session handoffs
 
-[[Home]] | [[docs/templates/Session Template]] | [[TDOD]]
+[[Home]] | [[docs/templates/Session Template]] | [[TODO]]
 
 - [[docs/sessions/2026-09-26 - Documentation vault setup]]
+- [[docs/sessions/2026-09-27 - Development loop]]
 
 After substantive work, record verified changes, checks not run, blockers and the
 next task. Use the task checklist for live task status; session notes are dated

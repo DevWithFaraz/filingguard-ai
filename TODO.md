@@ -1,6 +1,6 @@
 # FilingGuard AI - Ordered Task Checklist
 
-Updated: September 26, 2026. Source: [SRS](FilingGuard_AI_SRS.md).
+Updated: September 27, 2026. Source: [SRS](FilingGuard_AI_SRS.md).
 Deadline recorded in the SRS: September 28, 2026, 02:00 Asia/Karachi.
 
 ## How we work
@@ -17,8 +17,10 @@ hours before the recorded deadline for verification, recording and submission;
 freeze new features then. This checklist covers the project backlog, not a promise
 that every enhancement fits the remaining hackathon time.
 
-Current task: none. Next task: T001.
-Blockers: provider access, installed dependencies and deployment accounts unverified.
+Current task: T004 (CourtListener access; waiting for user credentials).
+Next task: T005 (Groq free-model evaluation; waiting for user credentials).
+Blockers: provider credentials and deployment access; Groq model not selected.
+Confirmed constraints: solo participant, student aged 22; free credits only for LLM calls.
 Implementation status: scaffold only; no analysis feature has been completed.
 
 ## Scaffold delivered
@@ -38,20 +40,26 @@ off by scaffolding. T002-T003 establish a working development environment.
 
 SRS: sections 4-5, 7, 19-20; NFR-060 through NFR-063.
 
-- [ ] T001 - Confirm the official LexHack deadline, timezone, submission fields,
+- [x] T001 - Confirm the official LexHack deadline, timezone, submission fields,
   judging rules and team constraints. Confirm P0 scope and record any changes in
   `docs/delivery/`. Done when the submission checklist is grounded in official rules.
-- [ ] T002 - Install Node 24/Python 3.12 dependencies with npm and uv; resolve any
+  Evidence: [[docs/delivery/LexHack requirements]]; participant confirmed solo,
+  student, age 22; SRS P0 scope retained.
+- [x] T002 - Install Node 24/Python 3.12 dependencies with npm and uv; resolve any
   compatibility issues, generate and commit both lockfiles, initialize Git if
   needed, and create local environment files without overwriting secrets. Done
   when clean locked installs work and secret files are ignored.
-- [ ] T003 - Run backend lint and health smoke test, frontend typecheck and contract
+  Evidence: npm ci offline with scripts disabled; uv locked offline sync;
+  esbuild transform; environment ignore checks; lockfiles committed in setup commit.
+- [x] T003 - Run backend lint and health smoke test, frontend typecheck and contract
   export/generation. Start the API locally. Done when `/api/v1/health` returns 200,
   `/docs` loads and generated client types match OpenAPI.
+  Evidence: all listed npm checks pass; one pytest test passes; running API
+  returns HTTP 200 for both routes. See [[docs/sessions/2026-09-27 - Development loop]].
 - [ ] T004 - Check CourtListener token access, supported lookup/opinion endpoints,
   rate limits and available source text for demo authorities. Done when a genuine
   lookup and opinion fetch succeed without leaking credentials into logs.
-- [ ] T005 - Check OpenAI access; select an available structured-output model using
+- [ ] T005 - Check the selected free-tier LLM API access; select a structured-output model using
   supported/unsupported sample propositions, timing and cost. Set model/token
   budgets, timeouts and validated schemas. Done when parsed evidence-grounded
   output and refusal/error handling are demonstrated. Do not assume account access.
@@ -385,6 +393,12 @@ visualization. Markdown/HTML export is P0; dedicated PDF export is P1.
 
 ## Work log
 
+- 2026-09-27: began P0 phase 1; verified official deadline/rules in
+  [[docs/delivery/LexHack requirements]]. T001 awaits team confirmation. Adopted
+  the user's renamed TODO.md as canonical and repaired old TDOD references.
+- 2026-09-27: user confirmed solo student, age 22, and free credits only. T001
+  complete; T002 started. Provider choice remains pending; OpenAI is no longer a
+  required provider. Sandbox network access required an installation escalation.
 - 2026-09-26: added the project Obsidian vault and Home.md navigation, linked
   category indexes/templates, and persistent documentation guidance. Future
   task work should follow docs/knowledge/Documentation Workflow.md. No feature

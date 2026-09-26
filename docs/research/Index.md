@@ -7,6 +7,7 @@ tags: [research]
 [[Home]] | [[docs/templates/Research Template]]
 
 - [[docs/research/Obsidian setup sources]]
+- [[docs/delivery/LexHack requirements|Official event requirements]]
 
 Record source URL, checked date, exact supported conclusion and open uncertainty.
 Legal rules need current primary sources and jurisdiction/judge/effective-date

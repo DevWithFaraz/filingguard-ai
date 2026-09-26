@@ -4,9 +4,11 @@ tags: [issues]
 ---
 # Bugs and incidents
 
-[[Home]] | [[docs/templates/Issue Template]] | [[TDOD]]
+[[Home]] | [[docs/templates/Issue Template]] | [[TODO]]
 
-No project bug or production incident is recorded yet. Unimplemented features are
+- [[docs/issues/BUG-001 - Global uv cache blocks API commands]] (resolved setup issue)
+
+Unimplemented features are
 tasks, not bugs. Record observed symptoms, reproduction, expected versus actual
 behavior, impact, confirmed cause, fix and regression evidence.
 
