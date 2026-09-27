@@ -12,7 +12,7 @@ code; existing requirements and tasks remain the source of truth.
 
 ## Start work
 
-- [[TDOD|Ordered task checklist]] - current task, completion criteria and work log.
+- [[TODO|Ordered task checklist]] - current task, completion criteria and work log.
 - [[README|Setup and scaffold status]] - what exists and how to run it.
 - [[docs/knowledge/Documentation Workflow|Documentation workflow]] - how to read,
   update and connect project knowledge.

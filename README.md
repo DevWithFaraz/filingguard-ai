@@ -13,9 +13,9 @@ Work through [TODO.md](TODO.md) in order, one task at a time. The exact filename
 is intentional. [FilingGuard_AI_SRS.md](FilingGuard_AI_SRS.md) is the requirements
 baseline; it has not been modified.
 
-This scaffold includes dependency manifests, configuration templates, local
-PostgreSQL configuration, module guides, a health-only API entry point and its
-smoke test. It does not yet implement product screens, document analysis,
+This development shell includes dependency manifests, configuration templates,
+local PostgreSQL configuration, module guides, a health-only API and a browser
+workspace with Review, Activity and Settings. It does not yet implement document analysis,
 provider calls, persistence models, database migrations or job execution.
 
 ## Chosen stack
@@ -25,8 +25,9 @@ provider calls, persistence models, database migrations or job execution.
 - Graph: React Flow 12 (`@xyflow/react`).
 - API: Python 3.12, FastAPI, Pydantic 2 and Uvicorn.
 - Analysis: Eyecite, CourtListener, pypdf and RapidFuzz.
-- AI: Groq (free tier), using the OpenAI-compatible Python client. Model selection
-  and live connectivity remain T005; no paid fallback.
+- AI: Groq (free tier), using the OpenAI-compatible Python client. The provisional
+  model is GPT-OSS 120B; access checks passed, production integration
+  remains unimplemented. No paid fallback.
 - Persistence: PostgreSQL 17, SQLAlchemy 2, psycopg 3 and Alembic.
 - Tooling: npm workspaces, uv, Ruff and pytest. Add Vitest, Testing Library and
   Playwright with the frontend test setup.
@@ -84,9 +85,18 @@ OpenAPI export/type generation, and HTTP 200 from health/docs on a running API.
 The test suite has a Starlette/httpx deprecation warning. These checks do not
 verify legal analysis, providers, PostgreSQL or hosted deployment.
 
-There is no frontend screen or frontend dev/build command yet. Task T006 adds
-`apps/web/index.html`, `src/main.tsx`, `src/app/App.tsx`, and Vite scripts. The
-existing Vite config proxies development `/api` requests to port 8000.
+Run `npm run dev:web` in a second terminal and open http://127.0.0.1:5173.
+The browser shell reads real API health; document submission remains disabled.
+`npm run build` creates apps/web/dist. The Vite config proxies development /api
+requests to port 8000. Set VITE_API_BASE_URL to the hosted API origin for production.
+
+Frontend checks: `npm run lint:web`, `npm run test:web` and `npm run test:e2e`.
+Install test Chromium with `npx playwright install chromium` from apps/web, or
+set PLAYWRIGHT_BROWSER_CHANNEL=chrome to use an installed Chrome locally.
+Playwright starts the API and frontend automatically. CI runs locked installs,
+lint, tests, typecheck, contract checks, production build and browser checks
+without provider credentials. Hosted CI must still run after this checkpoint is pushed.
+See [deployment steps](docs/delivery/Deployment%20guide.md) for T008.
 
 ## Local database
 
@@ -103,7 +113,8 @@ The sample database credentials are for local development only.
 - `apps/api/.env`: private backend configuration. Only app name and CORS settings
   are consumed today; remaining entries define planned module settings.
   Put Groq credentials in `GROQ_API_KEY`, CourtListener credentials in
-  `COURTLISTENER_API_TOKEN`, and leave `GROQ_MODEL` blank until T005 evaluation.
+  `COURTLISTENER_API_TOKEN`. `GROQ_MODEL=openai/gpt-oss-120b` is the provisional
+  default selected after T005's small synthetic evaluation.
 - `apps/web/.env.local`: public browser configuration; never place secrets here.
 - `data/demo`: explicitly synthetic fixture material, separated from live mode.
 - `.runtime`: ignored private temporary storage, created by future storage code.
@@ -111,3 +122,20 @@ The sample database credentials are for local development only.
 All analysis modules are unimplemented. Synthetic/cached results must never be
 presented as live verification. Findings support human review, not legal advice
 or a guarantee of filing readiness.
+
+## Explicit provider checks
+
+These commands make live requests only when run deliberately. They read local
+keys without printing them; keep the account on its free plan. Access checks
+support root .env as a fallback, but use apps/api/.env for backend configuration.
+
+```powershell
+node scripts/api.mjs run python scripts/check_provider_access.py courtlistener
+node scripts/api.mjs run python scripts/check_provider_access.py groq
+node scripts/api.mjs run python scripts/evaluate_groq.py openai/gpt-oss-120b
+node scripts/api.mjs run python scripts/evaluate_groq.py openai/gpt-oss-20b
+```
+
+The last two commands send synthetic evidence tests, not confidential filings.
+See [the recorded evidence](docs/research/Provider%20access%20verification.md).
+Successful probes do not mean a production provider adapter exists.

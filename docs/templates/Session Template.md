@@ -7,7 +7,7 @@ tags: [sessions]
 # {{title}}
 
 ## Task and scope
-Reference TDOD task IDs; do not copy its checklist.
+Reference TODO task IDs; do not copy its checklist.
 
 ## Changes
 Files/behavior changed and material decisions made.
@@ -21,4 +21,4 @@ Exact next action, dependency or unresolved question.
 ## Related
 Link affected modules, new decisions, issues and lessons.
 
-[[docs/sessions/Index]] | [[TDOD]]
+[[docs/sessions/Index]] | [[TODO]]

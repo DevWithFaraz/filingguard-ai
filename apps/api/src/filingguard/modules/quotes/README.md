@@ -1,6 +1,6 @@
 # quotes
 
-Priority: P0. Tasks: T042-T044 in the root TDOD.md.
+Priority: P0. Tasks: T042-T044 in the root TODO.md.
 
 Associate quotations with authorities; exact, normalized, then fuzzy comparison.
 

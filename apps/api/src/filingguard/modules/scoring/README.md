@@ -1,6 +1,6 @@
 # scoring
 
-Priority: P0. Tasks: T045-T046 in the root TDOD.md.
+Priority: P0. Tasks: T045-T046 in the root TODO.md.
 
 Calculate versioned deductions, category scores and coverage deterministically.
 

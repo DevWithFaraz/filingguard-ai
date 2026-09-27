@@ -4,9 +4,9 @@ tags: [product, modules]
 ---
 # Feature and module map
 
-[[Home]] | [[FilingGuard_AI_SRS]] | [[TDOD]] | [[docs/product/README]]
+[[Home]] | [[FilingGuard_AI_SRS]] | [[TODO]] | [[docs/product/README]]
 
-Feature implementation status lives in TDOD. These links connect responsibilities,
+Feature implementation status lives in TODO. These links connect responsibilities,
 not completed functionality. Refer to SRS requirement IDs when recording decisions
 or bugs; link back here from those notes when useful.
 
@@ -28,7 +28,7 @@ or bugs; link back here from those notes when useful.
 - Privacy (FR-160-166): [[apps/api/src/filingguard/modules/privacy/README|Privacy detection]]
   and [[apps/api/src/filingguard/integrations/storage/README|Private storage]].
 
-Some requirement ranges include P1 refinements; TDOD owns the exact implementation
+Some requirement ranges include P1 refinements; TODO owns the exact implementation
 order and priority reconciliation.
 
 ## Review and evidence

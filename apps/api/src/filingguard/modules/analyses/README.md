@@ -1,6 +1,6 @@
 # analyses
 
-Priority: P0. Tasks: T023-T027 in the root TDOD.md.
+Priority: P0. Tasks: T023-T027 in the root TODO.md.
 
 Orchestrate stages, persist status/partial results, enforce limits and recover interrupted jobs.
 

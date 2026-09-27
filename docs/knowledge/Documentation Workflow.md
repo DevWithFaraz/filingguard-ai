@@ -6,11 +6,11 @@ tags:
 ---
 # Documentation Workflow
 
-Related: [[Home]], [[AGENTS]], [[TDOD]], [[docs/templates/Index]].
+Related: [[Home]], [[AGENTS]], [[TODO]], [[docs/templates/Index]].
 
 ## Read just enough context
 
-Start with Home and the current TDOD task. Follow its feature/module links, then
+Start with Home and the current TODO task. Follow its feature/module links, then
 the relevant decisions, issues and lessons. Prefer current implementation and
 verification evidence over an old plan. A note's presence is not proof that its
 claim was tested. Link to a source instead of copying long content into many notes.
@@ -18,7 +18,7 @@ claim was tested. Link to a source instead of copying long content into many not
 ## One source for each responsibility
 
 - Requirements: [[FilingGuard_AI_SRS]]. Record approved scope changes explicitly.
-- Task status and ordering: [[TDOD]]. Other notes reference task IDs, not copied checklists.
+- Task status and ordering: [[TODO]]. Other notes reference task IDs, not copied checklists.
 - Setup: [[README]]. Architecture: [[docs/architecture/stack]].
 - Module responsibilities: linked from [[docs/product/Features]].
 - Rationale/history: [[docs/decisions/Index]].
@@ -30,7 +30,7 @@ claim was tested. Link to a source instead of copying long content into many not
 
 ## Record material changes
 
-After a substantive task, update its canonical docs and TDOD status. Add a decision
+After a substantive task, update its canonical docs and TODO status. Add a decision
 only for a meaningful tradeoff, an issue only for an actual observed failure, and
 a lesson only when evidence supports a reusable takeaway. Capture a short handoff
 with tests run/not run, blockers and next step. Do not document every click or

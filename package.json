@@ -5,6 +5,11 @@
   "workspaces": ["apps/web"],
   "engines": { "node": ">=24 <25", "npm": ">=10" },
   "scripts": {
+    "dev:web": "npm run dev --workspace @filingguard/web",
+    "build": "npm run build --workspace @filingguard/web",
+    "lint:web": "npm run lint --workspace @filingguard/web",
+    "test:web": "npm run test --workspace @filingguard/web",
+    "test:e2e": "npm run test:e2e --workspace @filingguard/web",
     "setup:api": "node scripts/api.mjs sync --locked",
     "dev:api": "node scripts/api.mjs run uvicorn filingguard.main:app --reload --host 127.0.0.1 --port 8000",
     "typecheck": "npm run typecheck --workspace @filingguard/web",

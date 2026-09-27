@@ -13,7 +13,7 @@ documentation guidance in [[AGENTS]]. Original module guides remain in place.
 
 ## Current implementation boundary
 The app is still a scaffold with a health-only API. Dependencies and runtime
-checks remain tasks T002-T003 in [[TDOD]]. Documentation work did not implement
+checks remain tasks T002-T003 in [[TODO]]. Documentation work did not implement
 legal analysis features or enable external syncing/publishing.
 
 ## Verification boundary
@@ -25,7 +25,7 @@ No existing personal vault registry was modified.
 
 ## Next step
 Open the project folder as a vault and start at [[Home]]. Continue at the next
-unchecked task in [[TDOD]]; T001 remains the first project task.
+unchecked task in [[TODO]]; T001 remains the first project task.
 
 Related: [[docs/sessions/Index]], [[docs/feedback/FB-001 - Linked project documentation]],
 [[docs/decisions/ADR-002 - Repository as documentation vault]].

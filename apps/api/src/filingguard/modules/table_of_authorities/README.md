@@ -1,6 +1,6 @@
 # table_of_authorities
 
-Priority: P2. Tasks: T201 in the root TDOD.md.
+Priority: P2. Tasks: T201 in the root TODO.md.
 
 Compare normalized authority entries in the table and filing body.
 

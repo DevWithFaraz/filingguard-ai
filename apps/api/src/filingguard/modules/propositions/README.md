@@ -1,6 +1,6 @@
 # propositions
 
-Priority: P0. Tasks: T038-T041 in the root TDOD.md.
+Priority: P0. Tasks: T038-T041 in the root TODO.md.
 
 Compare claims to bounded retrieved passages and validate structured model results.
 

@@ -1,0 +1,34 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.15'
+      - run: npm ci --ignore-scripts
+      - run: npm run setup:api -- --python 3.12
+      - run: npm run lint:api
+      - run: npm run test:api
+      - run: npm run lint:web
+      - run: npm run typecheck
+      - run: npm run test:web
+      - run: npm run contracts:export && npm run contracts:generate
+      - run: git diff --exit-code -- contracts/openapi.json apps/web/src/lib/api/schema.d.ts
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failures
+          path: .runtime/playwright-results

@@ -1,6 +1,6 @@
 # privacy
 
-Priority: P0. Tasks: T022, T030-T031 in the root TDOD.md.
+Priority: P0. Tasks: T022, T030-T031 in the root TODO.md.
 
 Detect sensitive patterns locally and provide masked review findings.
 

@@ -1,6 +1,6 @@
 # evidence
 
-Priority: P0 capture; P1 rich UI. Tasks: T011, T040-T041, T102 in the root TDOD.md.
+Priority: P0 capture; P1 rich UI. Tasks: T011, T040-T041, T102 in the root TODO.md.
 
 Preserve document locations, source identity, passages and method metadata.
 

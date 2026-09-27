@@ -1,6 +1,6 @@
 # documents
 
-Priority: P0. Tasks: T019-T022 in the root TDOD.md.
+Priority: P0. Tasks: T019-T022 in the root TODO.md.
 
 Parse text/PDF and preserve page/paragraph spans. Handle missing/poor text and limits.
 

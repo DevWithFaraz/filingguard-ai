@@ -5,14 +5,14 @@ when it changes scope or priorities.
 
 ## Before substantive work
 
-1. Read `Home.md`, `TDOD.md`, and `docs/knowledge/Documentation Workflow.md`.
+1. Read `Home.md`, `TODO.md`, and `docs/knowledge/Documentation Workflow.md`.
 2. Follow links to the relevant SRS section, module guide and recorded decisions.
 3. Read related open issues and lessons; check their evidence and applicability.
    Do not load every note or assume a prior lesson applies to a new situation.
 
 ## During and after work
 
-- Keep `TDOD.md` the only task-status checklist. Work one task at a time unless
+- Keep `TODO.md` the only task-status checklist. Work one task at a time unless
   the user explicitly expands scope. Check off only verified completion criteria.
 - Update the canonical module/architecture note when behavior changes.
 - Record significant decisions in `docs/decisions`, actual bugs in `docs/issues`,
@@ -31,7 +31,7 @@ when it changes scope or priorities.
 
 ## Canonical documents
 
-`FilingGuard_AI_SRS.md` owns requirements; `TDOD.md` owns tasks; `README.md` owns
+`FilingGuard_AI_SRS.md` owns requirements; `TODO.md` owns tasks; `README.md` owns
 setup; `docs/architecture/stack.md` owns stack decisions; feature/module READMEs
 own local responsibilities. Link to these rather than keeping divergent copies.
 The repository itself is the Obsidian vault. No separate synced documentation copy.

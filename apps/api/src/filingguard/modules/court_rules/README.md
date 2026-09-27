@@ -1,6 +1,6 @@
 # court_rules
 
-Priority: P0. Tasks: T028-T029 in the root TDOD.md.
+Priority: P0. Tasks: T028-T029 in the root TODO.md.
 
 Load validated profiles and evaluate applicable disclosure checks.
 

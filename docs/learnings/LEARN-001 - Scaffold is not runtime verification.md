@@ -10,7 +10,7 @@ tags: [verification, scaffolding]
 The initial scaffold's JSON/TOML parsing, Python syntax checks and task/fixture
 references passed. Dependencies were not installed, so framework tests, provider
 calls, frontend compilation and migrations were not verified. Evidence is recorded
-in the [[TDOD#Work log|task work log]] and [[README|setup status]].
+in the [[TODO#Work log|task work log]] and [[README|setup status]].
 
 ## Reusable practice
 Report exactly which layer was checked. A module folder is not a working feature;

@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: filingguard-api
+    runtime: python
+    plan: free
+    rootDir: apps/api
+    buildCommand: pip install uv==0.12.15 && uv sync --locked --no-dev
+    startCommand: .venv/bin/uvicorn filingguard.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.14
+      - key: UV_PYTHON_DOWNLOADS
+        value: never
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+  - type: web
+    name: filingguard-web
+    runtime: static
+    buildCommand: npm ci --ignore-scripts && npm run build
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin

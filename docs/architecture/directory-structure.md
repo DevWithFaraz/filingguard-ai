@@ -1,12 +1,12 @@
 # Directory and ownership guide
 
 All feature folders are placeholders with responsibility notes. Their existence
-does not indicate completed functionality. Work is tracked only in root TDOD.md.
+does not indicate completed functionality. Work is tracked only in root TODO.md.
 
 ```text
 FilingGuard AI/
 |-- FilingGuard_AI_SRS.md       Original requirements
-|-- TDOD.md                    Ordered implementation and acceptance checklist
+|-- TODO.md                    Ordered implementation and acceptance checklist
 |-- README.md                  Setup and current scaffold status
 |-- package.json               npm workspace and backend helper commands
 |-- .env.example               Local PostgreSQL values

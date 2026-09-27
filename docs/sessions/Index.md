@@ -8,6 +8,8 @@ tags: [sessions]
 
 - [[docs/sessions/2026-09-26 - Documentation vault setup]]
 - [[docs/sessions/2026-09-27 - Development loop]]
+- [[docs/sessions/2026-09-27 - Provider access and model evaluation]]
+- [[docs/sessions/2026-09-27 - Frontend shell and CI]]
 
 After substantive work, record verified changes, checks not run, blockers and the
 next task. Use the task checklist for live task status; session notes are dated

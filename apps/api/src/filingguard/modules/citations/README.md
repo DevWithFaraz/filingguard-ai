@@ -1,6 +1,6 @@
 # citations
 
-Priority: P0. Tasks: T032-T036 in the root TDOD.md.
+Priority: P0. Tasks: T032-T036 in the root TODO.md.
 
 Extract with Eyecite and resolve via the CourtListener adapter; retain occurrences.
 

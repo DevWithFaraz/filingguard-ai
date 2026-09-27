@@ -1,6 +1,6 @@
 # claims
 
-Priority: P0. Tasks: T037 in the root TDOD.md.
+Priority: P0. Tasks: T037 in the root TODO.md.
 
 Extract propositions near citations and keep verbatim context and links.
 

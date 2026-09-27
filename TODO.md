@@ -17,11 +17,12 @@ hours before the recorded deadline for verification, recording and submission;
 freeze new features then. This checklist covers the project backlog, not a promise
 that every enhancement fits the remaining hackathon time.
 
-Current task: T004 (CourtListener access; waiting for user credentials).
-Next task: T005 (Groq free-model evaluation; waiting for user credentials).
-Blockers: provider credentials and deployment access; Groq model not selected.
+Current task: T008 (deployment configuration prepared; awaiting hosting accounts).
+Next task: T009 after the remaining Phase 1 deployment gate.
+Blockers: hosting accounts, Neon DATABASE_URL and deployed verification.
 Confirmed constraints: solo participant, student aged 22; free credits only for LLM calls.
-Implementation status: scaffold only; no analysis feature has been completed.
+Implementation status: health-connected frontend shell and test tooling implemented;
+no analysis feature has been completed. Phase 1 is not complete until T008 passes.
 
 ## Scaffold delivered
 
@@ -56,19 +57,33 @@ SRS: sections 4-5, 7, 19-20; NFR-060 through NFR-063.
   `/docs` loads and generated client types match OpenAPI.
   Evidence: all listed npm checks pass; one pytest test passes; running API
   returns HTTP 200 for both routes. See [[docs/sessions/2026-09-27 - Development loop]].
-- [ ] T004 - Check CourtListener token access, supported lookup/opinion endpoints,
+- [x] T004 - Check CourtListener token access, supported lookup/opinion endpoints,
   rate limits and available source text for demo authorities. Done when a genuine
   lookup and opinion fetch succeed without leaking credentials into logs.
-- [ ] T005 - Check the selected free-tier LLM API access; select a structured-output model using
+  Evidence: authenticated usage, citation lookup for 576 U.S. 644 and opinion
+  2812209 all returned 200; plain text available. See
+  [[docs/research/Provider access verification]].
+- [x] T005 - Check the selected free-tier LLM API access; select a structured-output model using
   supported/unsupported sample propositions, timing and cost. Set model/token
   budgets, timeouts and validated schemas. Done when parsed evidence-grounded
   output and refusal/error handling are demonstrated. Do not assume account access.
-- [ ] T006 - Add Vite entry points, React router/providers, shared layout, accessible
+  Evidence: access and two strict-schema calls verified; 120B 5/5 versus 20B 3/5
+  on synthetic cases; validator refusal/error tests pass. User selected provisional
+  120B; model saved locally. Evaluation bound: 2,048 output tokens, low reasoning,
+  20-second timeout, no retries; free-tier only, no paid fallback. Real-case
+  validation and production adapters remain separate tasks.
+  See [[docs/research/Provider access verification]].
+- [x] T006 - Add Vite entry points, React router/providers, shared layout, accessible
   primitives and dev/build scripts. Connect the API client and TanStack Query.
   Done when a browser screen can read backend health and production build passes.
-- [ ] T007 - Configure frontend lint, Vitest/Testing Library, backend test fixtures
+  Evidence: production build passes; Playwright verifies API-connected status
+  in desktop/mobile Chromium, navigation and disabled document submission.
+- [x] T007 - Configure frontend lint, Vitest/Testing Library, backend test fixtures
   and Playwright; add CI for locked installs, lint, typecheck, tests and build.
   Done when a clean checkout passes the initial checks without live API keys.
+  Evidence: fresh locked npm ci and uv sync pass; lint, typecheck, build,
+  4 frontend tests, 10 backend tests and 4 browser tests pass locally. CI is
+  configured without live-provider calls; remote run awaits the authorized push.
 - [ ] T008 - Deploy the shell and health API early; provision PostgreSQL, configure
   exact CORS/API origins, HTTPS and secrets. Keep uploads disabled until T018.
   Done when the public shell reaches the hosted API and a repeatable deploy works.

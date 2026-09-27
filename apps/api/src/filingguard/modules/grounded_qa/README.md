@@ -1,6 +1,6 @@
 # grounded_qa
 
-Priority: P1. Tasks: T103 in the root TDOD.md.
+Priority: P1. Tasks: T103 in the root TODO.md.
 
 Answer questions scoped to a finding and permitted evidence.
 

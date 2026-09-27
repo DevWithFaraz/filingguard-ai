@@ -1,6 +1,6 @@
 # reports
 
-Priority: P0 Markdown/HTML; P1 PDF. Tasks: T051, T104 in the root TDOD.md.
+Priority: P0 Markdown/HTML; P1 PDF. Tasks: T051, T104 in the root TODO.md.
 
 Render the saved analysis and evidence without reclassifying it.
 

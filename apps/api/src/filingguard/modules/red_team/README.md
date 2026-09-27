@@ -1,6 +1,6 @@
 # red_team
 
-Priority: P1. Tasks: T101 in the root TDOD.md.
+Priority: P1. Tasks: T101 in the root TODO.md.
 
 Rank weaknesses grounded only in existing findings and retrieved sources.
 

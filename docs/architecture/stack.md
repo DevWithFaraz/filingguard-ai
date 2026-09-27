@@ -38,8 +38,8 @@ text similarity is not a finding of legal support.
 
 Groq was selected by the user on September 27 under a free-credits-only budget.
 Use its OpenAI-compatible API for bounded claim extraction and proposition review.
-Choose the actual model through `GROQ_MODEL` after account access, fixture
-quality and latency are measured. Prompt version, model ID, evidence IDs and
+The user selected `openai/gpt-oss-120b` through `GROQ_MODEL` after an initial
+synthetic comparison; broader real-case validation remains. Prompt version, model ID, evidence IDs and
 uncertainty must be recorded. Validate passages against stored sources even when
 the response obeys its schema. No live provider integration exists yet.
 See [[docs/decisions/ADR-003 - Free-tier Groq evaluation]]. The installed OpenAI
@@ -96,5 +96,10 @@ Preserve original text offsets separately from normalized matching strings.
 - [OpenAI structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 - [uv projects](https://docs.astral.sh/uv/guides/projects/).
 
-Deployment providers are selected targets; provisioning, current plan limits,
+Render frontend/API plus Neon free PostgreSQL is proposed because the user has
+no hosting accounts yet. See [[docs/delivery/Deployment guide]] for account steps,
+cold-start/ephemeral-filesystem limits and the pending T008 acceptance gate.
+No change to the single-process backend architecture is implied.
+
+Deployment providers are targets; provisioning, current plan limits,
 credentials and hosted performance are tasks, not claims of a deployed system.

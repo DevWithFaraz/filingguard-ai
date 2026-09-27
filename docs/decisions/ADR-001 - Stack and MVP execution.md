@@ -14,7 +14,7 @@ deadline-constrained, evidence-grounded demo.
 Use the choices in [[docs/architecture/stack]]: React/TypeScript/Vite, Python/FastAPI,
 PostgreSQL, Eyecite/CourtListener, pypdf/RapidFuzz and bounded OpenAI structured
 outputs. Begin with one API process and persisted progress/partial results.
-[[TDOD|Tasks T002-T008 and T023-T027]] establish and verify this architecture.
+[[TODO|Tasks T002-T008 and T023-T027]] establish and verify this architecture.
 
 ## Rationale and alternatives
 Python gives the analysis code direct access to the selected citation/PDF libraries.

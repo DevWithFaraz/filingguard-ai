@@ -1,5 +1,7 @@
 # Delivery guide
 
+See [[docs/delivery/Deployment guide]] for the prepared hosting steps (not yet deployed).
+
 The root [TODO.md](../../TODO.md) is the ordered task source. Do not duplicate its
 checkboxes here. This directory holds confirmed event instructions, acceptance
 evidence, deployment notes and the final submission checklist as work progresses.

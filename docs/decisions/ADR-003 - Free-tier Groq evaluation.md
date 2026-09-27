@@ -11,8 +11,8 @@ The user is a solo student developer and limits LLM spending to free credits.
 The user explicitly chose Groq and wants us to compare available free models.
 
 ## Decision and alternatives
-Evaluate Groq first; no final model is selected. Compare GPT-OSS 120B and 20B
-if available on the account, then other strict-schema models if needed.
+Evaluate Groq first. After the initial comparison, the user confirmed
+`openai/gpt-oss-120b` as the provisional default. Revisit after real-case tests.
 Gemini was considered but not selected. Use the existing OpenAI-compatible
 client with Groq's base URL; do not send requests to OpenAI by default.
 
@@ -25,7 +25,11 @@ Do not enable billing or silently fall back to paid providers. Use only public
 or synthetic material during evaluation; provider privacy terms need review.
 
 ## Evidence and verification
-User selection is confirmed; account access, quotas and model quality are not.
+User selection and model access are confirmed. 120B scored 5/5 versus 20B 3/5
+in a small synthetic test; see [[docs/research/Provider access verification]].
+These results do not verify general legal accuracy or billing state. Evaluation
+settings: low reasoning effort, temperature 0, 2,048 output-token maximum,
+20-second timeout, no automatic retry. Free-tier-only budget remains in force.
 Groq documents strict structured outputs for GPT-OSS 20B/120B and an
 OpenAI-compatible API. Schema validity does not establish legal correctness.
 
