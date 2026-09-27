@@ -95,7 +95,8 @@ Install test Chromium with `npx playwright install chromium` from apps/web, or
 set PLAYWRIGHT_BROWSER_CHANNEL=chrome to use an installed Chrome locally.
 Playwright starts the API and frontend automatically. CI runs locked installs,
 lint, tests, typecheck, contract checks, production build and browser checks
-without provider credentials. Hosted CI must still run after this checkpoint is pushed.
+without provider credentials. The initial clean-checkout GitHub CI run passed
+for checkpoint 95b38e7 on September 27, 2026.
 See [deployment steps](docs/delivery/Deployment%20guide.md) for T008.
 
 ## Local database

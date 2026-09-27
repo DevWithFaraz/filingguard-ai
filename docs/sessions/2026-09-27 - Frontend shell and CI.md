@@ -38,7 +38,12 @@ Windows sandbox denied esbuild config traversal; approved reruns passed.
 The existing Starlette/httpx deprecation warning remains.
 
 ## Boundaries and next work
-CI configuration is authored; remote CI results require a pushed checkpoint.
+Checkpoint 95b38e7 was committed and pushed with user authorization. GitHub CI
+completed successfully on a clean Ubuntu checkout:
+https://github.com/DevWithFaraz/filingguard-ai/actions/runs/36319439962.
+Local preview/API were started in hidden background processes at ports 5173/8000;
+both returned HTTP 200. Logs are ignored under .runtime; only the user's
+.obsidian/graph.json remains outside the checkpoint.
 T008 remains incomplete until actual HTTPS frontend/API, PostgreSQL connectivity,
 exact CORS origins and repeatable deployment are verified. Early deployment is
 a delivery-risk check, not a technical dependency for T009 (which needs T002-T003).

@@ -83,7 +83,8 @@ SRS: sections 4-5, 7, 19-20; NFR-060 through NFR-063.
   Done when a clean checkout passes the initial checks without live API keys.
   Evidence: fresh locked npm ci and uv sync pass; lint, typecheck, build,
   4 frontend tests, 10 backend tests and 4 browser tests pass locally. CI is
-  configured without live-provider calls; remote run awaits the authorized push.
+  configured without live-provider calls; clean-checkout GitHub CI passed:
+  https://github.com/DevWithFaraz/filingguard-ai/actions/runs/36319439962.
 - [ ] T008 - Deploy the shell and health API early; provision PostgreSQL, configure
   exact CORS/API origins, HTTPS and secrets. Keep uploads disabled until T018.
   Done when the public shell reaches the hosted API and a repeatable deploy works.
