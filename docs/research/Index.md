@@ -4,6 +4,8 @@ tags: [research]
 ---
 # Research and external sources
 
+- [[docs/research/Grounded proposition live acceptance - 2026-10-10]]
+
 [[Home]] | [[docs/templates/Research Template]]
 
 - [[docs/research/Obsidian setup sources]]

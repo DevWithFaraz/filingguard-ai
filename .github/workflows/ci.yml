@@ -27,8 +27,31 @@ jobs:
       - run: npx playwright install --with-deps chromium
         working-directory: apps/web
       - run: npm run test:e2e
+      - run: npx playwright test --config playwright.workflow.config.ts
+        working-directory: apps/web
+        env:
+          FILINGGUARD_WORKFLOW_SUITE: public
+      - run: npx playwright test --config playwright.workflow.config.ts
+        working-directory: apps/web
+        env:
+          FILINGGUARD_WORKFLOW_SUITE: intake
+      - run: npx playwright test --config playwright.workflow.config.ts
+        working-directory: apps/web
+        env:
+          FILINGGUARD_WORKFLOW_SUITE: results
+      - run: npx playwright test --config playwright.workflow.config.ts
+        working-directory: apps/web
+        env:
+          FILINGGUARD_WORKFLOW_SUITE: accessibility
+      - run: npx playwright test --config playwright.workflow.config.ts
+        working-directory: apps/web
+        env:
+          FILINGGUARD_WORKFLOW_SUITE: performance
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: browser-failures
-          path: .runtime/playwright-results
+          path: |
+            .runtime/playwright-results
+            .runtime/playwright-workflow-*
+            .runtime/workflow-*-results.json

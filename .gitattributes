@@ -2,3 +2,10 @@
 *.pdf binary
 *.png binary
 *.jpg binary
+
+# Hash-locked fixture admission compares bytes across Windows and Linux checkouts.
+data/demo/curated-v1/** -text -whitespace
+# Preserve supplied attribution/license texts without whitespace cleanup.
+apps/video/public/fonts/*-OFL.txt -text -whitespace
+apps/web/public/third-party-notices.txt -text -whitespace
+docs/delivery/api-dependency-notices.txt -text -whitespace

@@ -26,10 +26,1714 @@
           }
         }
       }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Readiness",
+        "description": "Fail closed without migrations; no provider request or schema mutation.",
+        "operationId": "readiness_api_v1_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demos/{fixture_id}": {
+      "get": {
+        "tags": [
+          "Reviewed demo examples"
+        ],
+        "summary": "Demo Preview",
+        "operationId": "demo_preview_api_v1_demos__fixture_id__get",
+        "parameters": [
+          {
+            "name": "fixture_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fixture Id"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Mode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/capabilities": {
+      "get": {
+        "summary": "Capabilities",
+        "operationId": "capabilities_api_v1_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/court-profiles": {
+      "get": {
+        "summary": "Profiles",
+        "operationId": "profiles_api_v1_court_profiles_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourtProfilesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "summary": "Create Session",
+        "operationId": "create_session_api_v1_sessions_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionIssued"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/text": {
+      "post": {
+        "summary": "Submit Text",
+        "operationId": "submit_text_api_v1_analyses_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparedDocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/file": {
+      "post": {
+        "summary": "Submit File",
+        "operationId": "submit_file_api_v1_analyses_file_post",
+        "parameters": [
+          {
+            "name": "court_profile_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255,
+              "title": "Court Profile Id"
+            }
+          },
+          {
+            "name": "ai_used",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string",
+              "title": "Ai Used"
+            }
+          },
+          {
+            "name": "X-Document-Name",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "title": "X-Document-Name"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparedDocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/pdf": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/demo": {
+      "post": {
+        "summary": "Submit Demo",
+        "operationId": "submit_demo_api_v1_analyses_demo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparedDocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses": {
+      "get": {
+        "summary": "Activity",
+        "operationId": "activity_api_v1_analyses_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Activity Api V1 Analyses Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}": {
+      "get": {
+        "summary": "Get Document",
+        "operationId": "get_document_api_v1_analyses__analysis_id__get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparedDocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Document",
+        "operationId": "delete_document_api_v1_analyses__analysis_id__delete",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/status": {
+      "get": {
+        "summary": "Review Status",
+        "operationId": "review_status_api_v1_analyses__analysis_id__status_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/findings": {
+      "get": {
+        "summary": "Review Findings",
+        "operationId": "review_findings_api_v1_analyses__analysis_id__findings_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafeFindingsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/citations": {
+      "get": {
+        "summary": "Review Citations",
+        "operationId": "review_citations_api_v1_analyses__analysis_id__citations_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafeCitationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/results": {
+      "get": {
+        "summary": "Review Results",
+        "operationId": "review_results_api_v1_analyses__analysis_id__results_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedResultsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/graph": {
+      "get": {
+        "summary": "Review Graph",
+        "operationId": "review_graph_api_v1_analyses__analysis_id__graph_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedGraphResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/evidence": {
+      "get": {
+        "summary": "Review Evidence",
+        "operationId": "review_evidence_api_v1_analyses__analysis_id__findings__finding_id__evidence_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "finding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Finding Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedEvidenceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/report": {
+      "get": {
+        "summary": "Review Report",
+        "operationId": "review_report_api_v1_analyses__analysis_id__report_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "markdown",
+                "html"
+              ],
+              "type": "string",
+              "default": "markdown",
+              "title": "Format"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/run": {
+      "post": {
+        "summary": "Run Review",
+        "operationId": "run_review_api_v1_analyses__analysis_id__run_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/rerun": {
+      "post": {
+        "summary": "Rerun Review",
+        "operationId": "rerun_review_api_v1_analyses__analysis_id__rerun_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparedDocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AnalysisAccepted": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "queued",
+            "title": "Status",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AnalysisMode"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "status",
+          "mode"
+        ],
+        "title": "AnalysisAccepted",
+        "type": "object"
+      },
+      "AnalysisMode": {
+        "enum": [
+          "live",
+          "demo"
+        ],
+        "title": "AnalysisMode",
+        "type": "string"
+      },
+      "AnalysisStatus": {
+        "enum": [
+          "not_run",
+          "queued",
+          "running",
+          "completed",
+          "partial",
+          "failed",
+          "interrupted"
+        ],
+        "title": "AnalysisStatus",
+        "type": "string"
+      },
+      "AnalysisSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnalysisStatus",
+            "default": "not_run"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AnalysisMode"
+          },
+          "demo_fixture_id": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Demo Fixture Id"
+          },
+          "court_profile_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Court Profile Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageState"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "overall_score": {
+            "anyOf": [
+              {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Overall Score"
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskLevel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "score_is_provisional": {
+            "default": true,
+            "title": "Score Is Provisional",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "mode",
+          "court_profile_id",
+          "created_at"
+        ],
+        "title": "AnalysisSummary",
+        "type": "object"
+      },
+      "Capabilities": {
+        "properties": {
+          "intake_enabled": {
+            "type": "boolean",
+            "title": "Intake Enabled"
+          },
+          "legal_analysis_enabled": {
+            "type": "boolean",
+            "title": "Legal Analysis Enabled",
+            "default": false
+          },
+          "max_file_bytes": {
+            "type": "integer",
+            "title": "Max File Bytes",
+            "default": 10485760
+          },
+          "max_characters": {
+            "type": "integer",
+            "title": "Max Characters",
+            "default": 100000
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/CourtProfileSummary"
+            },
+            "type": "array",
+            "title": "Profiles",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "intake_enabled"
+        ],
+        "title": "Capabilities"
+      },
+      "CitationExtractionMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "const": "eyecite-local-v1",
+            "default": "eyecite-local-v1",
+            "title": "Method",
+            "type": "string"
+          },
+          "parser_version": {
+            "title": "Parser Version",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "full_case",
+              "short_case",
+              "id",
+              "supra",
+              "reference",
+              "law",
+              "journal",
+              "unknown",
+              "reporter_candidate"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "support": {
+            "enum": [
+              "recognized",
+              "ambiguous",
+              "unsupported",
+              "unresolved_reference"
+            ],
+            "title": "Support",
+            "type": "string"
+          },
+          "reporter_candidates": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 16,
+            "title": "Reporter Candidates",
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "enum": [
+                "cross_segment",
+                "cross_page"
+              ],
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CitationVerificationMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "parser_version",
+          "kind",
+          "support"
+        ],
+        "title": "CitationExtractionMetadata",
+        "type": "object"
+      },
+      "CitationStatus": {
+        "enum": [
+          "not_run",
+          "verified",
+          "not_found",
+          "invalid",
+          "ambiguous",
+          "unavailable"
+        ],
+        "title": "CitationStatus",
+        "type": "string"
+      },
+      "CitationVerificationMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "default": "courtlistener-v4-v1",
+            "enum": [
+              "courtlistener-v4-v1",
+              "cached-public-source-v1"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          },
+          "limitation": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Limitation"
+          }
+        },
+        "required": [
+          "retrieved_at"
+        ],
+        "title": "CitationVerificationMetadata",
+        "type": "object"
+      },
+      "CourtProfileSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Version",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Name",
+            "type": "string"
+          },
+          "is_demo": {
+            "title": "Is Demo",
+            "type": "boolean"
+          },
+          "applicability": {
+            "enum": [
+              "synthetic",
+              "verified_scope",
+              "unknown"
+            ],
+            "title": "Applicability",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "name",
+          "is_demo",
+          "applicability"
+        ],
+        "title": "CourtProfileSummary",
+        "type": "object"
+      },
+      "CourtProfilesResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/CourtProfileSummary"
+            },
+            "title": "Profiles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "profiles"
+        ],
+        "title": "CourtProfilesResponse",
+        "type": "object"
+      },
+      "Coverage": {
+        "additionalProperties": false,
+        "properties": {
+          "eligible": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Eligible",
+            "type": "integer"
+          },
+          "evaluated": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Evaluated",
+            "type": "integer"
+          },
+          "unavailable": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Unavailable",
+            "type": "integer"
+          },
+          "pending": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Pending",
+            "type": "integer"
+          },
+          "truncated": {
+            "default": false,
+            "title": "Truncated",
+            "type": "boolean"
+          },
+          "limitation": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Limitation"
+          }
+        },
+        "title": "Coverage",
+        "type": "object"
+      },
+      "DeleteResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "deleted": {
+            "const": true,
+            "title": "Deleted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "deleted"
+        ],
+        "title": "DeleteResponse",
+        "type": "object"
+      },
+      "DemoExample": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "citation",
+              "proposition",
+              "quote",
+              "privacy",
+              "court_rules"
+            ],
+            "title": "Category"
+          },
+          "expected_status": {
+            "type": "string",
+            "title": "Expected Status"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "filing_span": {
+            "$ref": "#/components/schemas/DemoSpan"
+          },
+          "source_span": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DemoSpan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authority Id"
+          },
+          "simulation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation"
+          },
+          "preconditions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preconditions"
+          },
+          "judgment": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "conditional"
+            ],
+            "title": "Judgment"
+          },
+          "condition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Condition"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "expected_status",
+          "reason",
+          "filing_span",
+          "source_span",
+          "authority_id",
+          "simulation",
+          "preconditions",
+          "judgment",
+          "condition"
+        ],
+        "title": "DemoExample"
+      },
+      "DemoPreview": {
+        "properties": {
+          "fixture_id": {
+            "type": "string",
+            "const": "curated-v1",
+            "title": "Fixture Id"
+          },
+          "mode": {
+            "type": "string",
+            "const": "demo",
+            "title": "Mode",
+            "default": "demo"
+          },
+          "execution_status": {
+            "type": "string",
+            "const": "not_run",
+            "title": "Execution Status",
+            "default": "not_run"
+          },
+          "review_kind": {
+            "type": "string",
+            "const": "delegated_assistant",
+            "title": "Review Kind",
+            "default": "delegated_assistant"
+          },
+          "reviewer": {
+            "type": "string",
+            "title": "Reviewer"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "title": "Reviewed At"
+          },
+          "document": {
+            "type": "string",
+            "title": "Document"
+          },
+          "document_sha256": {
+            "type": "string",
+            "title": "Document Sha256"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/DemoSource"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "examples": {
+            "items": {
+              "$ref": "#/components/schemas/DemoExample"
+            },
+            "type": "array",
+            "title": "Examples"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fixture_id",
+          "reviewer",
+          "reviewed_at",
+          "document",
+          "document_sha256",
+          "sources",
+          "examples",
+          "limitations"
+        ],
+        "title": "DemoPreview"
+      },
+      "DemoSource": {
+        "properties": {
+          "authority_id": {
+            "type": "string",
+            "title": "Authority Id"
+          },
+          "case_name": {
+            "type": "string",
+            "title": "Case Name"
+          },
+          "citation": {
+            "type": "string",
+            "title": "Citation"
+          },
+          "source_url": {
+            "type": "string",
+            "title": "Source Url"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "provenance": {
+            "type": "string",
+            "const": "cached_public",
+            "title": "Provenance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "authority_id",
+          "case_name",
+          "citation",
+          "source_url",
+          "retrieved_at",
+          "sha256",
+          "provenance"
+        ],
+        "title": "DemoSource"
+      },
+      "DemoSpan": {
+        "properties": {
+          "start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "End"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "text"
+        ],
+        "title": "DemoSpan"
+      },
+      "DemoSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "fixture_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Fixture Id",
+            "type": "string"
+          },
+          "mode": {
+            "const": "demo",
+            "default": "demo",
+            "title": "Mode",
+            "type": "string"
+          },
+          "court_profile_id": {
+            "default": "synthetic-demo-v1",
+            "enum": [
+              "synthetic-demo-v1",
+              "unverified"
+            ],
+            "title": "Court Profile Id",
+            "type": "string"
+          },
+          "ai_used": {
+            "default": true,
+            "title": "Ai Used",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "fixture_id"
+        ],
+        "title": "DemoSubmission",
+        "type": "object"
+      },
+      "DocumentLocation": {
+        "additionalProperties": false,
+        "description": "Half-open offsets into original extracted text, measured in Unicode code points.",
+        "properties": {
+          "start": {
+            "minimum": 0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "end": {
+            "minimum": 0,
+            "title": "End",
+            "type": "integer"
+          },
+          "offset_unit": {
+            "const": "unicode_code_points",
+            "default": "unicode_code_points",
+            "title": "Offset Unit",
+            "type": "string"
+          },
+          "page_number": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page Number"
+          },
+          "segment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Segment Id"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "DocumentLocation",
+        "type": "object"
+      },
+      "DocumentSummary": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "document_name": {
+            "type": "string",
+            "title": "Document Name"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "demo"
+            ],
+            "title": "Mode"
+          },
+          "court_profile_id": {
+            "type": "string",
+            "title": "Court Profile Id"
+          },
+          "ai_used": {
+            "type": "boolean",
+            "title": "Ai Used"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "execution_status": {
+            "$ref": "#/components/schemas/AnalysisStatus",
+            "default": "not_run"
+          },
+          "paragraph_count": {
+            "type": "integer",
+            "maximum": 2000.0,
+            "minimum": 1.0,
+            "title": "Paragraph Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "document_name",
+          "mode",
+          "court_profile_id",
+          "ai_used",
+          "expires_at",
+          "paragraph_count"
+        ],
+        "title": "DocumentSummary"
+      },
+      "ExtractedDocument": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Input Sha256"
+          },
+          "text_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Text Sha256"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PageSpan"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Pages"
+          },
+          "paragraphs": {
+            "items": {
+              "$ref": "#/components/schemas/Paragraph"
+            },
+            "type": "array",
+            "maxItems": 2000,
+            "minItems": 1,
+            "title": "Paragraphs"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "original-text-v1",
+              "pypdf-bounded-v1"
+            ],
+            "title": "Method"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "input_sha256",
+          "text_sha256",
+          "pages",
+          "paragraphs",
+          "method"
+        ],
+        "title": "ExtractedDocument"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
       "HealthResponse": {
         "properties": {
           "status": {
@@ -41,7 +1745,2329 @@
         },
         "type": "object",
         "title": "HealthResponse"
+      },
+      "PageSpan": {
+        "properties": {
+          "page_number": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Page Number"
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "End"
+          },
+          "warning": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "no_text",
+                  "sparse_text",
+                  "replacement_characters"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warning"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "page_number",
+          "start",
+          "end"
+        ],
+        "title": "PageSpan"
+      },
+      "Paragraph": {
+        "properties": {
+          "paragraph_index": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Paragraph Index"
+          },
+          "page_number": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number"
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "End"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "paragraph_index",
+          "start",
+          "end",
+          "text"
+        ],
+        "title": "Paragraph"
+      },
+      "PreparedDocument": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "document_name": {
+            "type": "string",
+            "title": "Document Name"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "demo"
+            ],
+            "title": "Mode"
+          },
+          "court_profile_id": {
+            "type": "string",
+            "title": "Court Profile Id"
+          },
+          "ai_used": {
+            "type": "boolean",
+            "title": "Ai Used"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "execution_status": {
+            "$ref": "#/components/schemas/AnalysisStatus",
+            "default": "not_run"
+          },
+          "paragraph_count": {
+            "type": "integer",
+            "maximum": 2000.0,
+            "minimum": 1.0,
+            "title": "Paragraph Count"
+          },
+          "document": {
+            "$ref": "#/components/schemas/ExtractedDocument"
+          },
+          "masking_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Masking Count"
+          },
+          "masking_limitation": {
+            "type": "string",
+            "title": "Masking Limitation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "document_name",
+          "mode",
+          "court_profile_id",
+          "ai_used",
+          "expires_at",
+          "paragraph_count",
+          "document",
+          "masking_count",
+          "masking_limitation"
+        ],
+        "title": "PreparedDocument"
+      },
+      "PropositionStatus": {
+        "enum": [
+          "not_run",
+          "supported",
+          "partially_supported",
+          "unclear",
+          "misrepresented",
+          "insufficient_source",
+          "unavailable"
+        ],
+        "title": "PropositionStatus",
+        "type": "string"
+      },
+      "QuoteStatus": {
+        "enum": [
+          "not_run",
+          "exact",
+          "normalized",
+          "close",
+          "not_found",
+          "source_unavailable"
+        ],
+        "title": "QuoteStatus",
+        "type": "string"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "not_ready"
+            ],
+            "title": "Status"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Checks"
+          },
+          "limitation": {
+            "type": "string",
+            "title": "Limitation",
+            "default": "Local dependencies only; provider availability and hosted acceptance are separate."
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checks"
+        ],
+        "title": "ReadinessResponse"
+      },
+      "ReviewScore": {
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "enum": [
+                  "needs_review",
+                  "high_risk"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Risk Level"
+          },
+          "provisional": {
+            "const": true,
+            "default": true,
+            "title": "Provisional",
+            "type": "boolean"
+          },
+          "version": {
+            "const": "integrity-v1",
+            "default": "integrity-v1",
+            "title": "Version",
+            "type": "string"
+          },
+          "deductions": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreDeduction"
+            },
+            "title": "Deductions",
+            "type": "array"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreCategory"
+            },
+            "maxItems": 5,
+            "title": "Categories",
+            "type": "array"
+          },
+          "limitation": {
+            "title": "Limitation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deductions",
+          "limitation"
+        ],
+        "title": "ReviewScore",
+        "type": "object"
+      },
+      "RiskLevel": {
+        "enum": [
+          "ready_for_review",
+          "needs_review",
+          "high_risk"
+        ],
+        "title": "RiskLevel",
+        "type": "string"
+      },
+      "SafeAuthority": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "External Id"
+          },
+          "case_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Case Name"
+          },
+          "citation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Citation"
+          },
+          "court": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Court"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Year"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Url"
+          },
+          "opinion_text_available": {
+            "default": false,
+            "title": "Opinion Text Available",
+            "type": "boolean"
+          },
+          "opinion_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Opinion Text"
+          },
+          "source_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Sha256"
+          },
+          "retrieved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Retrieved At"
+          },
+          "source_metadata": {
+            "additionalProperties": true,
+            "title": "Source Metadata",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "source"
+        ],
+        "title": "SafeAuthority",
+        "type": "object"
+      },
+      "SafeCitation": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "masked_raw_text": {
+            "title": "Masked Raw Text",
+            "type": "string"
+          },
+          "normalized_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Text"
+          },
+          "location": {
+            "$ref": "#/components/schemas/DocumentLocation"
+          },
+          "extraction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CitationExtractionMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification_status": {
+            "$ref": "#/components/schemas/CitationStatus"
+          },
+          "authority_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Authority Id"
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SafeAuthority"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          },
+          "limitation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Limitation"
+          }
+        },
+        "required": [
+          "id",
+          "masked_raw_text",
+          "normalized_text",
+          "location",
+          "extraction",
+          "verification_status"
+        ],
+        "title": "SafeCitation",
+        "type": "object"
+      },
+      "SafeCitationsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/StageState"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/SafeCitation"
+            },
+            "maxItems": 200,
+            "title": "Citations",
+            "type": "array"
+          },
+          "detected_count": {
+            "minimum": 0,
+            "title": "Detected Count",
+            "type": "integer"
+          },
+          "authorities": {
+            "items": {
+              "$ref": "#/components/schemas/SafeAuthority"
+            },
+            "title": "Authorities",
+            "type": "array"
+          },
+          "limitation": {
+            "default": "Local Eyecite reporter coverage is incomplete. A narrow numeric reporter heuristic may produce false positives; unrecognized formats may be missed. Extraction does not verify an authority, resolve short references, or check statutes.",
+            "title": "Limitation",
+            "type": "string"
+          },
+          "masking_limitation": {
+            "default": "Heuristic masking can miss names and contextual identifiers.",
+            "title": "Masking Limitation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "stage",
+          "citations",
+          "detected_count"
+        ],
+        "title": "SafeCitationsResponse",
+        "type": "object"
+      },
+      "SafeClaim": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/DocumentLocation"
+          },
+          "extraction_method": {
+            "enum": [
+              "heuristic",
+              "ai"
+            ],
+            "title": "Extraction Method",
+            "type": "string"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/SafeClaimLink"
+            },
+            "maxItems": 200,
+            "title": "Links",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "location",
+          "extraction_method",
+          "links"
+        ],
+        "title": "SafeClaim",
+        "type": "object"
+      },
+      "SafeClaimLink": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "citation_id": {
+            "format": "uuid",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "authority_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Authority Id"
+          },
+          "support_status": {
+            "$ref": "#/components/schemas/PropositionStatus"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Explanation"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Confidence"
+          }
+        },
+        "required": [
+          "id",
+          "citation_id",
+          "support_status"
+        ],
+        "title": "SafeClaimLink",
+        "type": "object"
+      },
+      "SafeFinding": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "privacy",
+              "court_rule",
+              "citation",
+              "claim_support",
+              "quote",
+              "system"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "masked_excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Masked Excerpt"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End"
+          },
+          "evidence_count": {
+            "default": 0,
+            "title": "Evidence Count",
+            "type": "integer"
+          },
+          "ai_assisted": {
+            "default": false,
+            "title": "Ai Assisted",
+            "type": "boolean"
+          },
+          "claim_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Claim Id"
+          },
+          "citation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Citation Id"
+          },
+          "authority_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Authority Id"
+          },
+          "quote_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quote Id"
+          },
+          "segment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Segment Id"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "maxItems": 400,
+            "title": "Evidence",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "severity",
+          "title",
+          "description"
+        ],
+        "title": "SafeFinding",
+        "type": "object"
+      },
+      "SafeFindingsResponse": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/SafeFinding"
+            },
+            "type": "array",
+            "title": "Findings"
+          },
+          "limitation": {
+            "type": "string",
+            "title": "Limitation",
+            "default": "Local checks are not a legal compliance or complete redaction determination."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "findings"
+        ],
+        "title": "SafeFindingsResponse"
+      },
+      "SafeQuote": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/DocumentLocation"
+          },
+          "citation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Citation Id"
+          },
+          "match_status": {
+            "$ref": "#/components/schemas/QuoteStatus"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Similarity"
+          },
+          "closest_passage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Closest Passage"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "location",
+          "match_status"
+        ],
+        "title": "SafeQuote",
+        "type": "object"
+      },
+      "SavedEvidenceResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "finding_id": {
+            "format": "uuid",
+            "title": "Finding Id",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "maxItems": 400,
+            "title": "Evidence",
+            "type": "array"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "finding_id",
+          "evidence"
+        ],
+        "title": "SavedEvidenceResponse",
+        "type": "object"
+      },
+      "SavedGraphEdge": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "target",
+          "label"
+        ],
+        "title": "SavedGraphEdge",
+        "type": "object"
+      },
+      "SavedGraphNode": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "section",
+              "claim",
+              "authority"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "finding_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Finding Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "kind",
+          "status",
+          "finding_ids"
+        ],
+        "title": "SavedGraphNode",
+        "type": "object"
+      },
+      "SavedGraphResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/SavedGraphNode"
+            },
+            "maxItems": 425,
+            "title": "Nodes",
+            "type": "array"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/SavedGraphEdge"
+            },
+            "maxItems": 300,
+            "title": "Edges",
+            "type": "array"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "nodes",
+          "edges"
+        ],
+        "title": "SavedGraphResponse",
+        "type": "object"
+      },
+      "SavedResultsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "document_name": {
+            "title": "Document Name",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "court_profile_id": {
+            "title": "Court Profile Id",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AnalysisMode"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnalysisStatus"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageState"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "score": {
+            "$ref": "#/components/schemas/ReviewScore"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/SafeCitation"
+            },
+            "maxItems": 200,
+            "title": "Citations",
+            "type": "array"
+          },
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/SafeClaim"
+            },
+            "maxItems": 100,
+            "title": "Claims",
+            "type": "array"
+          },
+          "quotes": {
+            "items": {
+              "$ref": "#/components/schemas/SafeQuote"
+            },
+            "maxItems": 50,
+            "title": "Quotes",
+            "type": "array"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/SafeFinding"
+            },
+            "maxItems": 1000,
+            "title": "Findings",
+            "type": "array"
+          },
+          "limitation": {
+            "title": "Limitation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "document_name",
+          "created_at",
+          "court_profile_id",
+          "mode",
+          "status",
+          "stages",
+          "coverage",
+          "score",
+          "citations",
+          "claims",
+          "quotes",
+          "findings",
+          "limitation"
+        ],
+        "title": "SavedResultsResponse",
+        "type": "object"
+      },
+      "ScoreCategory": {
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "enum": [
+              "citation",
+              "claim_support",
+              "quote",
+              "privacy",
+              "court_rule"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "eligible": {
+            "minimum": 0,
+            "title": "Eligible",
+            "type": "integer"
+          },
+          "evaluated": {
+            "minimum": 0,
+            "title": "Evaluated",
+            "type": "integer"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "deducted_points": {
+            "minimum": 0,
+            "title": "Deducted Points",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "eligible",
+          "evaluated",
+          "deducted_points"
+        ],
+        "title": "ScoreCategory",
+        "type": "object"
+      },
+      "ScoreDeduction": {
+        "additionalProperties": false,
+        "properties": {
+          "finding_id": {
+            "format": "uuid",
+            "title": "Finding Id",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "points": {
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Points",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "finding_id",
+          "type",
+          "severity",
+          "points"
+        ],
+        "title": "ScoreDeduction",
+        "type": "object"
+      },
+      "SessionIssued": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "expires_at"
+        ],
+        "title": "SessionIssued"
+      },
+      "StageName": {
+        "enum": [
+          "document",
+          "citations",
+          "claims",
+          "propositions",
+          "quotes",
+          "privacy",
+          "court_rules"
+        ],
+        "title": "StageName",
+        "type": "string"
+      },
+      "StageState": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/StageName"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StageStatus",
+            "default": "not_run"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "applicable": {
+            "default": true,
+            "title": "Applicable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "StageState",
+        "type": "object"
+      },
+      "StageStatus": {
+        "enum": [
+          "not_run",
+          "queued",
+          "running",
+          "completed",
+          "partial",
+          "unavailable",
+          "failed",
+          "interrupted",
+          "skipped"
+        ],
+        "title": "StageStatus",
+        "type": "string"
+      },
+      "TextSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "document_name": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Document Name",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Text",
+            "type": "string"
+          },
+          "court_profile_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Court Profile Id",
+            "type": "string"
+          },
+          "ai_used": {
+            "title": "Ai Used",
+            "type": "boolean"
+          },
+          "mode": {
+            "const": "live",
+            "default": "live",
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_name",
+          "text",
+          "court_profile_id",
+          "ai_used"
+        ],
+        "title": "TextSubmission",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ApiError": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ApiErrorDetail"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ApiError",
+        "type": "object"
+      },
+      "ApiErrorDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Message",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "request_id"
+        ],
+        "title": "ApiErrorDetail",
+        "type": "object"
+      },
+      "CitationResult": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "format": "uuid",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CitationStatus",
+            "default": "not_run"
+          },
+          "authority_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Authority Id"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "citation_id"
+        ],
+        "title": "CitationResult",
+        "type": "object"
+      },
+      "Confidence": {
+        "additionalProperties": false,
+        "properties": {
+          "level": {
+            "default": "unknown",
+            "enum": [
+              "unknown",
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Method"
+          },
+          "calibrated": {
+            "const": false,
+            "default": false,
+            "title": "Calibrated",
+            "type": "boolean"
+          }
+        },
+        "title": "Confidence",
+        "type": "object"
+      },
+      "EvidenceRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "finding_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Finding Id"
+          },
+          "source_type": {
+            "enum": [
+              "document",
+              "api",
+              "opinion_text",
+              "ai_analysis",
+              "rule"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          },
+          "source_label": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Source Label",
+            "type": "string"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Url"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "snapshot_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Snapshot Sha256",
+            "type": "string"
+          },
+          "excerpt": {
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Excerpt",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "end": {
+            "minimum": 0,
+            "title": "End",
+            "type": "integer"
+          },
+          "offset_unit": {
+            "const": "unicode_code_points",
+            "default": "unicode_code_points",
+            "title": "Offset Unit",
+            "type": "string"
+          },
+          "document_location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentLocation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "triggering_citation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Triggering Citation Id"
+          },
+          "triggering_quote_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Triggering Quote Id"
+          },
+          "method_version": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Method Version",
+            "type": "string"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Version"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Prompt Version"
+          },
+          "rule_version": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rule Version"
+          },
+          "authority_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Authority Id"
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "External Id"
+          },
+          "court_profile_id": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Court Profile Id"
+          },
+          "rule_id": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rule Id"
+          },
+          "provenance": {
+            "enum": [
+              "live",
+              "synthetic",
+              "cached_public"
+            ],
+            "title": "Provenance",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "analysis_id",
+          "source_type",
+          "source_label",
+          "retrieved_at",
+          "snapshot_sha256",
+          "excerpt",
+          "start",
+          "end",
+          "method_version",
+          "provenance"
+        ],
+        "title": "EvidenceRecord",
+        "type": "object"
+      },
+      "FileSubmissionMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "court_profile_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Court Profile Id",
+            "type": "string"
+          },
+          "ai_used": {
+            "title": "Ai Used",
+            "type": "boolean"
+          },
+          "mode": {
+            "const": "live",
+            "default": "live",
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "court_profile_id",
+          "ai_used"
+        ],
+        "title": "FileSubmissionMetadata",
+        "type": "object"
+      },
+      "FindingRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/FindingType"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/Severity"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "review_status": {
+            "$ref": "#/components/schemas/ReviewStatus",
+            "default": "open"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentLocation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "ai_used": {
+            "default": false,
+            "title": "Ai Used",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "analysis_id",
+          "type",
+          "severity",
+          "title",
+          "description",
+          "evidence_ids"
+        ],
+        "title": "FindingRecord",
+        "type": "object"
+      },
+      "FindingType": {
+        "enum": [
+          "citation",
+          "claim_support",
+          "quote",
+          "privacy",
+          "court_rule",
+          "system"
+        ],
+        "title": "FindingType",
+        "type": "string"
+      },
+      "FindingsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/FindingRecord"
+            },
+            "title": "Findings",
+            "type": "array"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRecord"
+            },
+            "title": "Evidence",
+            "type": "array"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "findings",
+          "evidence"
+        ],
+        "title": "FindingsResponse",
+        "type": "object"
+      },
+      "GraphEdge": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "format": "uuid",
+            "title": "Source",
+            "type": "string"
+          },
+          "target": {
+            "format": "uuid",
+            "title": "Target",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "contains",
+              "cites",
+              "supports",
+              "contradicts",
+              "unclear"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "target",
+          "type"
+        ],
+        "title": "GraphEdge",
+        "type": "object"
+      },
+      "GraphNode": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "section",
+              "claim",
+              "citation",
+              "authority"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 300,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Label",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "not_run",
+              "verified",
+              "warning",
+              "risk",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "finding_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Finding Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "label",
+          "status"
+        ],
+        "title": "GraphNode",
+        "type": "object"
+      },
+      "GraphResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "nodes",
+          "edges"
+        ],
+        "title": "GraphResponse",
+        "type": "object"
+      },
+      "PropositionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "format": "uuid",
+            "title": "Claim Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PropositionStatus",
+            "default": "not_run"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Explanation"
+          },
+          "ai_used": {
+            "default": false,
+            "title": "Ai Used",
+            "type": "boolean"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Version"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Prompt Version"
+          }
+        },
+        "required": [
+          "claim_id"
+        ],
+        "title": "PropositionResult",
+        "type": "object"
+      },
+      "QuoteResult": {
+        "additionalProperties": false,
+        "properties": {
+          "quote_id": {
+            "format": "uuid",
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/QuoteStatus",
+            "default": "not_run"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Similarity"
+          },
+          "method_version": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Method Version"
+          }
+        },
+        "required": [
+          "quote_id"
+        ],
+        "title": "QuoteResult",
+        "type": "object"
+      },
+      "ReportResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "format": {
+            "enum": [
+              "markdown",
+              "html"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "content": {
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AnalysisMode"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "format",
+          "content",
+          "mode"
+        ],
+        "title": "ReportResponse",
+        "type": "object"
+      },
+      "ReviewStatus": {
+        "enum": [
+          "open",
+          "reviewed",
+          "resolved"
+        ],
+        "title": "ReviewStatus",
+        "type": "string"
+      },
+      "Severity": {
+        "enum": [
+          "info",
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "title": "Severity",
+        "type": "string"
       }
     }
-  }
+  },
+  "x-filingguard-contract-status": "Domain contracts defined; only paths listed here are implemented endpoints."
 }

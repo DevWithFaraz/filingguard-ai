@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "method": "pypdf.extract_text",
+  "pypdf_version": "6.10.0",
+  "filing_sha256": "063bab93cf24bcc22f570ade751c346e3cdd283c7ff6544e28e0f7a20a9f8e18",
+  "pdf_sha256": "ed064070abb28a7fadebefb40290085128e58124b7367270e8907af620849916",
+  "text_sha256": "a06b3104c5ee321a27d9f3f3b61bce18c59045f76ad3a1a96b15ec80c1a94138",
+  "text": "FILINGGUARD AI - SYNTHETIC TRAINING FILING\nNOT FOR COURT SUBMISSION. Names, facts, identifiers and the court are invented.\nThis teaching memorandum deliberately combines unrelated legal subjects.\nIN THE FICTIONAL DEMO REVIEW COURT\nAlex Example v. Demo Agency\nTraining matter DEMO-001\nDraft memorandum for pre-filing review\n1. PUBLIC EDUCATION - BENIGN CONTROL\nBrown v. Board of Education, 347 U.S. 483 (1954), held that racial segregation in public education deprives the\nplaintiffs of equal protection. The Court stated: \"Separate educational facilities are inherently unequal.\"\n2. CUSTODIAL QUESTIONING - BENIGN CONTROL\nMiranda v. Arizona, 384 U.S. 436 (1966), requires safeguards for the privilege against self-incrimination during\ncustodial interrogation, including warning the person before questioning of the right to remain silent and the right\nto the presence of an attorney.\n3. MARRIAGE - BENIGN CONTROL\nObergefell v. Hodges, 576 U.S. 644 (2015), held that same-sex couples may exercise the fundamental right to\nmarry. This statement is a teaching summary, not advice about a current dispute.\n4. DELIBERATE AUTHORITY MISUSE\nBrown v. Board of Education, 347 U.S. 483 (1954), permits racial segregation in public schools whenever\nfunding is equal. The Court stated: \"Separate educational facilities are inherently equal.\"\n5. UNRESOLVED AUTHORITY - INVENTED TEST INPUT\nExample v. Imaginary Agency, 999 U.S. 999 (2099), supposedly requires automatic approval of every AI-written\nfiling. This citation is intentionally invented for this fixture, not a finding from a live database search.\n6. SYNTHETIC IDENTIFIERS - DELIBERATE PRIVACY TEST\nThe fictional person's SSN-shaped identifier is 900-12-3456 (invalid issuance range; test-only).\nThe fictional person's date of birth is 04/17/2000.\nThe fictional bank account number is 000123456789.\nThese values are invented and do not identify a real client.\n7. BENIGN NUMBER CONTROLS\nThe training matter reference is DEMO-001. The administrative event date is 09/27/2026, not a birth date.\nReporter volumes, pages and case years above are not financial account numbers.\n8. REQUEST FOR HUMAN REVIEW\nCheck cited sources and the selected demo court profile before relying on this draft. Correct unsupported\npropositions, review quotation differences, and remove unnecessary private identifiers.\nEND OF SYNTHETIC TRAINING FILING\n",
+  "pages": [
+    {
+      "page_number": 1,
+      "start": 0,
+      "end": 2372
+    }
+  ]
+}

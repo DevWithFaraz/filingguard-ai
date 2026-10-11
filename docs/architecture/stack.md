@@ -1,5 +1,11 @@
 # Stack and architecture decisions
 
+October 11 deployment boundary: the API requires repository-root `data/demo`
+resources. Render Root Directory must stay blank; scoped uv/build/start commands
+target `apps/api` without excluding the fixtures. No runtime source is copied into
+public browser assets. See [[docs/issues/BUG-021 - API deployment root excludes demo resources]]
+and [[docs/delivery/Deployment guide]]; hosted verification remains pending.
+
 Decision date: September 26, 2026. Scope: LexHack implementation scaffold.
 
 ## Architecture
@@ -25,6 +31,35 @@ pages, Tailwind for styles, shadcn/ui primitives added only as needed, and Lucid
 for icons. React Flow renders section/claim/authority relationships; PostgreSQL
 stores the graph entities without a separate graph database.
 
+September 29: GSAP and @gsap/react own entrance/source-panel choreography, with
+ScrollTrigger for editorial section reveals and bounded background drift.
+Scoped hooks/matchMedia revert animations on unmount/reduced-motion changes.
+CSS owns control feedback. Three.js is dynamically imported for a transparent
+hero overlay and a separate selectable evidence study; neither runs legal logic.
+Rendering is bounded and on demand; see [[apps/web/src/features/home/README]].
+No additional Motion dependency was introduced. Build measurements and limitations
+are in [[docs/sessions/2026-09-29 - Glass homepage and evidence motion]].
+The root route renders the full-width homepage; inner routes retain the workspace.
+
+October 6: D006 adds a separate Remotion authoring workspace in `apps/video`.
+The selected delivery is a silent rendered process film below the hero, with a
+4K master and smaller MP4/WebM website derivatives. The web app will consume
+media rather than a live Remotion Player. The 780-frame composition and responsive
+embed are implemented; revised media pass metadata/size and homepage browser
+checks. The October 7 Authority readability revision is verified. A separate mobile
+composition enlarges evidence text while retaining the format and timing.
+Local fonts remove render-time external font requests. [[apps/video/README]] owns
+authoring responsibilities; [[apps/video/brief/BRIEF]] owns delivery requirements and
+[[docs/decisions/ADR-010 - Remotion pipeline film]] records the delivery choice.
+This adds no legal engine, provider call or change to intake behavior.
+
+October 7 visual revision retains this architecture and adds a structured evidence
+workbench background, layered paper/glass surfaces and native-sized Authority
+anchors. Source cards wait until the filing clears their area. The previous
+exports are hash-verified copies in ignored revision storage; revised export and
+browser evidence belong to
+[[docs/sessions/2026-10-07 - Pipeline film visual revision]].
+
 Python/FastAPI provides typed request/response boundaries. Pydantic schemas are
 the API source of truth; export OpenAPI and generate TypeScript types instead of
 maintaining duplicate contracts. SQLAlchemy and Alembic own persistence and schema
@@ -41,7 +76,12 @@ Use its OpenAI-compatible API for bounded claim extraction and proposition revie
 The user selected `openai/gpt-oss-120b` through `GROQ_MODEL` after an initial
 synthetic comparison; broader real-case validation remains. Prompt version, model ID, evidence IDs and
 uncertainty must be recorded. Validate passages against stored sources even when
-the response obeys its schema. No live provider integration exists yet.
+the response obeys its schema. Live integrations are implemented as explicit opt-ins;
+October 11 genuine-model synthetic acceptance uses cached public sources and
+preserves that provenance. Conservative shared-authority batches and bounded token
+admission retain independent verdicts and source qualifications. Hosted provider
+acceptance remains separate. See
+[[docs/decisions/ADR-013 - Shared authority model requests and bounded quota admission]].
 See [[docs/decisions/ADR-003 - Free-tier Groq evaluation]]. The installed OpenAI
 SDK is a client library, not a commitment to paid OpenAI-hosted inference.
 
@@ -96,10 +136,68 @@ Preserve original text offsets separately from normalized matching strings.
 - [OpenAI structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 - [uv projects](https://docs.astral.sh/uv/guides/projects/).
 
-Render frontend/API plus Neon free PostgreSQL is proposed because the user has
-no hosting accounts yet. See [[docs/delivery/Deployment guide]] for account steps,
-cold-start/ephemeral-filesystem limits and the pending T008 acceptance gate.
+Render static frontend/free API plus Neon free PostgreSQL is the deployed shell
+target. See [[docs/delivery/Deployment guide]] for verified origins and cold-start/
+ephemeral-filesystem limits. T008 passed; production analysis remains unavailable.
 No change to the single-process backend architecture is implied.
 
-Deployment providers are targets; provisioning, current plan limits,
-credentials and hosted performance are tasks, not claims of a deployed system.
+Typed lifecycle/coverage, lazy SQLAlchemy sessions, initial Alembic migration and
+immutable evidence snapshots are implemented. Isolated Neon migration checks passed;
+production schema migration and public analysis routes remain pending. Private PDF
+storage has UUID admission and one-hour default retention. T013 now adds recoverable
+private-file receipts, coordinated file-first DB deletion, interrupted-work recovery
+and application-owned threaded cleanup/shutdown. An explicitly configured stable
+private root activates persistence cleanup; default-shell health has no DB dependency.
+Streaming, anonymous bearer authorization and bounded parser isolation are now
+implemented and verified locally. See
+[[docs/decisions/ADR-004 - Truthful contracts and scoped evidence]].
+Recovery requires one process and the same filesystem; ephemeral Render disk is
+not durable original-document storage. No production migration or new deployment
+is implied. See [[docs/decisions/ADR-006 - Retryable private lifecycle cleanup]].
+
+Private preparation is synchronous, with 201/not_run after extraction/persistence,
+not the future 202 legal job. One process-local admission slot is held before body
+buffering through the response; T023 extends the slot over local review jobs.
+T024 now runs executable stages in bounded child processes while the parent owns
+DB transactions. Privacy/profile checks precede provider-dependent checks; absent
+engines are unavailable metadata without worker startup. The shared fixed-host
+provider boundary has finite attempt/concurrency/byte budgets and no Groq retries.
+Stage/overall cutoffs terminate local process trees, not remote provider work;
+DB finalization remains separately bounded. CourtListener/Groq adapters now run
+only with explicit independent opt-in flags; public intake still defaults off. See
+[[docs/decisions/ADR-008 - Contained review deadlines and provider budgets]].
+
+Grounded review passes allowlisted owner-scoped detached contexts and stage-only
+credentials through bounded private stdin JSON. The parent validates original
+spans, relations and evidence snapshots before atomic storage. Saved scores,
+results/graph and escaped Markdown/HTML exports reuse stored output without model
+reclassification. Coverage and missing sources remain explicit; every score is
+provisional. See [[docs/decisions/ADR-011 - Grounded review and saved result boundaries]].
+T032 adds local Eyecite occurrence extraction in the contained citation worker.
+Parent-supplied paragraph IDs/locations are checked against canonical extraction;
+returned raw slices/anchors are revalidated before atomic writes. A dedicated
+partial Citation-only path retains parser ambiguity/unsupported formats without
+asserting source verification. Migration 0004 stores parser metadata separately
+from verification status/authority IDs. Reads are owner scoped, bounded and masked;
+total detections/truncation are explicit. No CourtListener/Groq call is registered
+for citation extraction. See
+[[docs/decisions/ADR-009 - Local citation occurrences before source verification]].
+IntakeGuard authenticates server-stored bearer hashes/expiry before reading private
+bodies, bounds input/deadline/rate buckets, and rejects invalid origins. Browser
+credentials are omitted; no ambient cookies/credentialed CORS are used.
+AnonymousSession and Analysis.document_snapshot are migration 0003, verified on
+SQLite/offline dialect SQL, not live Neon. PostgreSQL calls have connection/pool/
+statement/lock bounds, whose hosted suitability still needs measurement.
+The PDF child strips provider credentials and has OS-specific resource limits;
+this is not an OS privilege sandbox. A disposable localhost preview migrates only
+its own temporary SQLite database. Public intake stays off and the original
+single-process/Render-ephemeral limitations still apply. See
+[[docs/decisions/ADR-007 - Private preparation boundary]].
+
+User-approved UI planning: image-backed centered filing composer, Text/PDF/Demo
+tabs and proposed GSAP motion. Font and HD image are supplied; the user's logo
+is now rendered in the functional shell. [[docs/product/UI direction]] owns the
+final visual plan. T016 adds a read-only reviewed demo adapter with hash-bound
+AI-review provenance and source excerpts. No analysis engines are executed by
+opening it. Product continuation removes active hackathon timing, not security
+or quality gates; see [[docs/decisions/ADR-005 - Product continuation and reviewed demo]].

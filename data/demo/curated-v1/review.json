@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "fixture_id": "curated-v1",
+  "review_kind": "delegated_assistant",
+  "reviewer": "Codex (AI assistant)",
+  "reviewed_at": "2026-09-27",
+  "purpose": "controlled_demo_development",
+  "artifact_sha256": {
+    "manifest.json": "a1eadc1f16d62a2955cdb3c66bd42ea940cb9de6bb6df9e09a1a9e702125ef59",
+    "filing.txt": "063bab93cf24bcc22f570ade751c346e3cdd283c7ff6544e28e0f7a20a9f8e18",
+    "filing.pdf": "ed064070abb28a7fadebefb40290085128e58124b7367270e8907af620849916",
+    "expectations.json": "5854d64c902d38035d23ce03d8678a4cd063e97709e76413b4321ffef897df83",
+    "scenarios.json": "0b6c886d0abc518f21287ee238746c3ff96af7f48e23785467f7ebc263062736",
+    "sources.json": "39fc1e090f0c355537550bd4e3e6b813b03dac8f5d418b10ca5200f2d3c49209",
+    "pdf-extraction.json": "2d025634dd5455ae526495fb8ee1aa0c352b9d242791ced65ff77be800426ac6"
+  },
+  "conditional_cases": {
+    "citation-unresolved": "Offline not-found stub only; no live provider lookup or proof of fabrication.",
+    "quote-altered": "Meaning is reversed despite high character similarity. Close is provisional until the matcher is versioned; exact/normalized is unacceptable.",
+    "privacy-ssn": "Invalid-range synthetic SSN-shaped identifier; request review without claiming a valid issued SSN.",
+    "disclosure-omitted": "Requires AI use and an available synthetic profile requiring certification. Until T028 implements that profile, the rule check is unavailable.",
+    "disclosure-not-applicable": "AI-used=false skips only the specific inapplicable disclosure rule, never the entire court-rules stage. Synthetic profile implementation is pending."
+  }
+}

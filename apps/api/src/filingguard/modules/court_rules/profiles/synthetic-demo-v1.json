@@ -1,0 +1,17 @@
+{
+  "id": "synthetic-demo-v1",
+  "version": "synthetic-v1",
+  "name": "Synthetic demo court (not a real court)",
+  "source": "Curated FilingGuard training fixture; not a court rule",
+  "effective_from": "2026-01-01",
+  "effective_to": "2099-12-31",
+  "court_scope": "Fictional Demo Review Court",
+  "judge_scope": null,
+  "is_demo": true,
+  "ai_disclosure": {
+    "rule_id": "demo-ai-disclosure",
+    "trigger": "ai_used",
+    "requirement": "This synthetic exercise requires an AI-use disclosure when AI was used.",
+    "heading": "AI USE DISCLOSURE"
+  }
+}

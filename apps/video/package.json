@@ -1,0 +1,34 @@
+{
+  "name": "@filingguard/video",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Programmatic FilingGuard AI pipeline film (Remotion). See README.md.",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "still": "node scripts/stills.mjs",
+    "render": "node scripts/render.mjs",
+    "render:mobile": "node scripts/render.mjs --mobile",
+    "still:mobile": "node scripts/stills.mjs --mobile",
+    "render:smoke": "node scripts/render.mjs --smoke",
+    "backup": "node scripts/backup.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "encode": "node scripts/encode.mjs",
+    "inspect:encodes": "node scripts/encoded-stills.mjs",
+    "verify": "node scripts/verify.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.529",
+    "@remotion/bundler": "4.0.529",
+    "@remotion/google-fonts": "4.0.529",
+    "@remotion/renderer": "4.0.529",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "~5.9.0"
+  }
+}

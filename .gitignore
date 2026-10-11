@@ -28,4 +28,6 @@ Thumbs.db
 .obsidian/plugins/
 .obsidian/trash/
 .trash/
+# Local film production output; website renditions in src/assets/video remain assets.
+apps/video/out/
 # Commit package-lock.json and apps/api/uv.lock after dependency installation.

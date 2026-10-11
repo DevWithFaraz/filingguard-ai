@@ -4,10 +4,55 @@
 
 **Project:** FilingGuard AI - Pre-Filing Assurance Engine  
 **Event:** LexHack 2026  
-**Version:** 1.0  
+**Version:** 1.1 (product-continuation amendment)
 **Date:** September 25, 2026  
 **Document Type:** Software Requirements Specification (SRS)  
-**Primary Deadline Constraint:** LexHack submission deadline, September 28, 2026 at 2:00 AM PKT  
+**Active Deadline Constraint:** None; product development continues after LexHack.
+
+### Product Continuation Amendment - September 28, 2026
+
+The user confirmed the submission deadline was missed and now intends FilingGuard
+AI to become a product. The original event/date, deadline estimates and submission
+requirements below are historical context, not active time constraints. P0 now means
+the core verified workflow, P1 its refinements and P2 larger product capabilities.
+Keep scope phased and the existing free-credit budget; no paid upgrade is implied.
+Security, retention, provider-processing review and domain-expert legal evaluation
+must precede handling real confidential client filings or making production claims.
+Anonymous private sessions remain the initial access model; account/team work is
+still separate. The ordered tasks live in [[TODO]], with rationale in
+[[docs/decisions/ADR-005 - Product continuation and reviewed demo]].
+
+T015 was explicitly delegated to an AI assistant. The reviewed demo may expose
+hash-bound, read-only sample expectations with that provenance and their conditions.
+It must not claim human/expert validation, executed engine verdicts, a legal score,
+or a live provider result. Changed/unrecognized inputs cannot reuse those expectations.
+Production analysis and replay remain subject to the later engine acceptance criteria.
+
+### Private Preparation Contract Clarification - September 28, 2026
+
+The implemented development milestone prepares documents but does not run legal
+checks. Versioned `/api/v1/analyses/text`, `/file` and `/demo` create private
+preparation records with HTTP 201 and `execution_status=not_run`. The future
+asynchronous legal pipeline's 202/status/findings contract remains separate.
+The illustrative unversioned/multipart APIs below are design history; the generated
+[[contracts/README]] owns the implemented HTTP shape. PDF intake uses a bounded raw
+`application/pdf` body and encoded `X-Document-Name` header, avoiding filename URLs.
+
+Anonymous ownership uses a server-issued 256-bit bearer in tab `sessionStorage`;
+only SHA-256 and a server-set 55-minute expiry are persisted in AnonymousSession.
+Analysis additionally stores a validated extracted-document JSON/JSONB snapshot;
+page/paragraph offsets use half-open Unicode code points, not JavaScript UTF-16
+indices. Original-input and extracted-text fingerprints remain separate.
+Expiry denies access immediately; best-effort cleanup is not secure erasure.
+
+Initial preparation limits are 10 MiB PDF bytes, 20 pages, 100,000 characters,
+2,000 paragraphs, five documents per session and one active preparation per API
+process. T023 must extend admission across complete legal jobs. Unknown court
+profiles never imply compliance; the sole demo court is explicitly synthetic.
+Local masking is a heuristic boundary, not a redaction guarantee or completed
+provider integration. Intake is opt-in and off by default. Hosted/platform/privacy
+release checks remain required before real confidential data or public enablement.
+See [[docs/decisions/ADR-007 - Private preparation boundary]] and [[TODO]].
 
 ---
 
@@ -851,18 +896,37 @@ Red-Team Mode is P1 because it depends on stable P0 analysis. It is highly valua
 
 ### 11.1 Core Entities
 
+Implementation clarification (September 27, 2026): analysis/stage execution states
+are separate from legal verdicts. Missing results default to `not_run`; partial,
+unavailable and interrupted checks never become passes. Coverage must reconcile
+with stage counts, skipped stages must be explicitly inapplicable, and scores are
+nullable/provisional until sufficient checks complete. All private entities are
+analysis-scoped, with server-owned ownership/expiry and composite foreign keys.
+Evidence may exist independently of a finding and retains an immutable hashed
+source snapshot, exact excerpt offsets and method/version provenance. These
+clarifications implement the existing reliability/audit requirements without
+expanding legal coverage. See [ADR-004](docs/decisions/ADR-004%20-%20Truthful%20contracts%20and%20scoped%20evidence.md).
+
 #### Analysis
+
+T013 implementation clarification (September 28): `stored_file_id` is an internal,
+nullable unique UUID4 reference to private temporary PDF bytes, never a filesystem
+path or authorization credential. Original-input SHA-256 covers PDF bytes for file
+inputs and UTF-8 text for pasted inputs; extracted/snapshot hashes remain separate.
+Coordinated deletion, expiry and same-filesystem interruption recovery follow
+[ADR-006](docs/decisions/ADR-006%20-%20Retryable%20private%20lifecycle%20cleanup.md).
+This does not enable public intake or claim durable upload storage/secure erasure.
 
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID | Primary key |
 | createdAt | timestamp | Creation time |
-| status | enum | queued, running, completed, failed |
+| status | enum | not_run, queued, running, completed, partial, failed, interrupted |
 | documentName | string | Uploaded filename or generated label |
 | jurisdictionId | string | Selected court profile |
 | aiUsed | boolean | User-provided input |
-| overallScore | integer | 0-100 |
-| riskLevel | enum | ready_for_review, needs_review, high_risk |
+| overallScore | nullable integer | 0-100; no score for unexamined input |
+| riskLevel | nullable enum | ready_for_review, needs_review, high_risk; provisional results cannot imply readiness |
 
 #### DocumentSegment
 
@@ -958,7 +1022,7 @@ Red-Team Mode is P1 because it depends on stable P0 analysis. It is highly valua
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID | Primary key |
-| findingId | UUID | Parent finding |
+| findingId | nullable UUID | Optional finding; checks without warnings also retain evidence |
 | sourceType | enum | document, api, opinion_text, ai_analysis, rule |
 | sourceLabel | string | Human-readable source |
 | text | text | Evidence excerpt |

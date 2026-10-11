@@ -35,3 +35,17 @@ when it changes scope or priorities.
 setup; `docs/architecture/stack.md` owns stack decisions; feature/module READMEs
 own local responsibilities. Link to these rather than keeping divergent copies.
 The repository itself is the Obsidian vault. No separate synced documentation copy.
+
+## UI scope for continuing development
+
+The user reaffirmed this scope on October 11, 2026. Use the accepted homepage as
+the visual reference for all future pages and features: existing brand assets,
+purple/lilac/yellow palette, typography, glass surfaces and restrained depth.
+Use the installed apple-design skill for UI work while retaining this identity.
+Provide step-by-step navigation, the appropriate action for the current state,
+quick routes and a clear way back home. Motion must serve interaction and respect
+reduced motion/transparency, keyboard use and readable contrast. Preserve homepage
+layout and assets unless the user requests a specific change; the October 11
+glass input-box preview is one such explicitly requested exception.
+Work solo unless the user changes the no-subagent instruction.
+Canonical direction: `docs/product/UI direction.md` and feedback FB-012/FB-013.

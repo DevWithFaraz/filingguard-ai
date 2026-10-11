@@ -1,0 +1,277 @@
+{
+  "fixture_id": "curated-v1",
+  "validation_status": "awaiting_human_review",
+  "offset_unit": "unicode_code_points",
+  "interval": "half_open",
+  "cases": [
+    {
+      "id": "citation-brown",
+      "category": "citation",
+      "expected_status": "verified",
+      "authority_id": "brown",
+      "reason": "An authenticated fixture-preparation lookup resolved this citation; this is not a future live analysis result.",
+      "filing_span": {
+        "start": 391,
+        "end": 403,
+        "text": "347 U.S. 483"
+      },
+      "source_span": null
+    },
+    {
+      "id": "citation-miranda",
+      "category": "citation",
+      "expected_status": "verified",
+      "authority_id": "miranda",
+      "reason": "An authenticated fixture-preparation lookup resolved this citation.",
+      "filing_span": {
+        "start": 645,
+        "end": 657,
+        "text": "384 U.S. 436"
+      },
+      "source_span": null
+    },
+    {
+      "id": "citation-obergefell",
+      "category": "citation",
+      "expected_status": "verified",
+      "authority_id": "obergefell",
+      "reason": "An authenticated fixture-preparation lookup resolved this citation.",
+      "filing_span": {
+        "start": 939,
+        "end": 951,
+        "text": "576 U.S. 644"
+      },
+      "source_span": null
+    },
+    {
+      "id": "citation-unresolved",
+      "category": "citation",
+      "expected_status": "not_found",
+      "reason": "Offline stub scenario for intentionally invented input. No live not-found result is claimed; database absence alone does not establish fabrication.",
+      "simulation": "lookup_not_found",
+      "filing_span": {
+        "start": 1410,
+        "end": 1422,
+        "text": "999 U.S. 999"
+      },
+      "source_span": null
+    },
+    {
+      "id": "brown-supported",
+      "category": "proposition",
+      "expected_status": "supported",
+      "authority_id": "brown",
+      "reason": "Draft semantic expectation: the summary matches the majority's conclusion, not a legal conclusion about a new case.",
+      "filing_span": {
+        "start": 412,
+        "end": 505,
+        "text": "held that racial segregation in public education deprives the plaintiffs of equal protection."
+      },
+      "source_span": {
+        "authority_id": "brown",
+        "start": 10203,
+        "end": 10601,
+        "text": "We conclude that in the field of public education the doctrine of “separate but equal” has no place. Separate educational facilities are inherently unequal. Therefore, we hold that the plaintiffs and others similarly situated for whom the actions have been brought are, by reason of the segregation complained of, deprived of the equal protection of the laws guaranteed by the Fourteenth Amendment."
+      }
+    },
+    {
+      "id": "miranda-supported",
+      "category": "proposition",
+      "expected_status": "supported",
+      "authority_id": "miranda",
+      "reason": "Draft semantic expectation scoped to custodial interrogation, not every police encounter.",
+      "filing_span": {
+        "start": 666,
+        "end": 886,
+        "text": "requires safeguards for the privilege against self-incrimination during custodial interrogation, including warning the person before questioning of the right to remain silent and the right to the presence of an attorney."
+      },
+      "source_span": {
+        "authority_id": "miranda",
+        "start": 10450,
+        "end": 10694,
+        "text": "Prior to any questioning, the person must be warned that he has a right to remain silent, that any statement he does make may be used as evidence against him, and that he has a right to the presence of an attorney, either retained or appointed."
+      }
+    },
+    {
+      "id": "obergefell-supported",
+      "category": "proposition",
+      "expected_status": "supported",
+      "authority_id": "obergefell",
+      "reason": "Draft semantic expectation; selected majority passage must be reviewed in context, with original line breaks retained.",
+      "filing_span": {
+        "start": 960,
+        "end": 1031,
+        "text": "held that same-sex couples may exercise the fundamental right to marry."
+      },
+      "source_span": {
+        "authority_id": "obergefell",
+        "start": 59871,
+        "end": 59957,
+        "text": "The Court now holds that same-sex\ncouples may exercise the fundamental right to marry."
+      }
+    },
+    {
+      "id": "brown-misrepresented",
+      "category": "proposition",
+      "expected_status": "misrepresented",
+      "authority_id": "brown",
+      "reason": "Draft semantic expectation: the planted claim reverses the majority conclusion.",
+      "filing_span": {
+        "start": 1188,
+        "end": 1259,
+        "text": "permits racial segregation in public schools whenever funding is equal."
+      },
+      "source_span": {
+        "authority_id": "brown",
+        "start": 10203,
+        "end": 10359,
+        "text": "We conclude that in the field of public education the doctrine of “separate but equal” has no place. Separate educational facilities are inherently unequal."
+      }
+    },
+    {
+      "id": "quote-exact",
+      "category": "quote",
+      "expected_status": "exact",
+      "authority_id": "brown",
+      "reason": "Exact-string positive control. Presence alone does not determine legal applicability.",
+      "filing_span": {
+        "start": 525,
+        "end": 580,
+        "text": "Separate educational facilities are inherently unequal."
+      },
+      "source_span": {
+        "authority_id": "brown",
+        "start": 10304,
+        "end": 10359,
+        "text": "Separate educational facilities are inherently unequal."
+      }
+    },
+    {
+      "id": "quote-altered",
+      "category": "quote",
+      "expected_status": "close",
+      "authority_id": "brown",
+      "reason": "Planted removal of 'un' reverses the meaning. Exact mismatch is certain; close-match classification depends on the future versioned fuzzy threshold.",
+      "filing_span": {
+        "start": 1279,
+        "end": 1332,
+        "text": "Separate educational facilities are inherently equal."
+      },
+      "source_span": {
+        "authority_id": "brown",
+        "start": 10304,
+        "end": 10359,
+        "text": "Separate educational facilities are inherently unequal."
+      }
+    },
+    {
+      "id": "privacy-ssn",
+      "category": "privacy",
+      "expected_status": "needs_review",
+      "reason": "SSN-shaped test identifier, not a claim of a valid issued SSN. Pattern detection should request review.",
+      "filing_span": {
+        "start": 1699,
+        "end": 1710,
+        "text": "900-12-3456"
+      },
+      "source_span": null
+    },
+    {
+      "id": "privacy-dob",
+      "category": "privacy",
+      "expected_status": "needs_review",
+      "reason": "Explicit birth-date context with a full synthetic date.",
+      "filing_span": {
+        "start": 1788,
+        "end": 1798,
+        "text": "04/17/2000"
+      },
+      "source_span": null
+    },
+    {
+      "id": "privacy-account",
+      "category": "privacy",
+      "expected_status": "needs_review",
+      "reason": "Explicit fictional bank-account context.",
+      "filing_span": {
+        "start": 1837,
+        "end": 1849,
+        "text": "000123456789"
+      },
+      "source_span": null
+    },
+    {
+      "id": "benign-event-date",
+      "category": "privacy",
+      "expected_status": "no_finding",
+      "reason": "Administrative event date, explicitly not a birth date.",
+      "filing_span": {
+        "start": 2015,
+        "end": 2025,
+        "text": "09/27/2026"
+      },
+      "source_span": null
+    },
+    {
+      "id": "disclosure-omitted",
+      "category": "court_rules",
+      "expected_status": "needs_review",
+      "reason": "No disclosure certification is included. Requires ai_used=true and the synthetic disclosure-required profile; never assert a real court rule.",
+      "preconditions": {
+        "ai_used": true,
+        "court_profile_id": "synthetic-demo-v1"
+      },
+      "filing_span": {
+        "start": 285,
+        "end": 323,
+        "text": "Draft memorandum for pre-filing review"
+      },
+      "source_span": null
+    },
+    {
+      "id": "disclosure-not-applicable",
+      "category": "court_rules",
+      "expected_status": "skipped",
+      "reason": "Rule is inapplicable under the synthetic profile when user declares no AI use; no real compliance conclusion.",
+      "preconditions": {
+        "ai_used": false,
+        "court_profile_id": "synthetic-demo-v1"
+      },
+      "filing_span": {
+        "start": 285,
+        "end": 323,
+        "text": "Draft memorandum for pre-filing review"
+      },
+      "source_span": null
+    },
+    {
+      "id": "source-unavailable",
+      "category": "proposition",
+      "expected_status": "insufficient_source",
+      "authority_id": "obergefell",
+      "reason": "Forced missing-source scenario; no supported classification or favorable confidence is allowed.",
+      "simulation": "opinion_text_unavailable",
+      "filing_span": {
+        "start": 960,
+        "end": 1031,
+        "text": "held that same-sex couples may exercise the fundamental right to marry."
+      },
+      "source_span": null
+    },
+    {
+      "id": "lookup-unavailable",
+      "category": "citation",
+      "expected_status": "unavailable",
+      "reason": "Forced dependency failure, not not-found or invalid.",
+      "simulation": "provider_timeout",
+      "filing_span": {
+        "start": 645,
+        "end": 657,
+        "text": "384 U.S. 436"
+      },
+      "source_span": null
+    }
+  ],
+  "reviewer": null,
+  "reviewed_at": null
+}

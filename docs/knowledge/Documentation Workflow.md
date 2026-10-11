@@ -15,6 +15,12 @@ the relevant decisions, issues and lessons. Prefer current implementation and
 verification evidence over an old plan. A note's presence is not proof that its
 claim was tested. Link to a source instead of copying long content into many notes.
 
+After context compaction or an interrupted session, reload Home, TODO and the most
+recent relevant session handoff. Follow its module/decision/evidence links and check
+the current code and working tree before continuing. The chat summary is an index,
+not a replacement for the vault. Retrieve further notes as needed; do not assume
+automatic recall or load the entire vault indiscriminately.
+
 ## One source for each responsibility
 
 - Requirements: [[FilingGuard_AI_SRS]]. Record approved scope changes explicitly.

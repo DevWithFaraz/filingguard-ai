@@ -51,6 +51,9 @@ order and priority reconciliation.
 
 ## Platform and tests
 
+User-facing design plan: [[docs/product/UI direction]] (proposed, assets supplied)
+and [[design]] (motion/interactive redesign brief, not implemented).
+
 - [[apps/api/src/filingguard/api/routes/README|HTTP routes]],
   [[apps/api/src/filingguard/core/README|Configuration and shared infrastructure]],
   [[apps/api/src/filingguard/db/models/README|Persistence]],
@@ -66,3 +69,7 @@ order and priority reconciliation.
 
 Related knowledge: [[docs/decisions/Index]], [[docs/issues/Index]],
 [[docs/learnings/Index]], [[docs/research/Index]].
+## Demo review material
+
+[[data/demo/curated-v1/README]] and [[docs/product/Demo fixture review]] provide
+the T014 fixture and completed delegated T015 AI review; they are not observed engine results.

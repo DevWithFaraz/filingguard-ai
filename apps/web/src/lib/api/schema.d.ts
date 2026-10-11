@@ -24,10 +24,746 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Readiness
+         * @description Fail closed without migrations; no provider request or schema mutation.
+         */
+        get: operations["readiness_api_v1_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demos/{fixture_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Demo Preview */
+        get: operations["demo_preview_api_v1_demos__fixture_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Capabilities */
+        get: operations["capabilities_api_v1_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/court-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Profiles */
+        get: operations["profiles_api_v1_court_profiles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Session */
+        post: operations["create_session_api_v1_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Text */
+        post: operations["submit_text_api_v1_analyses_text_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit File */
+        post: operations["submit_file_api_v1_analyses_file_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Demo */
+        post: operations["submit_demo_api_v1_analyses_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Activity */
+        get: operations["activity_api_v1_analyses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Document */
+        get: operations["get_document_api_v1_analyses__analysis_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Document */
+        delete: operations["delete_document_api_v1_analyses__analysis_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Status */
+        get: operations["review_status_api_v1_analyses__analysis_id__status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/findings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Findings */
+        get: operations["review_findings_api_v1_analyses__analysis_id__findings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/citations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Citations */
+        get: operations["review_citations_api_v1_analyses__analysis_id__citations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Results */
+        get: operations["review_results_api_v1_analyses__analysis_id__results_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/graph": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Graph */
+        get: operations["review_graph_api_v1_analyses__analysis_id__graph_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Evidence */
+        get: operations["review_evidence_api_v1_analyses__analysis_id__findings__finding_id__evidence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Report */
+        get: operations["review_report_api_v1_analyses__analysis_id__report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run Review */
+        post: operations["run_review_api_v1_analyses__analysis_id__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/rerun": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rerun Review */
+        post: operations["rerun_review_api_v1_analyses__analysis_id__rerun_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AnalysisAccepted */
+        AnalysisAccepted: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Status
+             * @constant
+             */
+            status: "queued";
+            mode: components["schemas"]["AnalysisMode"];
+        };
+        /**
+         * AnalysisMode
+         * @enum {string}
+         */
+        AnalysisMode: "live" | "demo";
+        /**
+         * AnalysisStatus
+         * @enum {string}
+         */
+        AnalysisStatus: "not_run" | "queued" | "running" | "completed" | "partial" | "failed" | "interrupted";
+        /** AnalysisSummary */
+        AnalysisSummary: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** @default not_run */
+            status: components["schemas"]["AnalysisStatus"];
+            mode: components["schemas"]["AnalysisMode"];
+            /**
+             * Demo Fixture Id
+             * @default null
+             */
+            demo_fixture_id: string | null;
+            /** Court Profile Id */
+            court_profile_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Stages */
+            stages?: components["schemas"]["StageState"][];
+            coverage?: components["schemas"]["Coverage"];
+            /**
+             * Overall Score
+             * @default null
+             */
+            overall_score: number | null;
+            /** @default null */
+            risk_level: components["schemas"]["RiskLevel"] | null;
+            /**
+             * Score Is Provisional
+             * @default true
+             */
+            score_is_provisional: boolean;
+        };
+        /** Capabilities */
+        Capabilities: {
+            /** Intake Enabled */
+            intake_enabled: boolean;
+            /**
+             * Legal Analysis Enabled
+             * @default false
+             */
+            legal_analysis_enabled: boolean;
+            /**
+             * Max File Bytes
+             * @default 10485760
+             */
+            max_file_bytes: number;
+            /**
+             * Max Characters
+             * @default 100000
+             */
+            max_characters: number;
+            /**
+             * Profiles
+             * @default []
+             */
+            profiles: components["schemas"]["CourtProfileSummary"][];
+        };
+        /** CitationExtractionMetadata */
+        CitationExtractionMetadata: {
+            /**
+             * Method
+             * @default eyecite-local-v1
+             * @constant
+             */
+            method: "eyecite-local-v1";
+            /** Parser Version */
+            parser_version: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "full_case" | "short_case" | "id" | "supra" | "reference" | "law" | "journal" | "unknown" | "reporter_candidate";
+            /**
+             * Support
+             * @enum {string}
+             */
+            support: "recognized" | "ambiguous" | "unsupported" | "unresolved_reference";
+            /** Reporter Candidates */
+            reporter_candidates?: string[];
+            /** Warnings */
+            warnings?: ("cross_segment" | "cross_page")[];
+            /** @default null */
+            verification: components["schemas"]["CitationVerificationMetadata"] | null;
+        };
+        /**
+         * CitationStatus
+         * @enum {string}
+         */
+        CitationStatus: "not_run" | "verified" | "not_found" | "invalid" | "ambiguous" | "unavailable";
+        /** CitationVerificationMetadata */
+        CitationVerificationMetadata: {
+            /**
+             * Method
+             * @default courtlistener-v4-v1
+             * @enum {string}
+             */
+            method: "courtlistener-v4-v1" | "cached-public-source-v1";
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
+            /**
+             * Reason
+             * @default null
+             */
+            reason: string | null;
+            /**
+             * Limitation
+             * @default null
+             */
+            limitation: string | null;
+        };
+        /** CourtProfileSummary */
+        CourtProfileSummary: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: string;
+            /** Name */
+            name: string;
+            /** Is Demo */
+            is_demo: boolean;
+            /**
+             * Applicability
+             * @enum {string}
+             */
+            applicability: "synthetic" | "verified_scope" | "unknown";
+        };
+        /** CourtProfilesResponse */
+        CourtProfilesResponse: {
+            /** Profiles */
+            profiles: components["schemas"]["CourtProfileSummary"][];
+        };
+        /** Coverage */
+        Coverage: {
+            /**
+             * Eligible
+             * @default 0
+             */
+            eligible: number;
+            /**
+             * Evaluated
+             * @default 0
+             */
+            evaluated: number;
+            /**
+             * Unavailable
+             * @default 0
+             */
+            unavailable: number;
+            /**
+             * Pending
+             * @default 0
+             */
+            pending: number;
+            /**
+             * Truncated
+             * @default false
+             */
+            truncated: boolean;
+            /**
+             * Limitation
+             * @default null
+             */
+            limitation: string | null;
+        };
+        /** DeleteResponse */
+        DeleteResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Deleted
+             * @constant
+             */
+            deleted: true;
+        };
+        /** DemoExample */
+        DemoExample: {
+            /** Id */
+            id: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "citation" | "proposition" | "quote" | "privacy" | "court_rules";
+            /** Expected Status */
+            expected_status: string;
+            /** Reason */
+            reason: string;
+            filing_span: components["schemas"]["DemoSpan"];
+            source_span: components["schemas"]["DemoSpan"] | null;
+            /** Authority Id */
+            authority_id: string | null;
+            /** Simulation */
+            simulation: string | null;
+            /** Preconditions */
+            preconditions: {
+                [key: string]: string | boolean;
+            } | null;
+            /**
+             * Judgment
+             * @enum {string}
+             */
+            judgment: "accepted" | "conditional";
+            /** Condition */
+            condition: string | null;
+        };
+        /** DemoPreview */
+        DemoPreview: {
+            /**
+             * Fixture Id
+             * @constant
+             */
+            fixture_id: "curated-v1";
+            /**
+             * Mode
+             * @default demo
+             * @constant
+             */
+            mode: "demo";
+            /**
+             * Execution Status
+             * @default not_run
+             * @constant
+             */
+            execution_status: "not_run";
+            /**
+             * Review Kind
+             * @default delegated_assistant
+             * @constant
+             */
+            review_kind: "delegated_assistant";
+            /** Reviewer */
+            reviewer: string;
+            /** Reviewed At */
+            reviewed_at: string;
+            /** Document */
+            document: string;
+            /** Document Sha256 */
+            document_sha256: string;
+            /** Sources */
+            sources: components["schemas"]["DemoSource"][];
+            /** Examples */
+            examples: components["schemas"]["DemoExample"][];
+            /** Limitations */
+            limitations: string[];
+        };
+        /** DemoSource */
+        DemoSource: {
+            /** Authority Id */
+            authority_id: string;
+            /** Case Name */
+            case_name: string;
+            /** Citation */
+            citation: string;
+            /** Source Url */
+            source_url: string;
+            /** Retrieved At */
+            retrieved_at: string;
+            /** Sha256 */
+            sha256: string;
+            /**
+             * Provenance
+             * @constant
+             */
+            provenance: "cached_public";
+        };
+        /** DemoSpan */
+        DemoSpan: {
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /** Text */
+            text: string;
+        };
+        /** DemoSubmission */
+        DemoSubmission: {
+            /** Fixture Id */
+            fixture_id: string;
+            /**
+             * Mode
+             * @default demo
+             * @constant
+             */
+            mode: "demo";
+            /**
+             * Court Profile Id
+             * @default synthetic-demo-v1
+             * @enum {string}
+             */
+            court_profile_id: "synthetic-demo-v1" | "unverified";
+            /**
+             * Ai Used
+             * @default true
+             */
+            ai_used: boolean;
+        };
+        /**
+         * DocumentLocation
+         * @description Half-open offsets into original extracted text, measured in Unicode code points.
+         */
+        DocumentLocation: {
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /**
+             * Offset Unit
+             * @default unicode_code_points
+             * @constant
+             */
+            offset_unit: "unicode_code_points";
+            /**
+             * Page Number
+             * @default null
+             */
+            page_number: number | null;
+            /**
+             * Segment Id
+             * @default null
+             */
+            segment_id: string | null;
+        };
+        /** DocumentSummary */
+        DocumentSummary: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Document Name */
+            document_name: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "live" | "demo";
+            /** Court Profile Id */
+            court_profile_id: string;
+            /** Ai Used */
+            ai_used: boolean;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** @default not_run */
+            execution_status: components["schemas"]["AnalysisStatus"];
+            /** Paragraph Count */
+            paragraph_count: number;
+        };
+        /** ExtractedDocument */
+        ExtractedDocument: {
+            /** Text */
+            text: string;
+            /** Input Sha256 */
+            input_sha256: string;
+            /** Text Sha256 */
+            text_sha256: string;
+            /** Pages */
+            pages: components["schemas"]["PageSpan"][];
+            /** Paragraphs */
+            paragraphs: components["schemas"]["Paragraph"][];
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "original-text-v1" | "pypdf-bounded-v1";
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthResponse */
         HealthResponse: {
             /**
@@ -37,6 +773,966 @@ export interface components {
              */
             status: "ok";
         };
+        /** PageSpan */
+        PageSpan: {
+            /** Page Number */
+            page_number: number;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /** Warning */
+            warning?: ("no_text" | "sparse_text" | "replacement_characters") | null;
+        };
+        /** Paragraph */
+        Paragraph: {
+            /** Paragraph Index */
+            paragraph_index: number;
+            /** Page Number */
+            page_number?: number | null;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /** Text */
+            text: string;
+        };
+        /** PreparedDocument */
+        PreparedDocument: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Document Name */
+            document_name: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "live" | "demo";
+            /** Court Profile Id */
+            court_profile_id: string;
+            /** Ai Used */
+            ai_used: boolean;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** @default not_run */
+            execution_status: components["schemas"]["AnalysisStatus"];
+            /** Paragraph Count */
+            paragraph_count: number;
+            document: components["schemas"]["ExtractedDocument"];
+            /** Masking Count */
+            masking_count: number;
+            /** Masking Limitation */
+            masking_limitation: string;
+        };
+        /**
+         * PropositionStatus
+         * @enum {string}
+         */
+        PropositionStatus: "not_run" | "supported" | "partially_supported" | "unclear" | "misrepresented" | "insufficient_source" | "unavailable";
+        /**
+         * QuoteStatus
+         * @enum {string}
+         */
+        QuoteStatus: "not_run" | "exact" | "normalized" | "close" | "not_found" | "source_unavailable";
+        /** ReadinessResponse */
+        ReadinessResponse: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ready" | "not_ready";
+            /** Checks */
+            checks: {
+                [key: string]: boolean;
+            };
+            /**
+             * Limitation
+             * @default Local dependencies only; provider availability and hosted acceptance are separate.
+             */
+            limitation: string;
+        };
+        /** ReviewScore */
+        ReviewScore: {
+            /**
+             * Value
+             * @default null
+             */
+            value: number | null;
+            /**
+             * Risk Level
+             * @default null
+             */
+            risk_level: ("needs_review" | "high_risk") | null;
+            /**
+             * Provisional
+             * @default true
+             * @constant
+             */
+            provisional: true;
+            /**
+             * Version
+             * @default integrity-v1
+             * @constant
+             */
+            version: "integrity-v1";
+            /** Deductions */
+            deductions: components["schemas"]["ScoreDeduction"][];
+            /** Categories */
+            categories?: components["schemas"]["ScoreCategory"][];
+            /** Limitation */
+            limitation: string;
+        };
+        /**
+         * RiskLevel
+         * @enum {string}
+         */
+        RiskLevel: "ready_for_review" | "needs_review" | "high_risk";
+        /** SafeAuthority */
+        SafeAuthority: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Source */
+            source: string;
+            /**
+             * External Id
+             * @default null
+             */
+            external_id: string | null;
+            /**
+             * Case Name
+             * @default null
+             */
+            case_name: string | null;
+            /**
+             * Citation
+             * @default null
+             */
+            citation: string | null;
+            /**
+             * Court
+             * @default null
+             */
+            court: string | null;
+            /**
+             * Year
+             * @default null
+             */
+            year: number | null;
+            /**
+             * Source Url
+             * @default null
+             */
+            source_url: string | null;
+            /**
+             * Opinion Text Available
+             * @default false
+             */
+            opinion_text_available: boolean;
+            /**
+             * Opinion Text
+             * @default null
+             */
+            opinion_text: string | null;
+            /**
+             * Source Sha256
+             * @default null
+             */
+            source_sha256: string | null;
+            /**
+             * Retrieved At
+             * @default null
+             */
+            retrieved_at: string | null;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
+        };
+        /** SafeCitation */
+        SafeCitation: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Masked Raw Text */
+            masked_raw_text: string;
+            /** Normalized Text */
+            normalized_text: string | null;
+            location: components["schemas"]["DocumentLocation"];
+            extraction: components["schemas"]["CitationExtractionMetadata"] | null;
+            verification_status: components["schemas"]["CitationStatus"];
+            /**
+             * Authority Id
+             * @default null
+             */
+            authority_id: string | null;
+            /** @default null */
+            authority: components["schemas"]["SafeAuthority"] | null;
+            /**
+             * Reason
+             * @default null
+             */
+            reason: string | null;
+            /**
+             * Limitation
+             * @default null
+             */
+            limitation: string | null;
+        };
+        /** SafeCitationsResponse */
+        SafeCitationsResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            stage: components["schemas"]["StageState"];
+            /** Citations */
+            citations: components["schemas"]["SafeCitation"][];
+            /** Detected Count */
+            detected_count: number;
+            /** Authorities */
+            authorities?: components["schemas"]["SafeAuthority"][];
+            /**
+             * Limitation
+             * @default Local Eyecite reporter coverage is incomplete. A narrow numeric reporter heuristic may produce false positives; unrecognized formats may be missed. Extraction does not verify an authority, resolve short references, or check statutes.
+             */
+            limitation: string;
+            /**
+             * Masking Limitation
+             * @default Heuristic masking can miss names and contextual identifiers.
+             */
+            masking_limitation: string;
+        };
+        /** SafeClaim */
+        SafeClaim: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Text */
+            text: string;
+            location: components["schemas"]["DocumentLocation"];
+            /**
+             * Extraction Method
+             * @enum {string}
+             */
+            extraction_method: "heuristic" | "ai";
+            /** Links */
+            links: components["schemas"]["SafeClaimLink"][];
+        };
+        /** SafeClaimLink */
+        SafeClaimLink: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Citation Id
+             * Format: uuid
+             */
+            citation_id: string;
+            /**
+             * Authority Id
+             * @default null
+             */
+            authority_id: string | null;
+            support_status: components["schemas"]["PropositionStatus"];
+            /**
+             * Explanation
+             * @default null
+             */
+            explanation: string | null;
+            /**
+             * Confidence
+             * @default null
+             */
+            confidence: number | null;
+        };
+        /** SafeFinding */
+        SafeFinding: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "privacy" | "court_rule" | "citation" | "claim_support" | "quote" | "system";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "low" | "medium" | "high" | "critical";
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /**
+             * Masked Excerpt
+             * @default null
+             */
+            masked_excerpt: string | null;
+            /**
+             * Start
+             * @default null
+             */
+            start: number | null;
+            /**
+             * End
+             * @default null
+             */
+            end: number | null;
+            /**
+             * Evidence Count
+             * @default 0
+             */
+            evidence_count: number;
+            /**
+             * Ai Assisted
+             * @default false
+             */
+            ai_assisted: boolean;
+            /**
+             * Claim Id
+             * @default null
+             */
+            claim_id: string | null;
+            /**
+             * Citation Id
+             * @default null
+             */
+            citation_id: string | null;
+            /**
+             * Authority Id
+             * @default null
+             */
+            authority_id: string | null;
+            /**
+             * Quote Id
+             * @default null
+             */
+            quote_id: string | null;
+            /**
+             * Segment Id
+             * @default null
+             */
+            segment_id: string | null;
+            /** Evidence */
+            evidence?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** SafeFindingsResponse */
+        SafeFindingsResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Findings */
+            findings: components["schemas"]["SafeFinding"][];
+            /**
+             * Limitation
+             * @default Local checks are not a legal compliance or complete redaction determination.
+             */
+            limitation: string;
+        };
+        /** SafeQuote */
+        SafeQuote: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Text */
+            text: string;
+            location: components["schemas"]["DocumentLocation"];
+            /**
+             * Citation Id
+             * @default null
+             */
+            citation_id: string | null;
+            match_status: components["schemas"]["QuoteStatus"];
+            /**
+             * Similarity
+             * @default null
+             */
+            similarity: number | null;
+            /**
+             * Closest Passage
+             * @default null
+             */
+            closest_passage: string | null;
+        };
+        /** SavedEvidenceResponse */
+        SavedEvidenceResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Finding Id
+             * Format: uuid
+             */
+            finding_id: string;
+            /** Evidence */
+            evidence: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** SavedGraphEdge */
+        SavedGraphEdge: {
+            /** Id */
+            id: string;
+            /** Source */
+            source: string;
+            /** Target */
+            target: string;
+            /** Label */
+            label: string;
+        };
+        /** SavedGraphNode */
+        SavedGraphNode: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "section" | "claim" | "authority";
+            /** Status */
+            status: string;
+            /** Finding Ids */
+            finding_ids: string[];
+        };
+        /** SavedGraphResponse */
+        SavedGraphResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Nodes */
+            nodes: components["schemas"]["SavedGraphNode"][];
+            /** Edges */
+            edges: components["schemas"]["SavedGraphEdge"][];
+        };
+        /** SavedResultsResponse */
+        SavedResultsResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Document Name */
+            document_name: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Court Profile Id */
+            court_profile_id: string;
+            mode: components["schemas"]["AnalysisMode"];
+            status: components["schemas"]["AnalysisStatus"];
+            /** Stages */
+            stages: components["schemas"]["StageState"][];
+            coverage: components["schemas"]["Coverage"];
+            score: components["schemas"]["ReviewScore"];
+            /** Citations */
+            citations: components["schemas"]["SafeCitation"][];
+            /** Claims */
+            claims: components["schemas"]["SafeClaim"][];
+            /** Quotes */
+            quotes: components["schemas"]["SafeQuote"][];
+            /** Findings */
+            findings: components["schemas"]["SafeFinding"][];
+            /** Limitation */
+            limitation: string;
+        };
+        /** ScoreCategory */
+        ScoreCategory: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "citation" | "claim_support" | "quote" | "privacy" | "court_rule";
+            /** Eligible */
+            eligible: number;
+            /** Evaluated */
+            evaluated: number;
+            /**
+             * Value
+             * @default null
+             */
+            value: number | null;
+            /** Deducted Points */
+            deducted_points: number;
+        };
+        /** ScoreDeduction */
+        ScoreDeduction: {
+            /**
+             * Finding Id
+             * Format: uuid
+             */
+            finding_id: string;
+            /** Type */
+            type: string;
+            /** Severity */
+            severity: string;
+            /** Points */
+            points: number;
+        };
+        /** SessionIssued */
+        SessionIssued: {
+            /** Token */
+            token: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+        };
+        /**
+         * StageName
+         * @enum {string}
+         */
+        StageName: "document" | "citations" | "claims" | "propositions" | "quotes" | "privacy" | "court_rules";
+        /** StageState */
+        StageState: {
+            name: components["schemas"]["StageName"];
+            /** @default not_run */
+            status: components["schemas"]["StageStatus"];
+            /**
+             * Reason
+             * @default null
+             */
+            reason: string | null;
+            coverage?: components["schemas"]["Coverage"];
+            /**
+             * Applicable
+             * @default true
+             */
+            applicable: boolean;
+        };
+        /**
+         * StageStatus
+         * @enum {string}
+         */
+        StageStatus: "not_run" | "queued" | "running" | "completed" | "partial" | "unavailable" | "failed" | "interrupted" | "skipped";
+        /** TextSubmission */
+        TextSubmission: {
+            /** Document Name */
+            document_name: string;
+            /** Text */
+            text: string;
+            /** Court Profile Id */
+            court_profile_id: string;
+            /** Ai Used */
+            ai_used: boolean;
+            /**
+             * Mode
+             * @default live
+             * @constant
+             */
+            mode: "live";
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+        /** ApiError */
+        ApiError: {
+            error: components["schemas"]["ApiErrorDetail"];
+        };
+        /** ApiErrorDetail */
+        ApiErrorDetail: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+        };
+        /** CitationResult */
+        CitationResult: {
+            /**
+             * Citation Id
+             * Format: uuid
+             */
+            citation_id: string;
+            /** @default not_run */
+            status: components["schemas"]["CitationStatus"];
+            /**
+             * Authority Id
+             * @default null
+             */
+            authority_id: string | null;
+            /** Evidence Ids */
+            evidence_ids?: string[];
+            /**
+             * Reason
+             * @default null
+             */
+            reason: string | null;
+        };
+        /** Confidence */
+        Confidence: {
+            /**
+             * Level
+             * @default unknown
+             * @enum {string}
+             */
+            level: "unknown" | "low" | "medium" | "high";
+            /**
+             * Value
+             * @default null
+             */
+            value: number | null;
+            /**
+             * Method
+             * @default null
+             */
+            method: string | null;
+            /**
+             * Calibrated
+             * @default false
+             * @constant
+             */
+            calibrated: false;
+        };
+        /** EvidenceRecord */
+        EvidenceRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Finding Id
+             * @default null
+             */
+            finding_id: string | null;
+            /**
+             * Source Type
+             * @enum {string}
+             */
+            source_type: "document" | "api" | "opinion_text" | "ai_analysis" | "rule";
+            /** Source Label */
+            source_label: string;
+            /**
+             * Source Url
+             * @default null
+             */
+            source_url: string | null;
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
+            /** Snapshot Sha256 */
+            snapshot_sha256: string;
+            /** Excerpt */
+            excerpt: string;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /**
+             * Offset Unit
+             * @default unicode_code_points
+             * @constant
+             */
+            offset_unit: "unicode_code_points";
+            /** @default null */
+            document_location: components["schemas"]["DocumentLocation"] | null;
+            /**
+             * Triggering Citation Id
+             * @default null
+             */
+            triggering_citation_id: string | null;
+            /**
+             * Triggering Quote Id
+             * @default null
+             */
+            triggering_quote_id: string | null;
+            /** Method Version */
+            method_version: string;
+            /**
+             * Model Version
+             * @default null
+             */
+            model_version: string | null;
+            /**
+             * Prompt Version
+             * @default null
+             */
+            prompt_version: string | null;
+            /**
+             * Rule Version
+             * @default null
+             */
+            rule_version: string | null;
+            /**
+             * Authority Id
+             * @default null
+             */
+            authority_id: string | null;
+            /**
+             * External Id
+             * @default null
+             */
+            external_id: string | null;
+            /**
+             * Court Profile Id
+             * @default null
+             */
+            court_profile_id: string | null;
+            /**
+             * Rule Id
+             * @default null
+             */
+            rule_id: string | null;
+            /**
+             * Provenance
+             * @enum {string}
+             */
+            provenance: "live" | "synthetic" | "cached_public";
+        };
+        /** FileSubmissionMetadata */
+        FileSubmissionMetadata: {
+            /** Court Profile Id */
+            court_profile_id: string;
+            /** Ai Used */
+            ai_used: boolean;
+            /**
+             * Mode
+             * @default live
+             * @constant
+             */
+            mode: "live";
+        };
+        /** FindingRecord */
+        FindingRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            type: components["schemas"]["FindingType"];
+            severity: components["schemas"]["Severity"];
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** @default open */
+            review_status: components["schemas"]["ReviewStatus"];
+            /** @default null */
+            location: components["schemas"]["DocumentLocation"] | null;
+            /** Evidence Ids */
+            evidence_ids: string[];
+            confidence?: components["schemas"]["Confidence"];
+            /**
+             * Ai Used
+             * @default false
+             */
+            ai_used: boolean;
+        };
+        /**
+         * FindingType
+         * @enum {string}
+         */
+        FindingType: "citation" | "claim_support" | "quote" | "privacy" | "court_rule" | "system";
+        /** FindingsResponse */
+        FindingsResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Findings */
+            findings: components["schemas"]["FindingRecord"][];
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceRecord"][];
+        };
+        /** GraphEdge */
+        GraphEdge: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source
+             * Format: uuid
+             */
+            source: string;
+            /**
+             * Target
+             * Format: uuid
+             */
+            target: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "contains" | "cites" | "supports" | "contradicts" | "unclear";
+        };
+        /** GraphNode */
+        GraphNode: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "section" | "claim" | "citation" | "authority";
+            /** Label */
+            label: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "not_run" | "verified" | "warning" | "risk" | "unavailable";
+            /** Finding Ids */
+            finding_ids?: string[];
+        };
+        /** GraphResponse */
+        GraphResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Nodes */
+            nodes: components["schemas"]["GraphNode"][];
+            /** Edges */
+            edges: components["schemas"]["GraphEdge"][];
+        };
+        /** PropositionResult */
+        PropositionResult: {
+            /**
+             * Claim Id
+             * Format: uuid
+             */
+            claim_id: string;
+            /** @default not_run */
+            status: components["schemas"]["PropositionStatus"];
+            /** Evidence Ids */
+            evidence_ids?: string[];
+            confidence?: components["schemas"]["Confidence"];
+            /**
+             * Explanation
+             * @default null
+             */
+            explanation: string | null;
+            /**
+             * Ai Used
+             * @default false
+             */
+            ai_used: boolean;
+            /**
+             * Model Version
+             * @default null
+             */
+            model_version: string | null;
+            /**
+             * Prompt Version
+             * @default null
+             */
+            prompt_version: string | null;
+        };
+        /** QuoteResult */
+        QuoteResult: {
+            /**
+             * Quote Id
+             * Format: uuid
+             */
+            quote_id: string;
+            /** @default not_run */
+            status: components["schemas"]["QuoteStatus"];
+            /** Evidence Ids */
+            evidence_ids?: string[];
+            /**
+             * Similarity
+             * @default null
+             */
+            similarity: number | null;
+            /**
+             * Method Version
+             * @default null
+             */
+            method_version: string | null;
+        };
+        /** ReportResponse */
+        ReportResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "markdown" | "html";
+            /** Content */
+            content: string;
+            mode: components["schemas"]["AnalysisMode"];
+        };
+        /**
+         * ReviewStatus
+         * @enum {string}
+         */
+        ReviewStatus: "open" | "reviewed" | "resolved";
+        /**
+         * Severity
+         * @enum {string}
+         */
+        Severity: "info" | "low" | "medium" | "high" | "critical";
     };
     responses: never;
     parameters: never;
@@ -62,6 +1758,596 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    readiness_api_v1_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessResponse"];
+                };
+            };
+        };
+    };
+    demo_preview_api_v1_demos__fixture_id__get: {
+        parameters: {
+            query: {
+                mode: string;
+            };
+            header?: never;
+            path: {
+                fixture_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    capabilities_api_v1_capabilities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Capabilities"];
+                };
+            };
+        };
+    };
+    profiles_api_v1_court_profiles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourtProfilesResponse"];
+                };
+            };
+        };
+    };
+    create_session_api_v1_sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionIssued"];
+                };
+            };
+        };
+    };
+    submit_text_api_v1_analyses_text_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TextSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparedDocument"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_file_api_v1_analyses_file_post: {
+        parameters: {
+            query: {
+                court_profile_id: string;
+                ai_used: "true" | "false";
+            };
+            header: {
+                "X-Document-Name": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/pdf": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparedDocument"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_demo_api_v1_analyses_demo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemoSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparedDocument"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    activity_api_v1_analyses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentSummary"][];
+                };
+            };
+        };
+    };
+    get_document_api_v1_analyses__analysis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparedDocument"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_document_api_v1_analyses__analysis_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_status_api_v1_analyses__analysis_id__status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_findings_api_v1_analyses__analysis_id__findings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SafeFindingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_citations_api_v1_analyses__analysis_id__citations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SafeCitationsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_results_api_v1_analyses__analysis_id__results_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedResultsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_graph_api_v1_analyses__analysis_id__graph_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedGraphResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_evidence_api_v1_analyses__analysis_id__findings__finding_id__evidence_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedEvidenceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_report_api_v1_analyses__analysis_id__report_get: {
+        parameters: {
+            query?: {
+                format?: "markdown" | "html";
+            };
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_review_api_v1_analyses__analysis_id__run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisAccepted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rerun_review_api_v1_analyses__analysis_id__rerun_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparedDocument"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

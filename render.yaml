@@ -3,9 +3,9 @@ services:
     name: filingguard-api
     runtime: python
     plan: free
-    rootDir: apps/api
-    buildCommand: pip install uv==0.12.15 && uv sync --locked --no-dev
-    startCommand: .venv/bin/uvicorn filingguard.main:app --host 0.0.0.0 --port $PORT --workers 1
+    # Keep the repository root available: curated demo resources live in data/demo.
+    buildCommand: pip install uv==0.12.15 && uv sync --directory apps/api --locked --no-dev
+    startCommand: apps/api/.venv/bin/uvicorn filingguard.main:app --host 0.0.0.0 --port $PORT --workers 1
     healthCheckPath: /api/v1/health
     envVars:
       - key: PYTHON_VERSION
@@ -16,6 +16,21 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      # Public intake stays closed until the deployment guide's hosted gates pass.
+      - key: INTAKE_ENABLED
+        value: "false"
+      - key: SOURCE_VERIFICATION_ENABLED
+        value: "false"
+      - key: SEMANTIC_REVIEW_ENABLED
+        value: "false"
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: ANALYSIS_TIMEOUT_SECONDS
+        value: "90"
+      - key: REVIEW_STAGE_TIMEOUT_SECONDS
+        value: "60"
+      - key: CLEANUP_INTERVAL_SECONDS
+        value: "60"
   - type: web
     name: filingguard-web
     runtime: static
