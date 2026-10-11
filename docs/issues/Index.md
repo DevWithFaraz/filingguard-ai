@@ -4,6 +4,8 @@ tags: [issues]
 ---
 # Bugs and incidents
 
+- [[docs/issues/BUG-023 - Clean checkout lacks pytest temporary parent]] (corrected; fresh verification pending)
+
 - [[docs/issues/BUG-022 - Git normalization changes locked fixture bytes]] (resolved locally before publication)
 
 - [[docs/issues/BUG-021 - API deployment root excludes demo resources]] (corrected locally; hosted verification pending)

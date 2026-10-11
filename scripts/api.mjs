@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -10,6 +11,8 @@ if (!['sync', 'run'].includes(command)) {
 }
 
 const locked = command === 'run' ? ['--locked'] : [];
+// pytest's explicit basetemp needs its ignored parent in a clean checkout.
+await mkdir(path.join(root, 'apps/api/.runtime'), { recursive: true });
 const child = spawn('uv', [command, '--directory', path.join(root, 'apps/api'), ...locked, ...args], {
   cwd: root,
   env: { ...process.env, UV_CACHE_DIR: path.join(root, '.runtime/tool-cache/uv') },

@@ -44,8 +44,11 @@ restaged them deliberately. All 14 fixture files now equal the working bytes;
 Staged whitespace checks pass, with source snapshots/license texts intentionally
 exempt from normalization. Final audit: 442 files/approximately 36 MB, no findings.
 
-GitHub fetch and dry-run push authenticate successfully. Publication and clean
-committed-checkpoint reproduction receipts will be added after those actions.
+GitHub publication succeeded for checkpoint `0b6d9c2` on the release branch.
+Fresh committed checkout installs both locked dependency sets, but cached-demo
+controls exposed a missing ignored pytest temporary parent (15 passes/12 setup
+errors). GitHub CI run `38147262802` fails at API tests. Correct the bootstrap
+and reverify before deploying; [[docs/issues/BUG-023 - Clean checkout lacks pytest temporary parent]].
 No hosted migration or dashboard setting has been changed.
 
 ## Hosting access and next step
