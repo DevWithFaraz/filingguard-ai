@@ -90,7 +90,8 @@ Defaults are a 90-second work cutoff, 30-second stage cutoff and 60 total provid
 attempts. Startup counts toward the cutoff; separately bounded DB finalization is
 not included in a claim of exact end-to-end duration. Unknown killed-worker quota
 receipts consume the remainder conservatively. Provider registration is opt-in.
-Shared Windows PDF-helper defaults remain unchanged. POSIX/hosted checks are pending.
+Shared Windows PDF-helper defaults remain unchanged. POSIX containment/deadline
+controls pass in isolated Linux and GitHub CI; Render-hosted checks remain pending.
 See [[apps/api/src/filingguard/integrations/providers/README]] and
 [[docs/decisions/ADR-008 - Contained review deadlines and provider budgets]].
 

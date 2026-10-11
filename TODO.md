@@ -606,13 +606,14 @@ Depends on T051-T056. SRS: DEP-001 through DEP-005, sections 19 and 23.
   Done when fresh hosted intake-to-export works and results remain session-scoped.
   October 11 preparation: readiness endpoint and focused fail-closed checks pass;
   public read-only probe observes health 200, exact CORS and SPA routes 200, but
-  /ready and /capabilities remain 404. No hosting credentials/dashboard session are
-  available; no hosted mutation/migration or intake enablement occurred.
+  /ready and /capabilities remain 404. Read-only Neon TLS connectivity passes,
+  but no migration revision is recorded. Chrome is signed in but unavailable to
+  browser control here; no hosted mutation/migration or intake enablement occurred.
   Release procedure: [[docs/delivery/Deployment guide]].
 - [ ] T058 - Rehearse live and explicitly labeled cached demo modes on the hosted
   app, including a forced dependency failure. Done when the fallback cannot be
   confused with live verification and restart recovery is understood.
-- [ ] T059 - Finish setup/deployment/troubleshooting docs, API configuration,
+- [x] T059 - Finish setup/deployment/troubleshooting docs, API configuration,
   limitations, third-party licenses/attribution and source links. Done when another
   developer can reproduce the app using the committed lockfiles and instructions.
   October 11: local preparation and isolated reproduction verified: fresh locked
@@ -622,11 +623,15 @@ Depends on T051-T056. SRS: DEP-001 through DEP-005, sections 19 and 23.
   recorded. Existing Render service instructions include local-to-Neon migration
   because free services lack shell access. API deployment root corrected to retain
   server-owned demo resources; production-only sync/resource checks and 27 demo
-  controls pass. Frontend lint and 30 unit tests pass. No publication or hosted writes.
+  controls pass. Frontend lint and 30 unit tests pass. No hosted writes.
   Checkpoint published on `codex/release-checkpoint`; clean committed checkout
   `10b1a6d` passes locked installs/build and 27 cached-demo controls. CI exposed
   Linux snapshot delivery stalling; its correction passes 21 affected controls on
-  Windows and Linux. Remains unchecked pending the complete fresh CI run.
+  Windows and Linux. Complete fresh GitHub Checks run `38148960096` passes on
+  committed code `325451a`: 715 API, 30 frontend, 28 baseline browser and 11
+  workflow browser controls (one deliberate mobile maximum-input skip), locked
+  setup/build, lint/typecheck and unchanged regenerated contracts. No provider
+  calls. T059 committed reproduction criterion passes; hosted T057 remains open.
   [[docs/sessions/2026-10-11 - Release checkpoint publication]].
   [[docs/sessions/2026-10-11 - Setup and release documentation]].
 - [ ] T060 - Prepare a two-to-three-minute demo, screenshots and recording showing

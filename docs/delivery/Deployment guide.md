@@ -11,9 +11,10 @@ the complete genuine-model curated journey pass. Final regression evidence is in
 [[docs/sessions/2026-10-11 - Accessibility performance and release gates]].
 Read-only hosted checks still observe frontend SPA routes 200 and API health 200
 with exact CORS, but /ready and /capabilities return 404. The older shell remains
-deployed. No hosted migration, commit/push, configuration change or public intake
-enablement occurred. Hosting credentials and a signed-in dashboard session are
-unavailable in this execution environment. T057 remains open; liveness alone is
+deployed. The release checkpoint is published on `codex/release-checkpoint`;
+no hosted migration, configuration change or public intake enablement occurred.
+The user's Chrome is signed in, but Chrome control is unavailable in this execution
+environment. T057 remains open; liveness alone is
 insufficient. The concrete rollout below is prepared for the existing free services.
 
 T008 in [[TODO]]. Current target: Render static frontend and free Python API,
@@ -46,8 +47,11 @@ read-only connection/version/TLS check. It never prints credentials or DB errors
 ## 3. Publish the checkpoint
 Deployment needs the new files on GitHub. Before pushing, review the diff and
 confirm .env files, .runtime, node_modules and .venv remain ignored. Never force-push.
-On October 11 the user lifted the no-commit/push constraint. Publishing the
-reviewed release checkpoint is necessary before Render can build these local files.
+On October 11 the user lifted the no-commit/push constraint. The reviewed release
+checkpoint is now pushed to `codex/release-checkpoint`. Application revision
+`325451a` passes the complete [GitHub Checks run](https://github.com/DevWithFaraz/filingguard-ai/actions/runs/38148960096).
+The following commit only records documentation/evidence. `main` still contains
+the older shell; select the release branch explicitly in both services.
 
 ## 4. API service
 In Render, open the existing filingguard-api service, then Settings. Confirm its

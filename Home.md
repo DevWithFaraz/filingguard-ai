@@ -24,7 +24,9 @@ grounded propositions and explicit cached-public provenance. Expert real-case
 legal quality and physical-device/screen-reader acceptance remain separate.
 The existing hosted API is the older health shell; /ready and /capabilities return
 404 on the last hosted probe. No working hosted release or migration has been
-performed. The user has now authorized checkpoint publication; progress is in
+performed. Release code `325451a` is published on `codex/release-checkpoint` and
+its complete Linux GitHub Checks run passes. T059 committed reproduction is
+verified; the next step is the closed-intake Render rollout. Evidence is in
 [[docs/sessions/2026-10-11 - Release checkpoint publication]].
 Latest UI handoff: [[docs/sessions/2026-10-11 - Glass input composer preview]].
 Release preparation: [[docs/sessions/2026-10-11 - Setup and release documentation]].

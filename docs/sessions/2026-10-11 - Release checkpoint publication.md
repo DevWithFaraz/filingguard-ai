@@ -1,6 +1,6 @@
 ---
 type: session
-status: publication-in-progress
+status: published-hosted-rollout-pending
 date: 2026-10-11
 tags: [sessions, release, deployment]
 ---
@@ -60,7 +60,18 @@ partly written POSIX stdin abandoned after the first short communication timeout
 One-call delivery preserves the independent shutdown/deadline watcher and resource
 limits. A delayed-start/100,000-character regression fails on the old Linux code;
 the affected 21-control suite passes on both Windows and Linux after correction.
-Ruff passes. Push this correction and verify the complete fresh CI before deploying.
+Ruff passes. Correction `325451ada388dc908b7a28c9d2b8dd8362a52338` is pushed and
+GitHub Checks [run 38148960096](https://github.com/DevWithFaraz/filingguard-ai/actions/runs/38148960096)
+passes: 715 API controls, 30 frontend unit controls, 28 baseline browser controls,
+eight navigation/intake/results/accessibility controls, and three performance
+controls/one deliberate mobile maximum-input skip. Locked setup, both linters,
+typecheck, contract regeneration/no-diff and production build all pass. Existing
+large-chunk and deprecation warnings remain. The clean Linux checkout reproduces
+the documented app; [[TODO]] T059 is complete. No genuine provider calls occur in CI.
+
+Final follow-up changes only documentation; the verified application revision is
+`325451a`. The temporary diagnostic Linux container was stopped and removed.
+Unrelated local graph/showreel work remains uncommitted and preserved.
 
 Read-only Neon TLS connectivity passes; the database has no recorded Alembic head,
 while the release head is `0004_citation_extraction`. The hosted probe still finds
@@ -71,10 +82,14 @@ while the release head is `0004_citation_extraction`. The hosted probe still fin
 The in-app Render browser reaches sign-in. User requested the signed-in Chrome
 session; the control tool reports Chrome unavailable, so that session cannot be
 operated here. User can follow [[docs/delivery/Deployment guide]] in Chrome after
-publication. Reuse existing services and select the published release branch;
+publication. Reuse existing services and select `codex/release-checkpoint`;
 keep intake/providers off during the first deployment. Working-app acceptance,
 deliberate Neon migration, Linux containment, owner isolation, expiry/restart and
 live/cached rehearsal remain T057/T058 gates. This note does not claim deployment.
+Next action: user applies the closed-intake Render API/static settings in Chrome,
+then run the public hosted probe against the deployed revision. Deliberate Neon
+migration and enabled synthetic workflow acceptance follow before calling T057 done.
+Physical assistive-device and expert legal-quality acceptance were not run here.
 
 [[TODO]] T057/T059/T062, [[docs/sessions/Index]],
 [[docs/sessions/2026-10-11 - Setup and release documentation]],
