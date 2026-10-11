@@ -82,6 +82,10 @@ run first; unavailable engines are static metadata without process startup.
 Windows Job containment or a POSIX process group terminates the local worker tree
 on stage/overall cutoff or shutdown. Saved stages survive; remaining stages become
 unavailable on deadline or interrupted on shutdown, releasing the admission slot.
+Request delivery uses one `communicate` call while an independent watcher enforces
+shutdown/deadline termination. Retrying with empty input after a short POSIX pipe
+timeout can strand larger snapshots before EOF; the slow-start/100,000-character
+regression and curated source-to-quote controls cover this boundary.
 Defaults are a 90-second work cutoff, 30-second stage cutoff and 60 total provider
 attempts. Startup counts toward the cutoff; separately bounded DB finalization is
 not included in a claim of exact end-to-end duration. Unknown killed-worker quota

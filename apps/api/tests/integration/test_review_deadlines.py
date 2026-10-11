@@ -231,6 +231,34 @@ def test_large_input_pipe_cannot_postpone_the_hard_cutoff():
     assert time.monotonic() - started < 2
 
 
+def test_large_input_reaches_a_slow_starting_worker(monkeypatch):
+    # Force startup beyond the former 100 ms pipe poll, with more input than
+    # a Linux pipe holds. Delivery must finish without relaxing the deadline.
+    import subprocess
+
+    spawn = subprocess.Popen
+
+    def slow_start(args, **kwargs):
+        assert args[1:] == ["-m", "filingguard.modules.analyses.worker"]
+        return spawn(
+            [args[0], "-c", "import time,runpy;time.sleep(.3);"
+             "runpy.run_module('filingguard.modules.analyses.worker',run_name='__main__')"],
+            **kwargs,
+        )
+
+    monkeypatch.setattr("filingguard.modules.analyses.execution.subprocess.Popen", slow_start)
+    result = execute_stage(
+        complete,
+        make_analysis("x" * 100000),
+        StageName.CITATIONS,
+        ProviderBudget(deadline=time.monotonic() + 10),
+        stage_seconds=5,
+        stop=Event(),
+    )
+    assert result.status.value == "completed"
+    assert result.coverage.evaluated == 1
+
+
 @pytest.mark.parametrize(
     "values",
     [

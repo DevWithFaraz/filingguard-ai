@@ -623,7 +623,11 @@ Depends on T051-T056. SRS: DEP-001 through DEP-005, sections 19 and 23.
   because free services lack shell access. API deployment root corrected to retain
   server-owned demo resources; production-only sync/resource checks and 27 demo
   controls pass. Frontend lint and 30 unit tests pass. No publication or hosted writes.
-  Remains unchecked pending reproduction from a committed release checkpoint.
+  Checkpoint published on `codex/release-checkpoint`; clean committed checkout
+  `10b1a6d` passes locked installs/build and 27 cached-demo controls. CI exposed
+  Linux snapshot delivery stalling; its correction passes 21 affected controls on
+  Windows and Linux. Remains unchecked pending the complete fresh CI run.
+  [[docs/sessions/2026-10-11 - Release checkpoint publication]].
   [[docs/sessions/2026-10-11 - Setup and release documentation]].
 - [ ] T060 - Prepare a two-to-three-minute demo, screenshots and recording showing
   citation misuse, quote evidence, graph, privacy/rules and report. Include AI limits

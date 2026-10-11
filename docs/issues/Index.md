@@ -4,7 +4,9 @@ tags: [issues]
 ---
 # Bugs and incidents
 
-- [[docs/issues/BUG-023 - Clean checkout lacks pytest temporary parent]] (corrected; fresh verification pending)
+- [[docs/issues/BUG-024 - Linux stage pipe stalls on large snapshots]] (resolved; Windows/Linux regression verified)
+
+- [[docs/issues/BUG-023 - Clean checkout lacks pytest temporary parent]] (resolved; fresh checkout verified)
 
 - [[docs/issues/BUG-022 - Git normalization changes locked fixture bytes]] (resolved locally before publication)
 

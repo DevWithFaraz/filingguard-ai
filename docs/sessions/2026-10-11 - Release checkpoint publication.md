@@ -49,7 +49,22 @@ Fresh committed checkout installs both locked dependency sets, but cached-demo
 controls exposed a missing ignored pytest temporary parent (15 passes/12 setup
 errors). GitHub CI run `38147262802` fails at API tests. Correct the bootstrap
 and reverify before deploying; [[docs/issues/BUG-023 - Clean checkout lacks pytest temporary parent]].
-No hosted migration or dashboard setting has been changed.
+Bootstrap correction `10b1a6d` is pushed. A fresh committed checkout initially
+without the API runtime parent passes all 27 cached-demo controls. Linux GitHub
+run `38147439448` reaches 712 passes and two quote-stage deadline failures, without
+setup errors. The exact two failures reproduce in an isolated Linux container.
+[[docs/issues/BUG-023 - Clean checkout lacks pytest temporary parent]] is resolved.
+
+[[docs/issues/BUG-024 - Linux stage pipe stalls on large snapshots]] identifies
+partly written POSIX stdin abandoned after the first short communication timeout.
+One-call delivery preserves the independent shutdown/deadline watcher and resource
+limits. A delayed-start/100,000-character regression fails on the old Linux code;
+the affected 21-control suite passes on both Windows and Linux after correction.
+Ruff passes. Push this correction and verify the complete fresh CI before deploying.
+
+Read-only Neon TLS connectivity passes; the database has no recorded Alembic head,
+while the release head is `0004_citation_extraction`. The hosted probe still finds
+/ready and /capabilities 404. No hosted migration or dashboard setting has changed.
 
 ## Hosting access and next step
 

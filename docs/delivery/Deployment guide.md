@@ -116,7 +116,7 @@ node scripts/api.mjs run alembic upgrade head
 node scripts/api.mjs run alembic current
 ```
 
-Confirm current agrees with head (currently `0004`). Keep connection strings and
+Confirm current agrees with head (currently `0004_citation_extraction`). Keep connection strings and
 credential-bearing output private. No hosted migration was performed in T059.
 
 Create a dedicated absolute private directory outside the served frontend, set
@@ -176,8 +176,11 @@ as an automatic rollback.
    journey above. Readiness must pass for the enabled configuration. Disable
    intake again if any release control fails. Record the tested deployed revision.
 
-This sequence is prepared, not executed. Dashboard access, release publication,
-hosted migration and hosted acceptance remain outstanding.
+The release branch is published; select `codex/release-checkpoint` and wait for
+its GitHub Checks run to pass before manually deploying. Dashboard changes,
+hosted migration and hosted acceptance remain outstanding. The configured Neon
+connection passed the read-only TLS probe on October 11, but has no recorded
+Alembic revision; the migration step above is still necessary.
 
 ## Sources and related notes
 September 28 preparation release boundary: latest code remains local and public

@@ -630,19 +630,17 @@ def execute_stage(
             job = WindowsJob(int(process._handle), memory_mb=384, max_processes=2)
         watcher = Thread(target=watch_deadline, daemon=True, name="filingguard-stage-deadline")
         watcher.start()
-        # communicate resumes pipe I/O after timeout; each poll checks shutdown and the hard cutoff.
-        data = payload
-        while True:
-            if stop.is_set():
-                raise StageExecutionError("shutdown")
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise StageExecutionError("deadline")
-            try:
-                output, _ = process.communicate(data, timeout=min(0.1, remaining))
-                break
-            except subprocess.TimeoutExpired:
-                data = None
+        # Keep input delivery in one call. On POSIX, retrying communicate(None)
+        # after a short timeout can leave a partly written stdin pipe open forever.
+        # The watcher independently kills the process tree on shutdown or cutoff,
+        # including Windows' potentially blocking stdin write.
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise StageExecutionError("deadline")
+        try:
+            output, _ = process.communicate(payload, timeout=remaining)
+        except subprocess.TimeoutExpired:
+            raise StageExecutionError("deadline") from None
         if stop.is_set():
             raise StageExecutionError("shutdown")
         if time.monotonic() >= deadline:
