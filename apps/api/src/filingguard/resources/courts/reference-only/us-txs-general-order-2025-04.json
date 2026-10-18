@@ -1,0 +1,22 @@
+{
+  "id": "us-txs-general-order-2025-04",
+  "version": "2025-05-07",
+  "title": "General Order 2025-04 — Use of Generative Artificial Intelligence in Court Filings",
+  "official_source_url": "https://www.txs.uscourts.gov/sites/txs/files/general-orders/General_Order_2025-04_Use_of_Generative_AI_in_Court_Filings.pdf",
+  "source_locator": "One-page General Order 2025-04; paragraphs applying Rule 11 responsibility and the accuracy caution.",
+  "issued_on": "2025-05-07",
+  "source_checked_on": "2026-10-14",
+  "court_scope": "U.S. District Court for the Southern District of Texas",
+  "judge_scope": null,
+  "filing_scope": "Pleadings, written motions, and other papers filed in the issuing court when generative AI helped draft the submission.",
+  "trigger_summary": "A filing is drafted using generative AI.",
+  "requirement_summary": "The order cautions filers to check accuracy and confirms the signer's Rule 11 responsibility; it does not state a disclosure heading or declaration requirement.",
+  "current_effective_status": "unconfirmed",
+  "applicability_status": "not_a_disclosure_rule",
+  "activation_status": "reference_only",
+  "runtime_profile_id": null,
+  "activation_blockers": [
+    "The order does not create a detectable AI-use disclosure requirement, so the heading-only evaluator cannot express its actual obligation.",
+    "A filing alone cannot demonstrate the independent accuracy review the order describes, and a maintainer must confirm current force before activation of any future advisory check."
+  ]
+}

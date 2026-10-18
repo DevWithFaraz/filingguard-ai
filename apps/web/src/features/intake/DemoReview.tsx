@@ -31,7 +31,7 @@ export function DemoReview({ onReset }: { onReset: () => void }) {
     </div>
     <p className="demo-notice">Synthetic filing. AI-reviewed expectations, with conditional judgments.
       Human and legal-expert validation remain pending.</p>
-    {query.isPending && <p role="status">Loading reviewed sample...</p>}
+    {query.isPending && <p role="status" aria-live="polite">Loading reviewed sample...</p>}
     {query.isError && <div role="alert"><p>Reviewed sample unavailable. No results loaded.</p>
       <button className="secondary-button" disabled={query.isFetching} onClick={() => void query.refetch()}>
         <RefreshCw size={17} />Retry sample</button></div>}

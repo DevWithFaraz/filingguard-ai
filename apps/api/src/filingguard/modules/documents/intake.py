@@ -33,6 +33,7 @@ class PreparedDocument(DocumentSummary):
 
 
 _DEMO_PROFILE = load_profile("synthetic-demo-v1")
+_TXND_PROFILE = load_profile("us-txnd-lr7-2f-v1")
 PROFILES = [
     CourtProfileSummary(
         id="unverified",
@@ -47,6 +48,13 @@ PROFILES = [
         name=_DEMO_PROFILE.name,
         is_demo=True,
         applicability="synthetic",
+    ),
+    CourtProfileSummary(
+        id=_TXND_PROFILE.id,
+        version=_TXND_PROFILE.version,
+        name=_TXND_PROFILE.name,
+        is_demo=False,
+        applicability="verified",
     ),
 ]
 
@@ -63,9 +71,11 @@ def prepare(
     data: bytes | None = None,
     demo: bool = False,
 ) -> UUID:
-    repo = lifecycle.repository
-    if court_profile_id not in ({"synthetic-demo-v1", "unverified"} if demo else {"unverified"}):
+    if court_profile_id not in (
+        {"synthetic-demo-v1", "unverified"} if demo else {"unverified", "us-txnd-lr7-2f-v1"}
+    ):
         raise ValueError("Unknown or inapplicable court profile")
+    repo = lifecycle.repository
     if len(repo.list_analyses(owner)) >= 5:
         raise OverflowError("Session document limit reached")
     file = None

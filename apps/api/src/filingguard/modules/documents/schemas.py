@@ -30,6 +30,7 @@ class ExtractedDocument(Contract):
     pages: list[PageSpan] = Field(max_length=20)
     paragraphs: list[Paragraph] = Field(min_length=1, max_length=2000)
     method: Literal["original-text-v1", "pypdf-bounded-v1"]
+    diagnostics: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")
     def validate_spans(self) -> Self:

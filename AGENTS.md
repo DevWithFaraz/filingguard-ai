@@ -6,8 +6,11 @@ when it changes scope or priorities.
 ## Before substantive work
 
 1. Read `Home.md`, `TODO.md`, and `docs/knowledge/Documentation Workflow.md`.
-2. Follow links to the relevant SRS section, module guide and recorded decisions.
-3. Read related open issues and lessons; check their evidence and applicability.
+2. For product strategy, roadmap, court-rule or EU AI Act work, also read
+   `docs/product/FilingGuard product direction.md` and its linked ADR, research and
+   session handoff before proposing scope or implementation.
+3. Follow links to the relevant SRS section, module guide and recorded decisions.
+4. Read related open issues and lessons; check their evidence and applicability.
    Do not load every note or assume a prior lesson applies to a new situation.
 
 ## During and after work
@@ -34,7 +37,9 @@ when it changes scope or priorities.
 `FilingGuard_AI_SRS.md` owns requirements; `TODO.md` owns tasks; `README.md` owns
 setup; `docs/architecture/stack.md` owns stack decisions; feature/module READMEs
 own local responsibilities. Link to these rather than keeping divergent copies.
-The repository itself is the Obsidian vault. No separate synced documentation copy.
+`docs/product/FilingGuard product direction.md` owns the current product strategy,
+accepted boundaries and constrained brainstorming; it does not replace the SRS or
+TODO. The repository itself is the Obsidian vault. No separate synced documentation copy.
 
 ## UI scope for continuing development
 

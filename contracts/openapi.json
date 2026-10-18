@@ -666,6 +666,114 @@
         }
       }
     },
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/questions": {
+      "post": {
+        "summary": "Ask Finding Qa",
+        "operationId": "ask_finding_qa_api_v1_analyses__analysis_id__findings__finding_id__questions_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "finding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Finding Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroundedQuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroundedAnswerResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Finding Qa",
+        "operationId": "get_finding_qa_api_v1_analyses__analysis_id__findings__finding_id__questions_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "finding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Finding Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroundedQuestionHistory"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analyses/{analysis_id}/report": {
       "get": {
         "summary": "Review Report",
@@ -688,7 +796,8 @@
             "schema": {
               "enum": [
                 "markdown",
-                "html"
+                "html",
+                "pdf"
               ],
               "type": "string",
               "default": "markdown",
@@ -702,6 +811,84 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/red-team": {
+      "get": {
+        "summary": "Review Red Team",
+        "operationId": "review_red_team_api_v1_analyses__analysis_id__red_team_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedTeamResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Review Red Team",
+        "operationId": "review_red_team_api_v1_analyses__analysis_id__red_team_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedTeamResponse"
+                }
               }
             }
           },
@@ -1106,6 +1293,28 @@
             ],
             "default": null,
             "title": "Limitation"
+          },
+          "cached": {
+            "default": false,
+            "title": "Cached",
+            "type": "boolean"
+          },
+          "cache_hit": {
+            "default": false,
+            "title": "Cache Hit",
+            "type": "boolean"
+          },
+          "cache_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cache Version"
           }
         },
         "required": [
@@ -1146,6 +1355,7 @@
             "enum": [
               "synthetic",
               "verified_scope",
+              "verified",
               "unknown"
             ],
             "title": "Applicability",
@@ -1707,6 +1917,14 @@
               "pypdf-bounded-v1"
             ],
             "title": "Method"
+          },
+          "diagnostics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Diagnostics"
           }
         },
         "additionalProperties": false,
@@ -1720,6 +1938,145 @@
           "method"
         ],
         "title": "ExtractedDocument"
+      },
+      "GroundedAnswerResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "finding_id": {
+            "format": "uuid",
+            "title": "Finding Id",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "status": {
+            "default": "answered",
+            "enum": [
+              "answered",
+              "refused",
+              "no_evidence"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "refusal_reason": {
+            "default": "none",
+            "enum": [
+              "broad_legal_advice",
+              "out_of_scope",
+              "none"
+            ],
+            "title": "Refusal Reason",
+            "type": "string"
+          },
+          "evidence_record_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Record Ids",
+            "type": "array"
+          },
+          "source_authorities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Authorities",
+            "type": "array"
+          },
+          "source_urls": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Urls",
+            "type": "array"
+          },
+          "method_version": {
+            "default": "grounded-qa-v1",
+            "title": "Method Version",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "finding_id",
+          "question",
+          "answer",
+          "created_at"
+        ],
+        "title": "GroundedAnswerResponse",
+        "type": "object"
+      },
+      "GroundedQuestionHistory": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "finding_id": {
+            "format": "uuid",
+            "title": "Finding Id",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/GroundedAnswerResponse"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "count": {
+            "default": 0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "finding_id"
+        ],
+        "title": "GroundedQuestionHistory",
+        "type": "object"
+      },
+      "GroundedQuestionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "maxLength": 500,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "title": "GroundedQuestionRequest",
+        "type": "object"
       },
       "HTTPValidationError": {
         "properties": {
@@ -1962,6 +2319,179 @@
           "checks"
         ],
         "title": "ReadinessResponse"
+      },
+      "RedTeamResponse": {
+        "additionalProperties": false,
+        "description": "Grounded adversarial critique of filing vulnerabilities.",
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "weaknesses": {
+            "items": {
+              "$ref": "#/components/schemas/RedTeamWeakness"
+            },
+            "maxItems": 50,
+            "title": "Weaknesses",
+            "type": "array"
+          },
+          "summary": {
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          },
+          "total_weaknesses": {
+            "minimum": 0,
+            "title": "Total Weaknesses",
+            "type": "integer"
+          },
+          "critical_count": {
+            "minimum": 0,
+            "title": "Critical Count",
+            "type": "integer"
+          },
+          "high_count": {
+            "minimum": 0,
+            "title": "High Count",
+            "type": "integer"
+          },
+          "medium_count": {
+            "minimum": 0,
+            "title": "Medium Count",
+            "type": "integer"
+          },
+          "low_count": {
+            "minimum": 0,
+            "title": "Low Count",
+            "type": "integer"
+          },
+          "limitation": {
+            "default": "Red-Team Mode synthesizes review vulnerabilities exclusively from existing findings and evidence. It identifies adversarial risks to assist human review, not legal strategy or legal advice.",
+            "title": "Limitation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "generated_at",
+          "summary",
+          "total_weaknesses",
+          "critical_count",
+          "high_count",
+          "medium_count",
+          "low_count"
+        ],
+        "title": "RedTeamResponse",
+        "type": "object"
+      },
+      "RedTeamWeakness": {
+        "additionalProperties": false,
+        "description": "An adversarial weakness synthesized exclusively from existing analysis findings.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "vulnerability_type": {
+            "enum": [
+              "misrepresented_authority",
+              "unverified_citation",
+              "altered_quotation",
+              "privacy_exposure",
+              "court_rule_violation",
+              "unsupported_claim",
+              "unresolved_authority"
+            ],
+            "title": "Vulnerability Type",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "challenge_theory": {
+            "minLength": 1,
+            "title": "Challenge Theory",
+            "type": "string"
+          },
+          "impact_summary": {
+            "minLength": 1,
+            "title": "Impact Summary",
+            "type": "string"
+          },
+          "remediation_recommendation": {
+            "minLength": 1,
+            "title": "Remediation Recommendation",
+            "type": "string"
+          },
+          "linked_finding_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Linked Finding Ids",
+            "type": "array"
+          },
+          "linked_citation_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Linked Citation Ids",
+            "type": "array"
+          },
+          "linked_claim_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Linked Claim Ids",
+            "type": "array"
+          },
+          "linked_quote_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Linked Quote Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "vulnerability_type",
+          "severity",
+          "title",
+          "challenge_theory",
+          "impact_summary",
+          "remediation_recommendation"
+        ],
+        "title": "RedTeamWeakness",
+        "type": "object"
       },
       "ReviewScore": {
         "additionalProperties": false,
@@ -2269,6 +2799,25 @@
             ],
             "default": null,
             "title": "Limitation"
+          },
+          "duplicate_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duplicate Count"
+          },
+          "repeated_locations": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentLocation"
+            },
+            "title": "Repeated Locations",
+            "type": "array"
           }
         },
         "required": [

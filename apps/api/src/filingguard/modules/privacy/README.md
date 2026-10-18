@@ -13,10 +13,15 @@ masked. ASCII stars preserve Unicode-code-point length and original spans.
 Names/contextual identifiers may be missed and benign matches remain possible.
 This is not legal redaction compliance or a promise all private data is removed.
 
-`checks.py` now emits SSN-shaped, contextual financial-account and valid full-DOB
-signals with severity and masked context. The local review stage saves owner-scoped
-findings with a human-redaction-review recommendation and exact private evidence;
-the HTTP findings projection never returns raw evidence. Benign citation/date
+`checks.py` now emits SSN-shaped, contextual financial-account, valid full-DOB,
+and possible unredacted minor-name signals (FR-163 / T108) with severity and masked context.
+Minor-name heuristics (`_valid_minor_name`) inspect conventional legal indicators
+(e.g., minor child, next friend, guardian ad litem, minor:) while strictly suppressing
+false positives: compliant initials under Fed. R. Civ. P. 5.2(a)(3) (e.g. A.B.),
+benign non-person usage (minor injuries/delays), case citation party contexts (Minor v. ...),
+and institutional/legal entity tokens. The local review stage saves owner-scoped
+findings with a high-severity alert, explicit uncertainty disclaimer, and exact private evidence;
+the HTTP findings projection never returns raw evidence. Benign citation/date/minor
 controls and the curated fixture are tested. Detection is not legal compliance.
 
 T022/T031 integration is implemented: the real semantic adapter masks the full

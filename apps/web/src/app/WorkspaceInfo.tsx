@@ -9,7 +9,7 @@ export function SettingsView() {
   const query = useQuery({ queryKey: ['capabilities'], queryFn: ({ signal }) => getCapabilities(signal), retry: false });
   return <section className="workspace-info"><WorkflowHero eyebrow="WORKSPACE AVAILABILITY" title="Settings" description="Know what’s available before you begin. These settings reflect the server’s configuration." >
     <div className="workflow-hero-note"><SlidersHorizontal size={28} /><strong>Your review, in context.</strong><span>Configuration is managed by the server. No account or paid upgrade is required here.</span></div></WorkflowHero>
-    {query.isPending && <p className="workflow-notice" role="status">Loading service availability</p>}
+    {query.isPending && <p className="workflow-notice" role="status" aria-live="polite">Loading service availability</p>}
     {query.isError && <div className="workflow-notice" role="alert"><strong>Availability could not be confirmed.</strong><p>{query.error.message}</p><button className="secondary-button" onClick={() => void query.refetch()}>Retry availability</button></div>}
     <div className="workflow-info-grid"><article className="workflow-card"><FileText size={23} /><h2>Document preparation</h2><span className="workflow-status">{query.data ? query.data.intake_enabled ? 'Available · private sessions' : 'Disabled' : 'Availability unknown'}</span>
       <p>Prepare pasted text, a text-based PDF or the curated synthetic demo. Preparation alone does not run the review.</p><StartReviewLink /></article>

@@ -151,14 +151,14 @@ def test_recovery_preserves_committed_stage_and_interrupts_incomplete_work(syste
         writer.add(DocumentSegment(text="Saved stage", paragraph_index=0))
     with repo.stage_update(OWNER, analysis.id, "citations", "running", analysis_status="running"):
         pass
-    assert lifecycle.recover() == 1
+    assert lifecycle.recover(max_retries=0) == (0, 1)
     recovered = repo.get_analysis(OWNER, analysis.id)
     assert recovered.status == "interrupted"
     assert recovered.stage_states["document"]["status"] == "completed"
     assert recovered.stage_states["citations"]["status"] == "interrupted"
     assert repo.list_records(OWNER, analysis.id, DocumentSegment)[0].text == "Saved stage"
     assert recovered.overall_score is None
-    assert lifecycle.recover() == 0
+    assert lifecycle.recover(max_retries=0) == (0, 0)
 
 
 def test_expiry_and_file_reference_validation_before_storage(system):

@@ -18,6 +18,9 @@ class CitationVerificationMetadata(Contract):
     retrieved_at: AwareDatetime
     reason: str | None = Field(default=None, max_length=300)
     limitation: str | None = Field(default=None, max_length=1000)
+    cached: bool = False
+    cache_hit: bool = False
+    cache_version: str | None = None
 
 
 class CitationExtractionMetadata(Contract):

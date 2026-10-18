@@ -2,7 +2,7 @@
 
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 from sqlalchemy import delete, func, select
@@ -417,13 +417,271 @@ class AnalysisRepository:
             analysis = session.scalar(
                 select(Analysis)
                 .where(Analysis.id == analysis_id, Analysis.expires_at <= now)
-                .with_for_update()
+                .with_for_update(skip_locked=True)
             )
             if analysis is None:
                 return False
             self._delete_file(analysis, delete_file)
             session.execute(delete(Analysis).where(Analysis.id == analysis_id))
             return True
+
+    def purge_all_expired(
+        self,
+        now: datetime | None = None,
+        *,
+        delete_file: Callable[[str], bool] | None = None,
+        batch_size: int = 100,
+        failed_ids_out: list[UUID] | None = None,
+    ) -> int:
+        if now is None:
+            now = datetime.now(UTC)
+        if now.utcoffset() is None:
+            raise ValueError("Cleanup time must be timezone-aware")
+        if type(batch_size) is not int or not 1 <= batch_size <= 500:
+            raise ValueError("Invalid batch size")
+
+        total_purged = 0
+        failed_ids: set[UUID] = set()
+
+        while True:
+            with transaction(self._factory) as session:
+                query = select(Analysis).where(Analysis.expires_at <= now)
+                if failed_ids:
+                    query = query.where(Analysis.id.not_in(failed_ids))
+                analyses = list(
+                    session.scalars(
+                        query.order_by(Analysis.expires_at, Analysis.id)
+                        .limit(batch_size)
+                        .with_for_update(skip_locked=True)
+                    )
+                )
+                if not analyses:
+                    break
+
+                batch_deleted_ids: list[UUID] = []
+                for analysis in analyses:
+                    if analysis.stored_file_id is not None:
+                        if delete_file is None:
+                            failed_ids.add(analysis.id)
+                            continue
+                        try:
+                            delete_file(str(analysis.stored_file_id))
+                        except Exception:
+                            failed_ids.add(analysis.id)
+                            continue
+                    batch_deleted_ids.append(analysis.id)
+
+                if batch_deleted_ids:
+                    session.execute(delete(Analysis).where(Analysis.id.in_(batch_deleted_ids)))
+                    total_purged += len(batch_deleted_ids)
+
+                if len(analyses) < batch_size:
+                    break
+
+        if failed_ids_out is not None:
+            failed_ids_out.extend(failed_ids)
+
+        return total_purged
+
+    def acquire_lease(
+        self,
+        owner_hash: str,
+        analysis_id: UUID,
+        worker_id: str,
+        lease_seconds: int = 120,
+    ) -> bool:
+        now = datetime.now(UTC)
+        with transaction(self._factory) as session:
+            analysis = session.scalar(
+                select(Analysis)
+                .where(
+                    Analysis.id == analysis_id,
+                    Analysis.owner_hash == owner_hash,
+                    Analysis.expires_at > now,
+                )
+                .with_for_update()
+            )
+            if analysis is None or analysis.status not in {"queued", "running"}:
+                return False
+
+            states = dict(analysis.stage_states)
+            lease_meta = dict(states.get("lease_metadata", {}))
+            current_worker = lease_meta.get("worker_id")
+            lease_exp_str = lease_meta.get("lease_expires_at")
+
+            if analysis.status == "running" and current_worker and lease_exp_str:
+                try:
+                    lease_exp = datetime.fromisoformat(lease_exp_str)
+                    if lease_exp > now and current_worker != worker_id:
+                        return False
+                except (ValueError, TypeError):
+                    pass
+
+            lease_meta["worker_id"] = worker_id
+            lease_meta["lease_expires_at"] = (
+                now + timedelta(seconds=lease_seconds)
+            ).isoformat()
+            if "retry_count" not in lease_meta:
+                lease_meta["retry_count"] = 0
+
+            states["lease_metadata"] = lease_meta
+            analysis.stage_states = states
+            analysis.status = "running"
+            return True
+
+    def renew_lease(
+        self,
+        owner_hash: str,
+        analysis_id: UUID,
+        worker_id: str,
+        lease_seconds: int = 120,
+    ) -> bool:
+        now = datetime.now(UTC)
+        with transaction(self._factory) as session:
+            analysis = session.scalar(
+                select(Analysis)
+                .where(
+                    Analysis.id == analysis_id,
+                    Analysis.owner_hash == owner_hash,
+                    Analysis.expires_at > now,
+                )
+                .with_for_update()
+            )
+            if analysis is None or analysis.status != "running":
+                return False
+
+            states = dict(analysis.stage_states)
+            lease_meta = dict(states.get("lease_metadata", {}))
+            if lease_meta.get("worker_id") != worker_id:
+                return False
+
+            lease_meta["lease_expires_at"] = (
+                now + timedelta(seconds=lease_seconds)
+            ).isoformat()
+            states["lease_metadata"] = lease_meta
+            analysis.stage_states = states
+            return True
+
+    def release_lease(
+        self,
+        owner_hash: str,
+        analysis_id: UUID,
+        worker_id: str,
+    ) -> None:
+        now = datetime.now(UTC)
+        with transaction(self._factory) as session:
+            analysis = session.scalar(
+                select(Analysis)
+                .where(
+                    Analysis.id == analysis_id,
+                    Analysis.owner_hash == owner_hash,
+                    Analysis.expires_at > now,
+                )
+                .with_for_update()
+            )
+            if analysis is None:
+                return
+
+            states = dict(analysis.stage_states)
+            lease_meta = dict(states.get("lease_metadata", {}))
+            if lease_meta.get("worker_id") == worker_id:
+                lease_meta["worker_id"] = None
+                lease_meta["lease_expires_at"] = None
+                states["lease_metadata"] = lease_meta
+                analysis.stage_states = states
+
+    def recover_orphaned_leases(
+        self,
+        now: datetime | None = None,
+        max_retries: int = 2,
+    ) -> tuple[int, int]:
+        if now is None:
+            now = datetime.now(UTC)
+        if now.utcoffset() is None:
+            raise ValueError("Recovery time must be timezone-aware")
+
+        rescheduled_count = 0
+        interrupted_count = 0
+
+        with transaction(self._factory) as session:
+            analyses = list(
+                session.scalars(
+                    select(Analysis)
+                    .where(
+                        Analysis.status == "running",
+                        Analysis.expires_at > now,
+                    )
+                    .with_for_update()
+                )
+            )
+            for analysis in analyses:
+                states = dict(analysis.stage_states)
+                lease_meta = dict(states.get("lease_metadata", {}))
+                lease_exp_str = lease_meta.get("lease_expires_at")
+                is_expired = False
+                if not lease_exp_str:
+                    is_expired = True
+                else:
+                    try:
+                        lease_exp = datetime.fromisoformat(lease_exp_str)
+                        if lease_exp <= now:
+                            is_expired = True
+                    except (ValueError, TypeError):
+                        is_expired = True
+
+                if not is_expired:
+                    continue
+
+                retry_count = int(lease_meta.get("retry_count", 0))
+                if retry_count < max_retries:
+                    lease_meta["retry_count"] = retry_count + 1
+                    lease_meta["worker_id"] = None
+                    lease_meta["lease_expires_at"] = None
+                    states["lease_metadata"] = lease_meta
+
+                    for stage_name, stage_state in list(states.items()):
+                        if stage_name == "lease_metadata":
+                            continue
+                        if (
+                            isinstance(stage_state, dict)
+                            and stage_state.get("status") == "running"
+                        ):
+                            states[stage_name] = {
+                                **stage_state,
+                                "status": "queued",
+                            }
+
+                    analysis.stage_states = states
+                    analysis.status = "queued"
+                    rescheduled_count += 1
+                else:
+                    lease_meta["worker_id"] = None
+                    lease_meta["lease_expires_at"] = None
+                    states["lease_metadata"] = lease_meta
+
+                    analysis.status = "interrupted"
+                    analysis.overall_score = None
+                    analysis.risk_level = None
+
+                    for stage_name, stage_state in list(states.items()):
+                        if stage_name == "lease_metadata":
+                            continue
+                        if (
+                            isinstance(stage_state, dict)
+                            and stage_state.get("status") in {"queued", "running"}
+                        ):
+                            states[stage_name] = {
+                                **stage_state,
+                                "status": "interrupted",
+                                "reason": (
+                                    "Execution retries exceeded after worker lease expired"
+                                ),
+                            }
+
+                    analysis.stage_states = states
+                    interrupted_count += 1
+
+        return rescheduled_count, interrupted_count
 
     def interrupt_pending(self) -> int:
         with transaction(self._factory) as session:
@@ -440,7 +698,7 @@ class AnalysisRepository:
                 analysis.risk_level = None
                 states = dict(analysis.stage_states)
                 for name, state in states.items():
-                    if state.get("status") in {"queued", "running"}:
+                    if isinstance(state, dict) and state.get("status") in {"queued", "running"}:
                         states[name] = {
                             **state,
                             "status": "interrupted",

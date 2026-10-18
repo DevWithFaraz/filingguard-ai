@@ -29,6 +29,12 @@ from filingguard.modules.citations.schemas import (
     CitationExtractionMetadata,
 )
 from filingguard.modules.evidence.schemas import EvidenceRecord
+from filingguard.modules.grounded_qa.schemas import (
+    GroundedAnswerResponse,
+    GroundedQuestionHistory,
+    GroundedQuestionRequest,
+)
+from filingguard.modules.red_team.schemas import RedTeamResponse
 
 
 class TextSubmission(Contract):
@@ -110,6 +116,8 @@ class SafeCitation(Contract):
     authority: SafeAuthority | None = None
     reason: str | None = None
     limitation: str | None = None
+    duplicate_count: int | None = None
+    repeated_locations: list[DocumentLocation] = Field(default_factory=list)
 
 
 class SafeCitationsResponse(Contract):
@@ -291,7 +299,7 @@ class CourtProfileSummary(Contract):
     version: Label
     name: Label
     is_demo: StrictBool
-    applicability: Literal["synthetic", "verified_scope", "unknown"]
+    applicability: Literal["synthetic", "verified_scope", "verified", "unknown"]
 
     @model_validator(mode="after")
     def synthetic_scope(self) -> Self:
@@ -344,6 +352,10 @@ CONTRACT_MODELS = [
     ReportResponse,
     CourtProfilesResponse,
     DeleteResponse,
+    RedTeamResponse,
+    GroundedQuestionRequest,
+    GroundedAnswerResponse,
+    GroundedQuestionHistory,
     ApiError,
 ]
 

@@ -27,7 +27,7 @@ def pooled_passages(requests, source):
     sha = hashlib.sha256(source.encode()).hexdigest()
     spans = []
     for _, _, passages in requests:
-        if not passages or len(passages) > 2 or sum(len(p.text) for p in passages) > 12000:
+        if not passages or len(passages) > 4 or sum(len(p.text) for p in passages) > 12000:
             raise ProviderUnavailable("invalid_request")
         for p in passages:
             if (
@@ -45,7 +45,7 @@ def pooled_passages(requests, source):
             merged.append((before[0], max(before[1], right), before[2] or truncated))
         else:
             merged.append((left, right, truncated))
-    if len(merged) > 2 or sum(right - left for left, right, _ in merged) > 12000:
+    if len(merged) > 4 or sum(right - left for left, right, _ in merged) > 12000:
         return None  # Cannot batch without dropping context: use independent calls.
     return tuple(
         SourcePassage(str(uuid4()), source[left:right], left, right, sha, truncated)

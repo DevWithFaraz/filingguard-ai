@@ -31,9 +31,9 @@ repository metadata, not a signature or arbitrary client approval.
 `lifecycle.py` coordinates admitted PDF bytes with owner-scoped persistence.
 Creation compensates file writes if DB creation fails. Deletion removes registered
 bytes before cascading DB deletion; failures retain retryable state. Expired DB
-rows are swept in batches up to 100. Startup recovery marks queued/running jobs and
-their pending stages interrupted, preserving completed stages and saved evidence.
-It does not rerun jobs or implement the analysis engine scheduler.
+rows are swept in batches up to 100. Startup recovery invokes `recover_orphaned_leases()`,
+rescheduling analyses with bounded retries (up to 2 attempts) and marking jobs exceeding
+retries interrupted while preserving completed stages and saved evidence (T109, ADR-015).
 
 `core/runtime.py` owns the storage lifecycle, threaded periodic sweeps and shutdown.
 The default shell never initializes persistence. Explicit recoverable-root
@@ -43,8 +43,11 @@ Private routes authorize before using the lifecycle and are off by default.
 See [[docs/decisions/ADR-006 - Retryable private lifecycle cleanup]].
 
 Stage transactions live in [[apps/api/src/filingguard/db/models/README]].
-`orchestrator.py` now owns a single in-process review worker and shares admission
-with document preparation. `queue_review` atomically saves queued legal stages before
+`orchestrator.py` integrates database-backed transactional worker leases (`acquire_lease`,
+`renew_lease`, `release_lease`) with row-level locks (`with_for_update()`) in PostgreSQL/SQLite
+to guarantee mutual exclusion across concurrent workers without external brokers (T109, ADR-015).
+Leases are automatically renewed during stage transitions and released in a `finally` block
+upon job completion or failure. `queue_review` atomically saves queued legal stages before
 the 202 response; the worker saves running and terminal stage states independently.
 Duplicate starts and active deletion conflict; wrong-owner IDs remain 404. A failed
 stage is recorded without suppressing independent later checks, preserving earlier
@@ -118,3 +121,13 @@ checks without promoting them to passes. See
 [[apps/api/src/filingguard/modules/propositions/README]],
 [[apps/api/src/filingguard/modules/quotes/README]] and
 [[apps/api/src/filingguard/modules/reports/README]].
+
+T110 enhances operational observability and retention automation:
+`AnalysisRepository.purge_all_expired` and `AnalysisLifecycle.purge_all_expired`
+automate batch deletion of expired analyses and associated document storage (NFR-044),
+safely cascading database records only after successful file purging.
+`ReviewOrchestrator` records structured telemetry with `correlation_id=analysis_id`
+(LOG-003, NFR-023) across job start, stage execution, and completion, capturing
+stage and job execution duration in milliseconds (`duration_ms=%d`, LOG-004) without
+leaking private document excerpts or filing text into application logs.
+

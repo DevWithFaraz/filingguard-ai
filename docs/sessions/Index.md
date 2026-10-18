@@ -4,6 +4,44 @@ tags: [sessions]
 ---
 # Session handoffs
 
+- [[docs/sessions/2026-10-18 - End-to-end interactive browser verification]]
+
+- [[docs/sessions/2026-10-18 - Additional verified real court profiles]]
+
+- [[docs/sessions/2026-10-18 - Durable job execution and transactional worker leases]]
+
+- [[docs/sessions/2026-10-18 - Accessibility retention and observability]]
+
+- [[docs/sessions/2026-10-18 - Minor-name heuristics implementation]]
+
+- [[docs/sessions/2026-10-17 - Deeper retrieval and forensics implementation]]
+
+- [[docs/sessions/2026-10-17 - Graph polish and score-category filters]]
+
+- [[docs/sessions/2026-10-17 - PDF report export implementation]]
+
+- [[docs/sessions/2026-10-17 - Finding-grounded QA implementation]]
+
+- [[docs/sessions/2026-10-17 - Rich lineage and explanations implementation]]
+
+- [[docs/sessions/2026-10-17 - Legal Red-Team Mode implementation]]
+
+- [[docs/sessions/2026-10-17 - Release recording and hygiene]]
+
+- [[docs/sessions/2026-10-14 - Motion graphics showreel delivery]]
+
+- [[docs/sessions/2026-10-14 - Filing-centric direction and court-source foundation]]
+
+- [[docs/sessions/2026-10-12 - Product MVP readiness and priorities]]
+
+- [[docs/sessions/2026-10-12 - Hosted dependency failure rehearsal]]
+
+- [[docs/sessions/2026-10-11 - Hosted provider rehearsal preparation]]
+
+- [[docs/sessions/2026-10-11 - Hosted synthetic acceptance]]
+
+- [[docs/sessions/2026-10-11 - Closed intake hosted checks]]
+
 - [[docs/sessions/2026-10-11 - Release checkpoint publication]]
 
 - [[docs/sessions/2026-10-11 - Setup and release documentation]]

@@ -319,3 +319,56 @@ def test_no_quotes_is_skipped():
     analysis, _, _ = context("No quoted statement. 123 U.S. 456")
     result = run(analysis)
     assert result.status == StageStatus.SKIPPED and not result.records
+
+
+def test_meaning_alteration_negation_inserted_escalates_to_critical():
+    text = '“Equal access is not a fundamental public right.” 123 U.S. 456'
+    analysis, _, _ = context(text, source="Equal access is a fundamental public right.")
+    result = run(analysis)
+    finding = next(row for row in result.records if isinstance(row, Finding))
+    assert finding.severity == "critical"
+    assert "Negation added" in finding.title
+    assert "reverse the legal meaning" in finding.description
+
+
+def test_meaning_alteration_negation_omitted_escalates_to_critical():
+    text = '“Discrimination is permitted under the Fourteenth Amendment.” 123 U.S. 456'
+    analysis, _, _ = context(
+        text, source="Discrimination is not permitted under the Fourteenth Amendment."
+    )
+    result = run(analysis)
+    finding = next(row for row in result.records if isinstance(row, Finding))
+    assert finding.severity == "critical"
+    assert "Negation omitted" in finding.title
+
+
+def test_meaning_alteration_modal_obligation_altered_escalates_to_high():
+    text = '“The court must consider equitable factors.” 123 U.S. 456'
+    analysis, _, _ = context(text, source="The court may consider equitable factors.")
+    result = run(analysis)
+    finding = next(row for row in result.records if isinstance(row, Finding))
+    assert finding.severity == "high"
+    assert "Obligation altered" in finding.title
+
+
+def test_meaning_alteration_ellipsis_omitting_qualifier_escalates_to_high():
+    text = '“Notice is required before termination ... to all occupants.” 123 U.S. 456'
+    analysis, _, _ = context(
+        text,
+        source="Notice is required before termination except in emergencies to all occupants.",
+    )
+    result = run(analysis)
+    finding = next(row for row in result.records if isinstance(row, Finding))
+    assert finding.severity == "high"
+    assert "Exception or qualifier omitted" in finding.title
+    assert "except" in finding.description
+
+
+def test_meaning_alteration_antonym_contradictory_term_escalates_to_critical():
+    text = '“The preliminary injunction is denied.” 123 U.S. 456'
+    analysis, _, _ = context(text, source="The preliminary injunction is granted.")
+    result = run(analysis)
+    finding = next(row for row in result.records if isinstance(row, Finding))
+    assert finding.severity == "critical"
+    assert "Contradictory term" in finding.title
+

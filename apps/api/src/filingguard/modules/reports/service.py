@@ -13,8 +13,9 @@ from filingguard.db.models import (
     Finding,
     Quote,
 )
-from filingguard.modules.analyses.schemas import Coverage, StageState
+from filingguard.modules.analyses.schemas import Coverage, StageName, StageState
 from filingguard.modules.privacy.service import mask_excerpt
+from filingguard.modules.reports.pdf_generator import generate_pdf_report
 from filingguard.modules.scoring.service import score_review
 
 LIMITATION = (
@@ -65,7 +66,11 @@ def saved_results(repository, owner, identity):
             EvidenceRecord,
         )
     }
-    stages = [StageState.model_validate(s) for s in analysis.stage_states.values()]
+    stages = [
+        StageState.model_validate(s)
+        for k, s in analysis.stage_states.items()
+        if k in {stage.value for stage in StageName}
+    ]
     coverage = Coverage(
         eligible=sum(s.coverage.eligible for s in stages),
         evaluated=sum(s.coverage.evaluated for s in stages),
@@ -121,12 +126,26 @@ def saved_results(repository, owner, identity):
         }
         for a in rows[Authority]
     }
+    citation_groups: dict[str, list] = {}
+    for c in rows[Citation]:
+        key = (c.normalized_text or c.raw_text or "").strip().lower()
+        if key:
+            citation_groups.setdefault(key, []).append(c)
+
     citations = []
     for c in sorted(rows[Citation], key=lambda r: r.start_offset):
         if filing[c.start_offset : c.end_offset] != c.raw_text:
             raise ValueError("Citation snapshot mismatch")
         masked = mask_excerpt(filing, c.start_offset, c.end_offset).text
         verification = (c.extraction_metadata or {}).get("verification") or {}
+        key = (c.normalized_text or c.raw_text or "").strip().lower()
+        group = citation_groups.get(key, [c])
+        duplicate_count = len(group)
+        repeated_locs = (
+            [location(other) for other in sorted(group, key=lambda r: r.start_offset)]
+            if duplicate_count > 1
+            else []
+        )
         citations.append(
             {
                 "id": str(c.id),
@@ -139,6 +158,8 @@ def saved_results(repository, owner, identity):
                 "authority": authorities.get(c.authority_id),
                 "reason": verification.get("reason"),
                 "limitation": verification.get("limitation"),
+                "duplicate_count": duplicate_count,
+                "repeated_locations": repeated_locs,
             }
         )
     links = {}
@@ -209,11 +230,25 @@ def saved_graph(repository, owner, identity):
             "kind": "section",
             "status": "extracted",
         }
+        # FR-106: Evaluate support status of claim for warning node presentation
+        link_statuses = {link["support_status"] for link in claim["links"]}
+        claim_findings = [f for f in results["findings"] if f.get("claim_id") == claim["id"]]
+        if (
+            not claim["links"]
+            or any(s in {"unsupported", "misrepresented", "contradicted"} for s in link_statuses)
+            or any(f.get("severity") in {"critical", "high"} for f in claim_findings)
+        ):
+            claim_status = "unsupported"
+        elif all(s == "supported" for s in link_statuses):
+            claim_status = "supported"
+        else:
+            claim_status = "heuristic"
+
         nodes[claim_node] = {
             "id": claim_node,
             "label": claim["text"][:140],
             "kind": "claim",
-            "status": "heuristic",
+            "status": claim_status,
         }
         edges.append(
             {
@@ -227,13 +262,14 @@ def saved_graph(repository, owner, identity):
             citation = citations[link["citation_id"]]
             authority = citation["authority"]
             authority_node = "authority:" + (link["authority_id"] or citation["id"])
-            nodes[authority_node] = {
-                "id": authority_node,
-                "kind": "authority",
-                "label": (authority["case_name"] if authority else None)
-                or citation["masked_raw_text"],
-                "status": citation["verification_status"],
-            }
+            if authority_node not in nodes:
+                nodes[authority_node] = {
+                    "id": authority_node,
+                    "kind": "authority",
+                    "label": (authority["case_name"] if authority else None)
+                    or citation["masked_raw_text"],
+                    "status": citation["verification_status"],
+                }
             edges.append(
                 {
                     "id": link["id"],
@@ -244,11 +280,40 @@ def saved_graph(repository, owner, identity):
             )
     for node in nodes.values():
         relation = node["id"].split(":", 1)[1]
-        node["finding_ids"] = [
-            f["id"]
-            for f in results["findings"]
-            if relation in {f["claim_id"], f["authority_id"], f["citation_id"], f["segment_id"]}
-        ]
+        node_kind = node["kind"]
+        if node_kind == "authority":
+            linked_claim_ids = {
+                e["source"].split(":", 1)[1] for e in edges if e["target"] == node["id"]
+            }
+            node["finding_ids"] = [
+                f["id"]
+                for f in results["findings"]
+                if relation in {f.get("authority_id"), f.get("citation_id")}
+                or f.get("claim_id") in linked_claim_ids
+            ]
+        elif node_kind == "claim":
+            node["finding_ids"] = [
+                f["id"]
+                for f in results["findings"]
+                if f.get("claim_id") == relation
+            ]
+        elif node_kind == "section":
+            node["finding_ids"] = [
+                f["id"]
+                for f in results["findings"]
+                if f.get("segment_id") == relation
+            ]
+        else:
+            node["finding_ids"] = [
+                f["id"]
+                for f in results["findings"]
+                if relation in {
+                    f.get("claim_id"),
+                    f.get("authority_id"),
+                    f.get("citation_id"),
+                    f.get("segment_id"),
+                }
+            ]
     return {"analysis_id": str(identity), "nodes": list(nodes.values()), "edges": edges}
 
 
@@ -297,6 +362,8 @@ def _safe_evidence(row, filing):
 
 
 def render_report(results, *, format="markdown"):
+    if format == "pdf":
+        return generate_pdf_report(results)
     score = results["score"]
     score_label = score["value"] if score["value"] is not None else "unavailable"
     coverage = results["coverage"]
@@ -332,30 +399,67 @@ def render_report(results, *, format="markdown"):
         )
     lines.extend(["", "## Findings"])
     for finding in results["findings"]:
+        ai_note = (
+            "AI-assisted review; uncalibrated confidence heuristic. "
+            "Does not constitute legal advice or judicial determination. "
+            "Inspect primary source passages before filing."
+            if finding.get("ai_assisted")
+            else "Deterministic or rule-based check; absence in database does "
+            "not prove fabrication, and similarity does not establish legal meaning."
+        )
+        start_str = finding.get("start")
+        end_str = finding.get("end")
+        span_desc = (
+            f"offsets {start_str}-{end_str} (Unicode code points)"
+            if start_str is not None
+            else "document scope"
+        )
         lines.extend(
             [
                 f"### {finding['severity']}: {finding['title']}",
                 finding["description"],
                 finding["masked_excerpt"] or "",
                 f"Evidence records: {finding['evidence_count']}",
+                f"Determination methodology: {ai_note}",
+                "",
+                "#### Lineage chain",
+                f"1. Document Span: {span_desc}",
+            ]
+        )
+        if finding.get("masked_excerpt"):
+            lines.append(f"   Excerpt: {finding['masked_excerpt']}")
+        lines.append(f"2. Extraction Target: {finding.get('type', 'finding').replace('_', ' ')}")
+
+        evidence_list = finding.get("evidence", [])
+        if evidence_list:
+            for ev in evidence_list:
+                source_label = ev["source_url"] or "Original filing/rule snapshot"
+                lines.extend(
+                    [
+                        f"3. Source Authority: {source_label}; "
+                        f"SHA256: {ev['source_sha256']}; retrieved {ev['retrieved_at']}; "
+                        f"Offsets: {ev['source_start']}-{ev['source_end']}",
+                        f"   Source Passage: {ev['excerpt']}",
+                        f"4. Verification Method: {ev['method_version']}; "
+                        f"model: {ev['model_version'] or 'none'}; "
+                        f"prompt: {ev['prompt_version'] or 'none'}; "
+                        f"provenance: {ev.get('provenance') or 'unknown'}; "
+                        f"confidence: {ev.get('confidence_level', 'unknown')} (uncalibrated)",
+                    ]
+                )
+        else:
+            lines.extend(
+                [
+                    "3. Source Authority: Original filing / rule snapshot",
+                    f"4. Verification Method: Deterministic {finding.get('type', 'rule')} engine",
+                ]
+            )
+        lines.extend(
+            [
+                f"5. Finding Verdict: {finding['severity'].upper()} · {finding['title']}",
                 "",
             ]
         )
-        for evidence in finding.get("evidence", []):
-            lines.extend(
-                [
-                    evidence["excerpt"],
-                    f"Source: {evidence['source_url'] or 'Original filing/rule snapshot'}; "
-                    f"SHA256: {evidence['source_sha256']}; retrieved {evidence['retrieved_at']}",
-                    f"Offsets: {evidence['source_start']}-{evidence['source_end']}; "
-                    f"method: {evidence['method_version']}; "
-                    f"model: {evidence['model_version'] or 'none'}; "
-                    f"prompt: {evidence['prompt_version'] or 'none'}; "
-                    f"provenance: {evidence.get('provenance') or 'unknown'}; "
-                    f"confidence: {evidence['confidence_level']} (uncalibrated)",
-                    "",
-                ]
-            )
     lines.extend(["## Citation results"])
     for citation in results["citations"]:
         lines.append(

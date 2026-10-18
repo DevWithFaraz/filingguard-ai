@@ -167,6 +167,9 @@ def create_authority_record(
     )
 
 
+SOURCE_CACHE_VERSION = "courtlistener-cache-v1"
+
+
 def verify_citations_for_analysis(
     analysis_id: UUID,
     citations: list["Citation"],
@@ -200,7 +203,13 @@ def verify_citations_for_analysis(
             status_val, auth_id, verification = lookup_cache_by_key[normalized_key]
             citation.verification_status = status_val
             citation.authority_id = auth_id
-            citation.extraction_metadata = {**extraction, "verification": verification}
+            cached_verif = {
+                **verification,
+                "cached": True,
+                "cache_hit": True,
+                "cache_version": SOURCE_CACHE_VERSION,
+            }
+            citation.extraction_metadata = {**extraction, "verification": cached_verif}
             continue
 
         if lookup_count >= 25:
@@ -223,6 +232,11 @@ def verify_citations_for_analysis(
         verification = CitationVerificationMetadata(
             retrieved_at=datetime.now(UTC), reason=lookup.reason, limitation=lookup.limitation
         ).model_dump(mode="json")
+        verification.update({
+            "cached": False,
+            "cache_hit": False,
+            "cache_version": SOURCE_CACHE_VERSION,
+        })
         citation.extraction_metadata = {**extraction, "verification": verification}
 
         if lookup.status == CitationStatus.VERIFIED and resolved is not None:

@@ -12,6 +12,14 @@ PATTERNS = {
         r"\s*[:#]?\s*(\d[\d -]{6,24}\d)\b"
     ),
     "birth_date": r"(?i)\b(?:DOB|date of birth)\s*[:=]?\s*(\d{1,4}[/-]\d{1,2}[/-]\d{1,4})\b",
+    "minor_name": (
+        r"\b(?i:minor\s+child(?:ren)?|minor\s+son|minor\s+daughter|minor\s+ward"
+        r"|the\s+minor\s+child|a\s+minor\s+child|minor(?:\s+name)?\s*[:=])(?:\s*,)?\s+"
+        r"([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b"
+        r"|\b([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+),\s*(?i:a\s+minor(?:\s+child)?|\(a\s+minor\))\b"
+        r"|\b(?i:on\s+behalf\s+of|next\s+friend\s+of|guardian\s+ad\s+litem\s+for|as\s+guardian\s+of)\s+"
+        r"([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)(?:,\s*(?i:a\s+minor)|\s+\((?i:a\s+minor)\))\b"
+    ),
 }
 
 
@@ -40,7 +48,8 @@ def mask_excerpt(document: str, start: int, end: int) -> MaskedExcerpt:
     # Detect on the whole snapshot so clipping an identifier cannot evade masking.
     for kind, pattern in PATTERNS.items():
         for match in re.finditer(pattern, document):
-            left, right = match.span(1 if match.lastindex else 0)
+            target_group = match.lastindex if match.lastindex else 0
+            left, right = match.span(target_group)
             if left < end and right > start:
                 detections.append(Detection(kind, left, right))
                 for index in range(max(left, start), min(right, end)):

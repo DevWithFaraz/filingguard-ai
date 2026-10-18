@@ -10,7 +10,7 @@ tags: [issues]
 
 - [[docs/issues/BUG-022 - Git normalization changes locked fixture bytes]] (resolved locally before publication)
 
-- [[docs/issues/BUG-021 - API deployment root excludes demo resources]] (corrected locally; hosted verification pending)
+- [[docs/issues/BUG-021 - API deployment root excludes demo resources]] (resolved; hosted locked sample loads)
 
 - [[docs/issues/BUG-020 - Email before sentence punctuation escapes masking]] (resolved locally)
 

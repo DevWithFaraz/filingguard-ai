@@ -4,6 +4,12 @@ tags: [feedback]
 ---
 # Feedback and business inputs
 
+- [[docs/feedback/FB-016 - Motion reel rejected as generic and flat]]
+
+- [[docs/feedback/FB-015 - Filing-centric product direction and EU AI Act assessment]]
+
+- [[docs/feedback/FB-014 - Product MVP before presentation work]]
+
 - [[docs/feedback/FB-013 - Glass composer and continuing UI scope]]
 
 - [[docs/feedback/FB-012 - Match workflow pages to homepage theme]]

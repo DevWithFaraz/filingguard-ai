@@ -123,3 +123,50 @@ def test_email_before_sentence_punctuation_is_masked_without_offset_changes(suff
     assert len(masked.text) == len(text)
     left = text.index("example.com")
     assert set(mask_excerpt(text, left, left + len("example.com")).text) == {"*"}
+
+
+def test_parsing_diagnostics_detected_for_sparse_or_fused_text():
+    from filingguard.modules.documents.extraction import detect_parsing_diagnostics
+    from filingguard.modules.documents.schemas import PageSpan, Paragraph
+
+    pages = [
+        PageSpan(page_number=1, start=0, end=10, warning="sparse_text"),
+        PageSpan(page_number=2, start=11, end=11, warning="no_text"),
+    ]
+    fused_text = "Short text " + "a" * 45
+    paragraphs = [
+        Paragraph(
+            paragraph_index=0, page_number=1, start=0, end=len(fused_text), text=fused_text
+        )
+    ]
+    diagnostics = detect_parsing_diagnostics(fused_text, pages, paragraphs)
+
+    assert any("sparse text" in d for d in diagnostics)
+    assert any("no text" in d for d in diagnostics)
+    assert any("fused words" in d for d in diagnostics)
+
+
+def test_privacy_stage_emits_parsing_warning_finding():
+    from uuid import uuid4
+
+    from filingguard.db.models import Analysis, Finding
+    from filingguard.integrations.providers.runtime import ProviderBudget
+    from filingguard.modules.analyses.runners import privacy_stage
+
+    analysis = Analysis(
+        id=uuid4(),
+        mode="live",
+        document_name="Test doc",
+        document_sha256="0" * 64,
+    )
+    analysis.document_snapshot = {
+        "text": "This is test filing text.",
+        "diagnostics": ["Page 2 has no text; possible image scan."],
+    }
+    stage_result = privacy_stage(analysis, ProviderBudget(0))
+    findings = [r for r in stage_result.records if isinstance(r, Finding)]
+    diag_finding = next((f for f in findings if f.type == "system"), None)
+    assert diag_finding is not None
+    assert "Document text parsing quality warning" in diag_finding.title
+    assert "Page 2 has no text" in diag_finding.description
+

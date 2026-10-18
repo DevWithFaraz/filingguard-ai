@@ -5,7 +5,7 @@ import time
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from threading import BoundedSemaphore, Event
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from filingguard.db.models import Authority, Citation, Claim, ClaimAuthorityLink, DocumentSegment
 from filingguard.db.repository import AnalysisRepository
@@ -42,6 +42,7 @@ class ReviewOrchestrator:
         *,
         limits: ReviewLimits | None = None,
         credentials: dict[str, str] | None = None,
+        worker_id: str | None = None,
     ):
         if set(runners) != set(REVIEW_STAGES):
             raise ValueError("All review stages must be registered before jobs are accepted")
@@ -62,6 +63,7 @@ class ReviewOrchestrator:
                 runner_name(runner)
         self.limits = limits or ReviewLimits()
         self.credentials = dict(credentials or {})
+        self.worker_id = worker_id or f"worker-{uuid4().hex[:12]}"
         self.stop = Event()
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="filingguard-review")
 
@@ -75,7 +77,13 @@ class ReviewOrchestrator:
             try:
                 deadline = time.monotonic() + self.limits.overall_seconds
                 self.executor.submit(self._run_and_release, owner_hash, analysis_id, deadline)
-            except RuntimeError:
+            except RuntimeError as error:
+                logger.error(
+                    "review.submit_failed analysis_id=%s correlation_id=%s error_type=%s",
+                    analysis_id,
+                    analysis_id,
+                    type(error).__name__,
+                )
                 for stage in REVIEW_STAGES:
                     with self.repository.stage_update(
                         owner_hash,
@@ -93,19 +101,54 @@ class ReviewOrchestrator:
 
     def _run_and_release(self, owner_hash: str, analysis_id: UUID, deadline: float) -> None:
         try:
+            acquired = self.repository.acquire_lease(
+                owner_hash, analysis_id, self.worker_id, lease_seconds=120
+            )
+            if not acquired:
+                logger.warning(
+                    "review.lease_acquire_failed analysis_id=%s correlation_id=%s worker_id=%s",
+                    analysis_id,
+                    analysis_id,
+                    self.worker_id,
+                )
+                return
             self._run(owner_hash, analysis_id, deadline)
         finally:
-            self.slot.release()
+            try:
+                self.repository.release_lease(owner_hash, analysis_id, self.worker_id)
+            except Exception as release_error:
+                logger.error(
+                    "review.lease_release_failed analysis_id=%s correlation_id=%s error_type=%s",
+                    analysis_id,
+                    analysis_id,
+                    type(release_error).__name__,
+                )
+            try:
+                self.slot.release()
+            except ValueError:
+                pass
 
     def _run(self, owner_hash: str, analysis_id: UUID, deadline: float) -> None:
         completed = 0
         budget = ProviderBudget(deadline=deadline, max_attempts=self.limits.max_provider_attempts)
+        job_started = time.perf_counter()
         logger.info(
-            "review.job.start analysis_id=%s stage_count=%d", analysis_id, len(REVIEW_STAGES)
+            "review.job.start analysis_id=%s correlation_id=%s stage_count=%d",
+            analysis_id,
+            analysis_id,
+            len(REVIEW_STAGES),
         )
         for index, stage in enumerate(REVIEW_STAGES):
             started = time.perf_counter()
-            logger.info("review.stage.start analysis_id=%s stage=%s", analysis_id, stage.value)
+            self.repository.renew_lease(
+                owner_hash, analysis_id, self.worker_id, lease_seconds=120
+            )
+            logger.info(
+                "review.stage.start analysis_id=%s correlation_id=%s stage=%s",
+                analysis_id,
+                analysis_id,
+                stage.value,
+            )
             try:
                 with self.repository.stage_update(
                     owner_hash, analysis_id, stage, "running", analysis_status="running"
@@ -190,10 +233,15 @@ class ReviewOrchestrator:
                 ) as writer:
                     writer.add(*result.records)
                     writer.update_propositions(*result.updates)
+                self.repository.renew_lease(
+                    owner_hash, analysis_id, self.worker_id, lease_seconds=120
+                )
                 if result.status in {StageStatus.COMPLETED, StageStatus.SKIPPED}:
                     completed += 1
                 logger.info(
-                    "review.stage.finish analysis_id=%s stage=%s status=%s duration_ms=%d",
+                    "review.stage.finish analysis_id=%s correlation_id=%s "
+                    "stage=%s status=%s duration_ms=%d",
+                    analysis_id,
                     analysis_id,
                     stage.value,
                     result.status.value,
@@ -209,8 +257,9 @@ class ReviewOrchestrator:
                     else "Review stage failed"
                 )
                 logger.error(
-                    "review.stage.finish analysis_id=%s stage=%s status=%s "
+                    "review.stage.finish analysis_id=%s correlation_id=%s stage=%s status=%s "
                     "error_type=%s duration_ms=%d",
+                    analysis_id,
                     analysis_id,
                     stage.value,
                     state.value,
@@ -231,14 +280,18 @@ class ReviewOrchestrator:
                         pass
                 except Exception as persist_error:
                     logger.error(
-                        "review.stage.persist_failed analysis_id=%s stage=%s error_type=%s",
+                        "review.stage.persist_failed analysis_id=%s "
+                        "correlation_id=%s stage=%s error_type=%s",
+                        analysis_id,
                         analysis_id,
                         stage.value,
                         type(persist_error).__name__,
                     )
                     return
         logger.info(
-            "review.job.finish analysis_id=%s status=%s completed_stages=%d",
+            "review.job.finish analysis_id=%s correlation_id=%s "
+            "status=%s completed_stages=%d duration_ms=%d",
+            analysis_id,
             analysis_id,
             "interrupted"
             if self.stop.is_set()
@@ -246,6 +299,7 @@ class ReviewOrchestrator:
             if completed == len(REVIEW_STAGES)
             else "partial",
             completed,
+            int((time.perf_counter() - job_started) * 1000),
         )
 
     def close(self) -> None:

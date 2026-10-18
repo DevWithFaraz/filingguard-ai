@@ -40,6 +40,10 @@ produced. Eyecite's heavy imports run only in the citation worker.
 up to 200 original locations, extraction metadata, stage coverage and masked raw
 text. Full-snapshot masking prevents clipped identifiers evading detection; a
 changed display omits normalized text. Heuristic masking is not complete redaction.
+Duplicate citations (FR-045) are aggregated across the filing; review results contract
+`SafeCitation` exposes `duplicate_count` and `repeated_locations` with UI pills.
+Source cache tracking (FR-046) records `cached`, `cache_hit`, and `cache_version`
+(`courtlistener-cache-v1`) in `CitationVerificationMetadata`.
 Reruns have fresh IDs; deletion cascades citation rows.
 
 ## Available verification components and integration boundary
@@ -62,8 +66,14 @@ source snapshots and finding-detail snapshots each have a 6 MiB JSON budget.
 Missing budgeted source text becomes unavailable, never a clipped complete opinion.
 See [[docs/issues/BUG-012 - Citation verification output conflicts with worker validation]]
 and [[docs/sessions/2026-10-10 - Grounded review verification]].
-Live provider and hosted PostgreSQL checks remain pending. Recognized reporter
-syntax does not establish that a case exists; database absence does not prove fabrication.
+Hosted PostgreSQL persistence and the genuine live Brown source control now pass
+at synthetic acceptance scope. Controlled source-authentication failure retains
+unavailable citations while explicit cached demo sources remain labeled and usable.
+Genuine credential/settings restoration and a fresh live review pass T058; this is
+not broad legal-source coverage validation. See
+[[docs/sessions/2026-10-12 - Hosted dependency failure rehearsal]].
+Recognized reporter syntax does not establish that a case exists; database absence
+does not prove fabrication.
 
 See [[apps/api/src/filingguard/modules/analyses/README]],
 [[apps/api/src/filingguard/db/models/README]], [[contracts/README]] and

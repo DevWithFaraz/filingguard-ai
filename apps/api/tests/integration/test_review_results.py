@@ -252,6 +252,11 @@ def test_results_routes_share_saved_identity_and_provenance(private_client):
         assert client.get(route + suffix, headers=other).status_code == 404
     detail = client.get(route + f"/findings/{finding_id}/evidence", headers=auth).json()
     assert any(row["model_version"] == MODEL for row in detail["evidence"])
+    pdf_res = client.get(route + "/report?format=pdf", headers=auth)
+    assert pdf_res.status_code == 200
+    assert pdf_res.headers["content-type"] == "application/pdf"
+    assert f'filename="filingguard-{identity}.pdf"' in pdf_res.headers["content-disposition"]
+    assert pdf_res.content.startswith(b"%PDF-1.")
     assert client.get(route + "/report?format=xml", headers=auth).status_code == 422
 
 

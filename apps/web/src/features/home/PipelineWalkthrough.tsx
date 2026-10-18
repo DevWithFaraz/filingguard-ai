@@ -180,7 +180,7 @@ export function PipelineWalkthrough() {
         <button type="button" className="pipeline-playback" aria-controls="pipeline-film" onClick={toggle}>
           <ButtonIcon size={15} aria-hidden="true" />{buttonLabel}</button>
       </div>
-      {playback === 'failed' && <p className="pipeline-unavailable" role="status">The film is unavailable. Follow the stages below.</p>}
+      {playback === 'failed' && <p className="pipeline-unavailable" role="status" aria-live="polite">The film is unavailable. Follow the stages below.</p>}
       <ol className="pipeline-summary" id="pipeline-summary" aria-label="Review pipeline stages">
         {stages.map((stage, index) => <li key={stage}><span aria-hidden="true">0{index + 1}</span>{stage}</li>)}
       </ol>

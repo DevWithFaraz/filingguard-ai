@@ -1,7 +1,7 @@
 """Public errors never echo filing text, provider payloads or configuration values."""
 
 import logging
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -68,9 +68,40 @@ def install_error_boundary(app: FastAPI) -> None:
             response = await call_next(request)
         except Exception as error:
             # Exception messages/tracebacks can contain provider text or private inputs.
-            logger.error(
-                "API failure (%s), request_id=%s", type(error).__name__, request.state.request_id
-            )
+            correlation_id = None
+            header_cid = request.headers.get("x-correlation-id")
+            if header_cid:
+                try:
+                    correlation_id = str(UUID(header_cid))
+                except (ValueError, AttributeError):
+                    pass
+            if not correlation_id:
+                query_aid = request.query_params.get("analysis_id")
+                if query_aid:
+                    try:
+                        correlation_id = str(UUID(query_aid))
+                    except (ValueError, AttributeError):
+                        pass
+            if not correlation_id:
+                for part in request.url.path.strip("/").split("/"):
+                    try:
+                        correlation_id = str(UUID(part))
+                        break
+                    except (ValueError, AttributeError):
+                        continue
+            if correlation_id:
+                logger.error(
+                    "API failure (%s), request_id=%s correlation_id=%s",
+                    type(error).__name__,
+                    request.state.request_id,
+                    correlation_id,
+                )
+            else:
+                logger.error(
+                    "API failure (%s), request_id=%s",
+                    type(error).__name__,
+                    request.state.request_id,
+                )
             return _response(request, 500, "internal_error", "Request could not be completed")
         response.headers["X-Request-ID"] = str(request.state.request_id)
         return response

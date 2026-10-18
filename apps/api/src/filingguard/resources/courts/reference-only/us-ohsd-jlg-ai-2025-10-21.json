@@ -1,0 +1,22 @@
+{
+  "id": "us-ohsd-jlg-ai-2025-10-21",
+  "version": "2025-10-21",
+  "title": "Standing Order on the Use of Generative Artificial Intelligence",
+  "official_source_url": "https://www.ohsd.uscourts.gov/sites/ohsd/files/10-21-25%20JLG%20Standing%20Order%20on%20the%20Use%20of%20Generative%20AI.pdf",
+  "source_locator": "One-page standing order; operative paragraph beginning “It is hereby ORDERED.”",
+  "issued_on": "2025-10-21",
+  "source_checked_on": "2026-10-14",
+  "court_scope": "U.S. District Court for the Southern District of Ohio, Eastern Division",
+  "judge_scope": "Hon. James L. Graham",
+  "filing_scope": "Pleadings, motions, briefs, and other documents before the issuing judge when a party uses generative AI to help generate content of any portion.",
+  "trigger_summary": "A party, including a pro se litigant, uses generative AI to help generate content of any portion of the filing.",
+  "requirement_summary": "A declaration uses the stated caption, identifies assisted content by location, states the platform used, and includes the stated review, accuracy, and Rule 11 certifications.",
+  "current_effective_status": "unconfirmed",
+  "applicability_status": "requires_case_scope_confirmation",
+  "activation_status": "reference_only",
+  "runtime_profile_id": null,
+  "activation_blockers": [
+    "The current evaluator detects only a standalone heading; it cannot verify location identification, platform information, required certifications, or exact case and judge applicability.",
+    "The retrieved order does not state an end date; a maintainer must confirm it remains governing for the selected case before activation."
+  ]
+}

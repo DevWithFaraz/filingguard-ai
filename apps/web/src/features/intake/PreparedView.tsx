@@ -31,7 +31,7 @@ export function PreparedView() {
   }, [query.data]);
   const deletion = useMutation({ mutationFn: () => deletePrepared(id), retry: false,
     onSuccess: () => { navigate('/'); } });
-  if (query.isPending) return <><section className="document-state" role="status"><LoaderCircle className="spinning" /><h1>Opening your document</h1><p>Loading the private preparation and review status.</p></section></>;
+  if (query.isPending) return <><section className="document-state" role="status" aria-live="polite"><LoaderCircle className="spinning" /><h1>Opening your document</h1><p>Loading the private preparation and review status.</p></section></>;
   if (query.isError) return <><section className="document-state"><FileText /><h1>Document unavailable</h1><p role="alert">{query.error.message}</p>
     <button className="secondary-button" onClick={() => void query.refetch()}>Retry</button><Link to="/">New document</Link></section></>;
   const value = query.data;
@@ -63,10 +63,13 @@ export function PreparedView() {
       <a href="#document-details"><LockKeyhole size={18} /><span>Available until<strong>{new Date(value.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong></span><ChevronRight size={14} /></a></div>
     {value.mode === 'demo' && <p className="review-limitation">Cached public opinions for the exact curated sample.
       Findings are freshly computed; model review depends on provider configuration. AI-reviewed sample, not expert validation.</p>}
-    <div className="demo-notice" role="status">{(review.data?.status ?? value.execution_status) === 'not_run'
+    <div className="demo-notice" role="status" aria-live="polite">{(review.data?.status ?? value.execution_status) === 'not_run'
       ? 'Document prepared. Local checks have not run. No legal analysis or filing integrity score.'
       : `Review status: ${review.data?.status ?? value.execution_status}. ${review.data?.overall_score == null
         ? 'No filing integrity score.' : `Provisional review score: ${review.data.overall_score}. Human review required.`}`}</div>
+    {run.isPending && <p className="sr-only" role="status" aria-live="polite">Starting local review checks…</p>}
+    {rerun.isPending && <p className="sr-only" role="status" aria-live="polite">Preparing new review attempt…</p>}
+    {deletion.isPending && <p className="sr-only" role="status" aria-live="polite">Deleting document…</p>}
     <section id="local-review" className="local-review" aria-labelledby="local-review-heading">
       <div className="local-review-heading"><h2 id="local-review-heading"><ShieldCheck size={18} />Local review</h2>
         <a className="document-text-link" href="#document-preview">Inspect document<ArrowRight size={15} /></a>
@@ -83,6 +86,7 @@ export function PreparedView() {
             {stage.reason ? ` · ${stage.reason}` : ''}</span></li>)}</ol></>}
       {findings.isError && <p role="alert">Findings unavailable. <button className="secondary-button"
         onClick={() => void findings.refetch()}>Retry findings</button></p>}
+      {findings.isPending && review.data?.status !== 'not_run' && <p className="sr-only" role="status" aria-live="polite">Loading review findings…</p>}
       {findings.data && <details className="document-findings"><summary>Findings ({findings.data.findings.length}) · expand to inspect</summary>
         <p className="review-limitation">{findings.data.limitation}</p>
         <ul className="finding-list">{findings.data.findings.map(item => <li key={item.id}>
@@ -94,7 +98,7 @@ export function PreparedView() {
     <dl className="settings-list"><dt>Extraction</dt><dd>{value.document.method}</dd>
       <dt>Paragraphs</dt><dd>{value.document.paragraphs.length}</dd>
       <dt>Page coverage</dt><dd>{value.document.pages.length ? `${value.document.pages.length} PDF pages` : 'Pasted text; no page numbers'}</dd>
-      <dt>Court profile</dt><dd>{value.court_profile_id === 'synthetic-demo-v1' ? 'Synthetic demo court' : 'Rules unavailable'}</dd>
+      <dt>Court profile</dt><dd>{value.court_profile_id === 'synthetic-demo-v1' ? 'Synthetic demo court' : value.court_profile_id === 'us-txnd-lr7-2f-v1' ? 'N.D. Tex. LR 7.2(f)' : 'Rules unavailable'}</dd>
       <dt>AI used</dt><dd>{value.ai_used ? 'Yes' : 'No'}</dd>
       <dt>Expiry</dt><dd>{new Date(value.expires_at).toLocaleString()}</dd>
       <dt>Local masking signals</dt><dd>{value.masking_count}. {value.masking_limitation}

@@ -1,0 +1,709 @@
+/* FilingGuard AI - Legal Red-Team Mode
+ * Follows apple-design skill: fluid spring motion, translucent glass materials,
+ * our signature purple/lilac/yellow palette with a refined critical crimson indicator,
+ * perfectly aligned rhythm, and fully rounded corners.
+ */
+
+.red-team-section {
+  margin-top: 2.75rem;
+  padding: 2.25rem 2.5rem;
+  border-radius: 32px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 240, 255, 0.88) 45%, rgba(255, 255, 255, 0.92) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  box-shadow:
+    0 4px 20px -2px rgba(62, 15, 141, 0.06),
+    0 20px 48px -8px rgba(62, 15, 141, 0.08),
+    0 0 0 1px rgba(223, 213, 236, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Red-Team Critical Accent Ribbon on top edge: Red -> Purple -> Yellow */
+.red-team-section::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(90deg, #e11d48 0%, #be123c 20%, #3e0f8d 65%, #e4da72 100%);
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 2px 10px rgba(225, 29, 72, 0.25);
+}
+
+/* Soft ambient crimson glow in background */
+.red-team-section::after {
+  content: "";
+  position: absolute;
+  top: -90px;
+  right: -70px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(225, 29, 72, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Header & Alignment */
+.red-team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.red-team-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.red-team-kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.red-team-kicker-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+  color: #be123c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.red-team-kicker-icon {
+  color: #e11d48;
+}
+
+
+.red-team-title-group h2 {
+  margin: 0.15rem 0 0.1rem;
+  font-size: 1.75rem;
+  font-weight: 750;
+  color: #1e132e;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.red-team-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #5d5172;
+  max-width: 46rem;
+  line-height: 1.55;
+  font-weight: 450;
+}
+
+/* Fully Rounded Apple-Style "Re-run Red Team" Button */
+.red-team-actions {
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+}
+
+.red-team-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+  padding: 9px 20px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3e0f8d;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(62, 15, 141, 0.22);
+  box-shadow: 0 2px 10px rgba(62, 15, 141, 0.06);
+  cursor: pointer;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 150ms ease,
+              border-color 150ms ease,
+              box-shadow 150ms ease,
+              color 150ms ease;
+}
+
+.red-team-refresh-btn:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: #e11d48;
+  color: #be123c;
+  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.16);
+  transform: translateY(-1px);
+}
+
+.red-team-refresh-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.red-team-refresh-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Fully Rounded Strict Review Boundary Disclaimer */
+.red-team-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(223, 213, 236, 0.9);
+  box-shadow: 0 2px 8px rgba(62, 15, 141, 0.02);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.disclaimer-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: rgba(62, 15, 141, 0.08);
+  color: #3e0f8d;
+  flex-shrink: 0;
+}
+
+.disclaimer-text {
+  font-size: 0.85rem;
+  color: #493952;
+  line-height: 1.5;
+}
+
+.disclaimer-text strong {
+  color: #3e0f8d;
+  font-weight: 700;
+  margin-right: 0.35rem;
+}
+
+/* Summary Banner & Fully Rounded Segmented Metric Pills */
+.red-team-summary-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1rem 1.35rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(223, 213, 236, 0.9);
+  box-shadow: 0 2px 12px rgba(62, 15, 141, 0.03);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 760px) {
+  .red-team-summary-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.red-team-metric-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* Fully Rounded Capsule Stat Pill */
+.red-team-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 4px 14px 4px 5px;
+  border-radius: 9999px;
+  background: #f8f5fc;
+  border: 1px solid #dfd5ec;
+  box-sizing: border-box;
+  transition: transform 120ms ease, box-shadow 150ms ease;
+  user-select: none;
+}
+
+.red-team-metric:hover {
+  transform: translateY(-1px);
+}
+
+.metric-count-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+
+.metric-label {
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* Category-specific on-brand coloring */
+.red-team-metric.critical {
+  background: rgba(254, 226, 226, 0.7);
+  border-color: rgba(244, 63, 94, 0.35);
+}
+
+.red-team-metric.critical .metric-count-circle {
+  background: #e11d48;
+}
+
+.red-team-metric.critical .metric-label {
+  color: #be123c;
+}
+
+.red-team-metric.high {
+  background: rgba(255, 237, 213, 0.7);
+  border-color: rgba(251, 146, 60, 0.4);
+}
+
+.red-team-metric.high .metric-count-circle {
+  background: #ea580c;
+}
+
+.red-team-metric.high .metric-label {
+  color: #c2410c;
+}
+
+.red-team-metric.medium {
+  background: rgba(254, 249, 195, 0.75);
+  border-color: rgba(234, 179, 8, 0.45);
+}
+
+.red-team-metric.medium .metric-count-circle {
+  background: #b89e10;
+}
+
+.red-team-metric.medium .metric-label {
+  color: #854d0e;
+}
+
+.red-team-metric.low {
+  background: rgba(240, 232, 250, 0.75);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.red-team-metric.low .metric-count-circle {
+  background: #3e0f8d;
+}
+
+.red-team-metric.low .metric-label {
+  color: #3e0f8d;
+}
+
+.red-team-summary-text {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #493952;
+  line-height: 1.55;
+  font-weight: 450;
+}
+
+/* Clean State Card */
+.red-team-clean-card {
+  text-align: center;
+  padding: 2.75rem 1.5rem;
+  border-radius: 28px;
+  background: rgba(240, 253, 244, 0.85);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+}
+
+.clean-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: rgba(5, 150, 105, 0.12);
+  margin-bottom: 0.75rem;
+}
+
+.clean-icon {
+  color: #059669;
+}
+
+.red-team-clean-card h3 {
+  font-size: 1.25rem;
+  color: #064e3b;
+  margin: 0 0 0.4rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.red-team-clean-card p {
+  color: #047857;
+  max-width: 32rem;
+  margin: 0 auto;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+/* Weakness List & Fully Rounded Cards */
+.red-team-weakness-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.red-team-card {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(223, 213, 236, 0.9);
+  box-shadow: 0 2px 10px rgba(62, 15, 141, 0.03);
+  transition: box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 180ms ease,
+              transform 150ms ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.red-team-card:hover {
+  border-color: rgba(225, 29, 72, 0.35);
+  box-shadow: 0 6px 24px -2px rgba(225, 29, 72, 0.1), 0 2px 8px rgba(62, 15, 141, 0.04);
+}
+
+.red-team-card.severity-critical {
+  border-left: 5px solid #e11d48;
+}
+
+.red-team-card.severity-high {
+  border-left: 5px solid #ea580c;
+}
+
+.red-team-card.severity-medium {
+  border-left: 5px solid #b89e10;
+}
+
+.red-team-card.severity-low {
+  border-left: 5px solid #3e0f8d;
+}
+
+.red-team-card-header {
+  padding: 1.25rem 1.5rem;
+}
+
+.red-team-card-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.55rem;
+}
+
+/* Fully Rounded Badge Pills */
+.red-team-card-badge-row .result-badge {
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.red-team-card-badge-row .result-badge.severity-critical {
+  background: #ffe4e6;
+  color: #be123c;
+  border: 1px solid rgba(225, 29, 72, 0.25);
+}
+
+.red-team-card-badge-row .result-badge.severity-high {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid rgba(234, 88, 12, 0.25);
+}
+
+.red-team-card-badge-row .result-badge.severity-medium {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid rgba(202, 138, 4, 0.25);
+}
+
+.red-team-card-badge-row .result-badge.severity-low {
+  background: #f0e8fa;
+  color: #3e0f8d;
+  border: 1px solid rgba(62, 15, 141, 0.2);
+}
+
+.vulnerability-type-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5d5172;
+  font-weight: 700;
+}
+
+.red-team-expand-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 120ms ease;
+}
+
+.red-team-expand-toggle:active {
+  opacity: 0.75;
+}
+
+.red-team-weakness-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e132e;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  padding-right: 1rem;
+}
+
+.red-team-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: rgba(62, 15, 141, 0.06);
+  color: #3e0f8d;
+  flex-shrink: 0;
+  pointer-events: none;
+  transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 150ms ease,
+              color 150ms ease;
+}
+
+.red-team-toggle-icon.is-expanded {
+  transform: rotate(180deg);
+  background: rgba(225, 29, 72, 0.1);
+  color: #e11d48;
+}
+
+.red-team-expand-toggle:hover .red-team-toggle-icon {
+  background: rgba(62, 15, 141, 0.12);
+}
+
+.red-team-card-body {
+  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid rgba(223, 213, 236, 0.7);
+  margin-top: 0.35rem;
+}
+
+/* Adversarial Challenge Theory (Frosted Crimson Card with Rounded Corners) */
+.challenge-theory-block {
+  margin-top: 1.15rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 20px;
+  background: rgba(255, 241, 242, 0.9);
+  border: 1px solid rgba(254, 205, 211, 0.9);
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.03);
+}
+
+.challenge-theory-block h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #be123c;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.challenge-theory-block p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #3f1118;
+  line-height: 1.6;
+  font-weight: 450;
+}
+
+/* Procedural & Legal Impact (Soft Lilac Glass) */
+.impact-block {
+  margin-top: 0.95rem;
+  padding: 0.95rem 1.15rem;
+  border-radius: 18px;
+  background: rgba(248, 244, 252, 0.9);
+  border: 1px solid rgba(223, 213, 236, 0.8);
+}
+
+.impact-block h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3e0f8d;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.impact-block p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #342b43;
+  line-height: 1.55;
+}
+
+/* Recommended Pre-Filing Review (Warm Amber/Yellow Glass) */
+.remediation-block {
+  margin-top: 0.95rem;
+  padding: 0.95rem 1.15rem;
+  border-radius: 18px;
+  background: rgba(254, 252, 232, 0.9);
+  border: 1px solid rgba(254, 240, 138, 0.85);
+}
+
+.remediation-block h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #854d0e;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.remediation-block p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #422006;
+  line-height: 1.55;
+}
+
+/* Substantiating Evidence Actions */
+.linked-findings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.15rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid rgba(223, 213, 236, 0.7);
+}
+
+.linked-label {
+  font-size: 0.8rem;
+  color: #5d5172;
+  font-weight: 600;
+}
+
+/* Fully Rounded "Jump to Finding" Pill Button */
+.linked-finding-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 0.45rem 1.15rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid rgba(62, 15, 141, 0.22);
+  color: #3e0f8d;
+  box-shadow: 0 2px 6px rgba(62, 15, 141, 0.05);
+  cursor: pointer;
+  transition: transform 120ms ease,
+              background-color 150ms ease,
+              border-color 150ms ease,
+              box-shadow 150ms ease,
+              color 150ms ease;
+}
+
+.linked-finding-jump:hover {
+  background: #f0e8fa;
+  border-color: #3e0f8d;
+  color: #240957;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(62, 15, 141, 0.12);
+}
+
+.linked-finding-jump:active {
+  transform: scale(0.96);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Accessibility: Reduced Motion (§14) */
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+  .red-team-card,
+  .red-team-refresh-btn,
+  .linked-finding-jump,
+  .red-team-metric,
+  .red-team-toggle-icon {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Accessibility: Reduced Transparency (§14) */
+@media (prefers-reduced-transparency: reduce) {
+  .red-team-section {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .red-team-card {
+    background: #ffffff;
+  }
+  .red-team-disclaimer {
+    background: #fdf2f4;
+  }
+}
+
+/* Accessibility: High Contrast (§14) */
+@media (prefers-contrast: more) {
+  .red-team-section {
+    border: 2px solid #3e0f8d;
+    background: #ffffff;
+  }
+  .red-team-card {
+    border: 2px solid #3e0f8d;
+  }
+  .red-team-refresh-btn,
+  .linked-finding-jump {
+    border: 2px solid #3e0f8d;
+  }
+}

@@ -21,8 +21,11 @@ partial alignment in order. Normalization retains a map to original source code
 points, including casefold expansions. A fuzzy score of at least 0.85 is labeled
 close; lower scores remain not found and may retain the closest inspected passage.
 Closest passages and scores represent string
-similarity only. Changed negation may yield a close match and requires human review;
-semantic equivalence and legal support are never inferred. Short unmatched quotations
+similarity only. Meaning alterations (FR-127) are explicitly inspected in `check_meaning_alteration`:
+negations added or omitted, modal obligation shifts (e.g. shall/must versus may),
+omitted qualifying clauses preceding ellipses, and contradictory antonyms escalate
+finding severity to `critical` or `high` with structured `meaning_alteration` metadata.
+Semantic equivalence and legal support are never inferred. Short unmatched quotations
 do not receive unreliable fuzzy scores. Missing/invalid provenance or bounded-resource
 failures remain source unavailable, distinct from a searched source with no match.
 

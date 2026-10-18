@@ -300,6 +300,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Finding Qa */
+        get: operations["get_finding_qa_api_v1_analyses__analysis_id__findings__finding_id__questions_get"];
+        put?: never;
+        /** Ask Finding Qa */
+        post: operations["ask_finding_qa_api_v1_analyses__analysis_id__findings__finding_id__questions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analyses/{analysis_id}/report": {
         parameters: {
             query?: never;
@@ -311,6 +329,24 @@ export interface paths {
         get: operations["review_report_api_v1_analyses__analysis_id__report_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/red-team": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Red Team */
+        get: operations["review_red_team_api_v1_analyses__analysis_id__red_team_get"];
+        put?: never;
+        /** Review Red Team */
+        post: operations["review_red_team_api_v1_analyses__analysis_id__red_team_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -497,6 +533,21 @@ export interface components {
              * @default null
              */
             limitation: string | null;
+            /**
+             * Cached
+             * @default false
+             */
+            cached: boolean;
+            /**
+             * Cache Hit
+             * @default false
+             */
+            cache_hit: boolean;
+            /**
+             * Cache Version
+             * @default null
+             */
+            cache_version: string | null;
         };
         /** CourtProfileSummary */
         CourtProfileSummary: {
@@ -512,7 +563,7 @@ export interface components {
              * Applicability
              * @enum {string}
              */
-            applicability: "synthetic" | "verified_scope" | "unknown";
+            applicability: "synthetic" | "verified_scope" | "verified" | "unknown";
         };
         /** CourtProfilesResponse */
         CourtProfilesResponse: {
@@ -758,6 +809,83 @@ export interface components {
              * @enum {string}
              */
             method: "original-text-v1" | "pypdf-bounded-v1";
+            /** Diagnostics */
+            diagnostics?: string[];
+        };
+        /** GroundedAnswerResponse */
+        GroundedAnswerResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Finding Id
+             * Format: uuid
+             */
+            finding_id: string;
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
+            /**
+             * Status
+             * @default answered
+             * @enum {string}
+             */
+            status: "answered" | "refused" | "no_evidence";
+            /**
+             * Refusal Reason
+             * @default none
+             * @enum {string}
+             */
+            refusal_reason: "broad_legal_advice" | "out_of_scope" | "none";
+            /** Evidence Record Ids */
+            evidence_record_ids?: string[];
+            /** Source Authorities */
+            source_authorities?: string[];
+            /** Source Urls */
+            source_urls?: string[];
+            /**
+             * Method Version
+             * @default grounded-qa-v1
+             */
+            method_version: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** GroundedQuestionHistory */
+        GroundedQuestionHistory: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Finding Id
+             * Format: uuid
+             */
+            finding_id: string;
+            /** Questions */
+            questions?: components["schemas"]["GroundedAnswerResponse"][];
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Limit
+             * @default 20
+             */
+            limit: number;
+        };
+        /** GroundedQuestionRequest */
+        GroundedQuestionRequest: {
+            /** Question */
+            question: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -856,6 +984,78 @@ export interface components {
              * @default Local dependencies only; provider availability and hosted acceptance are separate.
              */
             limitation: string;
+        };
+        /**
+         * RedTeamResponse
+         * @description Grounded adversarial critique of filing vulnerabilities.
+         */
+        RedTeamResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Weaknesses */
+            weaknesses?: components["schemas"]["RedTeamWeakness"][];
+            /** Summary */
+            summary: string;
+            /** Total Weaknesses */
+            total_weaknesses: number;
+            /** Critical Count */
+            critical_count: number;
+            /** High Count */
+            high_count: number;
+            /** Medium Count */
+            medium_count: number;
+            /** Low Count */
+            low_count: number;
+            /**
+             * Limitation
+             * @default Red-Team Mode synthesizes review vulnerabilities exclusively from existing findings and evidence. It identifies adversarial risks to assist human review, not legal strategy or legal advice.
+             */
+            limitation: string;
+        };
+        /**
+         * RedTeamWeakness
+         * @description An adversarial weakness synthesized exclusively from existing analysis findings.
+         */
+        RedTeamWeakness: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Vulnerability Type
+             * @enum {string}
+             */
+            vulnerability_type: "misrepresented_authority" | "unverified_citation" | "altered_quotation" | "privacy_exposure" | "court_rule_violation" | "unsupported_claim" | "unresolved_authority";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "critical" | "high" | "medium" | "low";
+            /** Title */
+            title: string;
+            /** Challenge Theory */
+            challenge_theory: string;
+            /** Impact Summary */
+            impact_summary: string;
+            /** Remediation Recommendation */
+            remediation_recommendation: string;
+            /** Linked Finding Ids */
+            linked_finding_ids?: string[];
+            /** Linked Citation Ids */
+            linked_citation_ids?: string[];
+            /** Linked Claim Ids */
+            linked_claim_ids?: string[];
+            /** Linked Quote Ids */
+            linked_quote_ids?: string[];
         };
         /** ReviewScore */
         ReviewScore: {
@@ -988,6 +1188,13 @@ export interface components {
              * @default null
              */
             limitation: string | null;
+            /**
+             * Duplicate Count
+             * @default null
+             */
+            duplicate_count: number | null;
+            /** Repeated Locations */
+            repeated_locations?: components["schemas"]["DocumentLocation"][];
         };
         /** SafeCitationsResponse */
         SafeCitationsResponse: {
@@ -2257,10 +2464,78 @@ export interface operations {
             };
         };
     };
+    get_finding_qa_api_v1_analyses__analysis_id__findings__finding_id__questions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroundedQuestionHistory"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ask_finding_qa_api_v1_analyses__analysis_id__findings__finding_id__questions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroundedQuestionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroundedAnswerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     review_report_api_v1_analyses__analysis_id__report_get: {
         parameters: {
             query?: {
-                format?: "markdown" | "html";
+                format?: "markdown" | "html" | "pdf";
             };
             header?: never;
             path: {
@@ -2277,6 +2552,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_red_team_api_v1_analyses__analysis_id__red_team_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedTeamResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_red_team_api_v1_analyses__analysis_id__red_team_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedTeamResponse"];
                 };
             };
             /** @description Validation Error */

@@ -155,6 +155,67 @@ def test_long_opinion_selection_is_bounded():
     assert any("Notice is required" in p.text for p in passages)
 
 
+def test_multi_passage_retrieval_across_structural_sections():
+    # Long opinion (>15,000 characters) with early, middle, and late relevant sections.
+    early = "Background facts. " * 300 + "\n\nNotice is required in preliminary filings.\n\n"
+    mid = "Legal analysis. " * 300 + "\n\nNotice requirements apply to all emergency claims.\n\n"
+    late = (
+        "Judicial disposition. " * 300
+        + "\n\nThe court holds that notice must precede any hearing.\n\n"
+        + "Closing order. " * 200
+    )
+    source = early + mid + late
+    assert len(source) > 15000
+
+    passages = select_passages(source, "court holds notice required")
+    assert 3 <= len(passages) <= 4
+    assert sum(len(p.text) for p in passages) <= 12000
+
+    # Ensure all passages are non-overlapping and preserve offsets
+    for i, p in enumerate(passages):
+        assert source[p.start : p.end] == p.text
+        for j, other in enumerate(passages):
+            if i != j:
+                assert p.end <= other.start or other.end <= p.start
+
+    # Verify structural candidate diversity across early, middle, and late thirds
+    third = len(source) / 3
+    zones = {min(2, int(p.start / third)) for p in passages}
+    assert zones == {0, 1, 2}
+
+
+def test_multi_passage_miranda_fixture_structural_diversity():
+    from pathlib import Path
+
+    fixture = Path(__file__).resolve().parents[4] / "data/demo/curated-v1/authorities/miranda.txt"
+    if not fixture.exists():
+        return
+    source = fixture.read_text(encoding="utf-8")
+    assert len(source) > 15000
+
+    claim = (
+        "statements obtained from interrogation are inadmissible without "
+        "procedural safeguards."
+    )
+    passages = select_passages(source, claim)
+    assert len(passages) == 4
+    assert sum(len(p.text) for p in passages) <= 12000
+    for p in passages:
+        assert source[p.start : p.end] == p.text
+        assert p.snapshot_sha256 == hashlib.sha256(source.encode()).hexdigest()
+
+    # Verify non-overlapping
+    for i, p in enumerate(passages):
+        for j, other in enumerate(passages):
+            if i != j:
+                assert p.end <= other.start or other.end <= p.start
+
+    # Verify multiple zones covered
+    third = len(source) / 3
+    zones = {min(2, int(p.start / third)) for p in passages}
+    assert len(zones) >= 2
+
+
 def test_long_paragraph_clipping_is_disclosed():
     passages = select_passages("Notice " + "qualification " * 1000, "Notice")
     assert passages[0].truncated

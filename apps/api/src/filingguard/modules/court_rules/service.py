@@ -14,6 +14,7 @@ class DisclosureRule(BaseModel):
     trigger: Literal["ai_used"]
     requirement: str = Field(min_length=1)
     heading: str = Field(min_length=1)
+    placement: Literal["anywhere", "first_page"] = "anywhere"
 
 
 class CourtProfile(BaseModel):
@@ -43,18 +44,32 @@ class DisclosureEvaluation(BaseModel):
     rule_id: str | None = None
 
 
+_SUPPORTED_PROFILES = frozenset({"synthetic-demo-v1", "us-txnd-lr7-2f-v1"})
+
+
 def load_profile(profile_id: str) -> CourtProfile:
-    path = Path(__file__).parent / "profiles" / f"{profile_id}.json"
-    if profile_id != "synthetic-demo-v1":
+    if profile_id not in _SUPPORTED_PROFILES:
         raise ValueError("Unsupported court profile")
+    path = Path(__file__).parent / "profiles" / f"{profile_id}.json"
     profile = CourtProfile.model_validate(json.loads(path.read_text(encoding="utf-8")))
     if profile.id != profile_id:
         raise ValueError("Court profile identity mismatch")
     return profile
 
 
+def _has_heading(content: str, heading: str) -> bool:
+    target = heading.strip().casefold()
+    return any(line.strip().casefold() == target for line in content.splitlines())
+
+
 def evaluate_disclosure(
-    profile_id: str, text: str, ai_used: bool, *, demo: bool, as_of: date | None = None
+    profile_id: str,
+    text: str,
+    ai_used: bool,
+    *,
+    demo: bool,
+    pages: tuple[str, ...] | list[str] | None = None,
+    as_of: date | None = None,
 ) -> DisclosureEvaluation:
     if profile_id == "unverified":
         return DisclosureEvaluation(status="unavailable", reason="Court rules not configured")
@@ -67,7 +82,7 @@ def evaluate_disclosure(
             status="unavailable", reason="Court profile scope does not match review mode"
         )
     today = as_of or date.today()
-    if not profile.effective_from <= today <= profile.effective_to:
+    if not (profile.effective_from <= today <= profile.effective_to):
         return DisclosureEvaluation(
             status="unavailable", reason="Court profile outside effective period"
         )
@@ -76,13 +91,66 @@ def evaluate_disclosure(
         return DisclosureEvaluation(
             status="not_triggered", requirement=rule.requirement, rule_id=rule.rule_id
         )
-    # Require a standalone heading; a passing mention in an argument is not disclosure.
-    present = any(line.strip().casefold() == rule.heading.casefold() for line in text.splitlines())
+
+    if rule.placement == "first_page":
+        if pages is not None and len(pages) > 0:
+            if _has_heading(pages[0], rule.heading):
+                return DisclosureEvaluation(
+                    status="present",
+                    requirement=rule.requirement,
+                    rule_id=rule.rule_id,
+                    reason=(
+                        "Heading presence only; substantive disclosure content and legal "
+                        "compliance require independent human review."
+                    ),
+                )
+            if any(_has_heading(p, rule.heading) for p in pages[1:]):
+                return DisclosureEvaluation(
+                    status="missing",
+                    requirement=rule.requirement,
+                    rule_id=rule.rule_id,
+                    reason=(
+                        "Disclosure heading found on later page, but Local Rule 7.2(f) requires "
+                        "placement on the first page."
+                    ),
+                )
+            return DisclosureEvaluation(
+                status="missing",
+                requirement=rule.requirement,
+                rule_id=rule.rule_id,
+                reason=(
+                    f"Required disclosure heading '{rule.heading}' was not found on the "
+                    "first page."
+                ),
+            )
+        # Plain text submission (no page boundaries)
+        if _has_heading(text, rule.heading):
+            return DisclosureEvaluation(
+                status="present",
+                requirement=rule.requirement,
+                rule_id=rule.rule_id,
+                reason=(
+                    "Heading found in plain text; unpaginated submission lacks page boundaries "
+                    "so first-page placement cannot be strictly verified."
+                ),
+            )
+        return DisclosureEvaluation(
+            status="missing",
+            requirement=rule.requirement,
+            rule_id=rule.rule_id,
+            reason=f"Required disclosure heading '{rule.heading}' was not found.",
+        )
+
+    # rule.placement == "anywhere"
+    present = _has_heading(text, rule.heading)
     return DisclosureEvaluation(
         status="present" if present else "missing",
         requirement=rule.requirement,
         rule_id=rule.rule_id,
-        reason="Heading presence only; content and legal sufficiency require human review"
+        reason=(
+            "Heading presence only; substantive disclosure content and legal compliance "
+            "require independent human review."
+        )
         if present
         else "Required disclosure heading was not found",
     )

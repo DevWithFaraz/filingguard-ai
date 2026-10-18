@@ -1,6 +1,6 @@
 ---
 type: issue
-status: corrected-local-hosted-verification-pending
+status: resolved
 date: 2026-10-11
 tags: [issues, deployment]
 ---
@@ -20,7 +20,11 @@ success is claimed; this is an observed configuration/required-resource mismatch
 
 Local full-repository reproduction verifies cached demo loading and fresh
 synthetic execution. The absence of the required fixture fails closed. Render
-Linux build/runtime verification remains part of T057 after publication.
+Read-only hosted reviewed-sample GET on October 11 returns 200 with the locked
+filing hash, three cached sources and 18 examples after the user reports deploying
+`5b37993`. This verifies required resources are available at hosted runtime;
+[[docs/sessions/2026-10-11 - Closed intake hosted checks]]. Hosted engine acceptance
+remains T057 and is not implied by the read-only sample preview.
 
 [[TODO]] T059/T057, [[docs/delivery/Deployment guide]],
 [[apps/api/src/filingguard/modules/analyses/README]],

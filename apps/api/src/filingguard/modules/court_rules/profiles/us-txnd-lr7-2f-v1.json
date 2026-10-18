@@ -1,0 +1,18 @@
+{
+  "id": "us-txnd-lr7-2f-v1",
+  "version": "txnd-lr7-2f-2024-09",
+  "name": "U.S. District Court for the Northern District of Texas - Local Civil Rule 7.2(f)",
+  "source": "U.S. District Court for the Northern District of Texas Local Civil Rules, LR 7.2(f) (adopted via Special Order 2-98, effective September 3, 2024); official court portal: https://www.txnd.uscourts.gov/",
+  "effective_from": "2024-09-03",
+  "effective_to": "2099-12-31",
+  "court_scope": "U.S. District Court for the Northern District of Texas",
+  "judge_scope": null,
+  "is_demo": false,
+  "ai_disclosure": {
+    "rule_id": "txnd-lr-7-2f",
+    "trigger": "ai_used",
+    "requirement": "If Generative Artificial Intelligence was used in preparing the filing, Local Rule 7.2(f) requires a separate heading on page one titled 'Use of Generative Artificial Intelligence'.",
+    "heading": "Use of Generative Artificial Intelligence",
+    "placement": "first_page"
+  }
+}

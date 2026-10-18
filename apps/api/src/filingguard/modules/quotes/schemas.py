@@ -32,6 +32,15 @@ class QuoteAssociation:
 
 
 @dataclass(frozen=True)
+class MeaningAlteration:
+    kind: str
+    severity: str
+    title: str
+    description: str
+    details: dict | None = None
+
+
+@dataclass(frozen=True)
 class QuoteComparison:
     status: QuoteStatus
     similarity: float | None = None
@@ -39,3 +48,4 @@ class QuoteComparison:
     source_start: int | None = None
     source_end: int | None = None
     reason: str | None = None
+    meaning_alteration: MeaningAlteration | None = None

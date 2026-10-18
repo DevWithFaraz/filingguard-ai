@@ -13,8 +13,8 @@ export function ActivityView() {
     <div className="workflow-hero-note"><Clock3 size={28} /><strong>A temporary workspace.</strong><span>Documents belong to this browser tab and remain available until expiry.</span></div></WorkflowHero>
     <div className="workflow-list-heading"><div><h2>Your documents</h2><p>{query.data?.length ?? 0} available in this session</p></div><StartReviewLink /></div>
     {capabilities.isError && <div className="workflow-notice" role="alert"><p>Session availability could not be confirmed.</p><button className="secondary-button" onClick={() => void capabilities.refetch()}>Retry availability</button></div>}
-    {capabilities.isPending && <p role="status">Checking private session availability</p>}
-    {query.isFetching && <p role="status">Loading private session</p>}
+    {capabilities.isPending && <p role="status" aria-live="polite">Checking private session availability</p>}
+    {query.isFetching && <p role="status" aria-live="polite">Loading private session</p>}
     {query.isError && <p role="alert">{query.error.message}<button className="secondary-button" onClick={() => void query.refetch()}>Retry</button></p>}
     {capabilities.data && (!query.data || !query.data.length) && !query.isFetching && !query.isError
       && <div className="workflow-empty"><FileText size={35} /><h2>No reviews yet</h2><p>{capabilities.data.intake_enabled ? 'Prepare your first document to see it here. Try the synthetic demo to explore the workflow.' : 'Document preparation is currently disabled. You can still explore the reviewed sample.'}</p><div className="workflow-actions"><Link className="secondary-button" to="/demo">Explore sample<ArrowRight size={16} /></Link><Link to="/" className="document-text-link">New document<ArrowRight size={16} /></Link></div></div>}

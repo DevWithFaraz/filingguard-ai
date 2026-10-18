@@ -223,12 +223,30 @@ def quotes_stage(analysis: Analysis, budget: ProviderBudget) -> StageResult:
         finding.description = (
             (comparison.reason or "String comparison completed.") + " " + LIMITATION
         )
+        if comparison.meaning_alteration is not None:
+            finding.severity = comparison.meaning_alteration.severity
+            finding.title = comparison.meaning_alteration.title
+            finding.description = (
+                f"{comparison.meaning_alteration.description} "
+                f"Closest source passage string similarity: "
+                f"{int(round(comparison.similarity * 100)) if comparison.similarity else 0}%. "
+                f"{LIMITATION}"
+            )
         metadata = {
             "quote_kind": occurrence.kind,
             "association_candidates": [str(value) for value in association.candidates],
             "reason": comparison.reason,
             "match_status": comparison.status.value,
             "similarity": comparison.similarity,
+            "meaning_alteration": (
+                {
+                    "kind": comparison.meaning_alteration.kind,
+                    "description": comparison.meaning_alteration.description,
+                    "severity": comparison.meaning_alteration.severity,
+                }
+                if comparison.meaning_alteration
+                else None
+            ),
         }
         records.extend(
             (

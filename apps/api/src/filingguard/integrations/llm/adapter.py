@@ -97,7 +97,7 @@ class GroqPropositionAdapter:
         # Never accept caller-provided prompt strings or independently copied claim text.
         self.last_rejection = None
         masked = prepare_passage(filing, start, end, filing=True)
-        if not passages or len(passages) > 2 or sum(len(p.text) for p in passages) > 12000:
+        if not passages or len(passages) > 4 or sum(len(p.text) for p in passages) > 12000:
             raise ProviderUnavailable("invalid_request")
         sha = hashlib.sha256(source.encode()).hexdigest()
         if len({p.id for p in passages}) != len(passages) or any(

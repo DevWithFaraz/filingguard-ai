@@ -39,8 +39,11 @@ workflow navigation and reduced-motion equivalents. See
 October 11: the full genuine free-credit curated browser journey passes all twelve
 SRS acceptance controls against cached public opinions. Desktop/mobile keyboard/axe
 checks and measured local limits/performance pass. These synthetic checks do not
-establish expert legal accuracy, physical-device performance or hosted acceptance.
-The deployed API remains the older shell; `/ready` and `/capabilities` return 404.
+establish expert legal accuracy or physical-device performance. October 12:
+hosted Text/PDF/cached-demo acceptance, session isolation, exports, deletion,
+controlled expiry/restart and live provider/failure/restoration checks pass at
+their recorded synthetic scope. `/ready` and `/capabilities` return 200 in the
+enabled configuration. No confidential client release is implied; T212/T213 remain.
 See [[docs/sessions/2026-10-11 - Accessibility performance and release gates]] and
 [[docs/delivery/Deployment guide]] for release checks and remaining access blockers.
 

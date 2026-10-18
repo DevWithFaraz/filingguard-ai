@@ -16,9 +16,11 @@ Compare claims to bounded retrieved passages and validate structured model resul
 Claims/evidence in; support status, explanation, evidence references and uncertainty out.
 
 Implemented locally: deterministic lexical passage selection preserves exact Unicode
-offsets and SHA-256, selects at most two source windows (12,000 total code points),
-and includes 1,200 characters of surrounding qualifications. Clipped windows are
-disclosed and cannot establish a supported or misrepresented verdict.
+offsets and SHA-256, selects up to four source windows (12,000 total code points),
+and includes surrounding context qualifications. For long opinions (>15,000 characters),
+structural candidate diversity across early, middle, and late sections ensures
+representative opinion coverage (`METHOD_VERSION = "lexical-qualified-multi-passage-v3"`).
+Clipped windows are disclosed and cannot establish a supported or misrepresented verdict.
 
 The registered `propositions_stage` consumes detached, analysis-owned prior claims,
 citations, claim-authority links and authorities. It emits new findings/evidence and

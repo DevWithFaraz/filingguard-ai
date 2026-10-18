@@ -120,7 +120,7 @@ export function HomePage({ health }: { health: UseQueryResult<{ status: string }
         </div>
       </div>
       <div className="footer-bottom"><span>FilingGuard AI / Pre-filing review</span>
-      <div className="connection" role="status"><span className={`status-dot ${health.isSuccess ? 'online' : ''}`} />
+      <div className="connection" role="status" aria-live="polite"><span className={`status-dot ${health.isSuccess ? 'online' : ''}`} />
         {health.isPending ? 'Connecting' : health.isError ? 'API unavailable' : 'API connected'}
         <button className="icon-button" aria-label="Refresh API connection" title="Refresh API connection"
           disabled={health.isFetching} onClick={() => void health.refetch()}><RefreshCw size={14} className={health.isFetching ? 'spinning' : ''} /></button></div>

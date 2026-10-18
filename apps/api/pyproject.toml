@@ -21,6 +21,7 @@ dependencies = [
   "pypdf>=6,<7",
   "rapidfuzz>=3.11,<4",
   "openai>=2,<3",
+  "reportlab",
 ]
 
 [dependency-groups]
@@ -31,9 +32,10 @@ packages = ["src/filingguard"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests/integration"]
 asyncio_mode = "auto"
 cache_dir = ".runtime/pytest_cache"
-addopts = "--basetemp=.runtime/pytest_temp"
+addopts = "--basetemp=.runtime/pytest_temp --import-mode=importlib"
 
 [tool.ruff]
 target-version = "py312"

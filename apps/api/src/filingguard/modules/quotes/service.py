@@ -9,6 +9,7 @@ from filingguard.modules.analyses.schemas import QuoteStatus
 from filingguard.modules.quotes.schemas import (
     MAX_QUOTE_CHARS,
     MAX_SOURCE_CHARS,
+    MeaningAlteration,
     QuoteAssociation,
     QuoteComparison,
     QuoteOccurrence,
@@ -131,6 +132,119 @@ def _normalized_map(text: str) -> tuple[str, list[int]]:
     return "".join(chars), offsets
 
 
+_NEGATION_WORDS = frozenset(
+    {"not", "no", "never", "none", "neither", "nor", "cannot", "without", "hardly", "scarcely"}
+)
+_MANDATORY_WORDS = frozenset({"shall", "must", "required", "mandatory"})
+_PERMISSIVE_WORDS = frozenset({"may", "can", "permitted", "discretionary"})
+_QUALIFIER_WORDS = ("unless", "except", "provided that", "excluding", "subject to", "only if")
+_ANTONYM_PAIRS = (
+    ("granted", "denied"),
+    ("reversed", "affirmed"),
+    ("guilty", "innocent"),
+    ("valid", "invalid"),
+    ("constitutional", "unconstitutional"),
+    ("liable", "immune"),
+    ("enforceable", "unenforceable"),
+)
+
+
+def check_meaning_alteration(quote: str, source_passage: str) -> MeaningAlteration | None:
+    """Detect changes in negation, modal obligations, omitted qualifiers, or antonyms."""
+    q_tokens = set(re.findall(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b", quote.lower()))
+    s_tokens = set(re.findall(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b", source_passage.lower()))
+
+    # 1. Negation alteration
+    q_neg = q_tokens & _NEGATION_WORDS
+    s_neg = s_tokens & _NEGATION_WORDS
+    if q_neg != s_neg:
+        if q_neg - s_neg:
+            words = ", ".join(sorted(q_neg - s_neg))
+            return MeaningAlteration(
+                kind="negation_inserted",
+                severity="critical",
+                title="Quotation alteration may reverse meaning: Negation added",
+                description=(
+                    f"The quotation inserts negation ({words}) not present in the source "
+                    "passage, which may reverse the legal meaning or court's holding."
+                ),
+                details={"inserted_words": sorted(q_neg - s_neg)},
+            )
+        if s_neg - q_neg:
+            words = ", ".join(sorted(s_neg - q_neg))
+            return MeaningAlteration(
+                kind="negation_omitted",
+                severity="critical",
+                title="Quotation alteration may reverse meaning: Negation omitted",
+                description=(
+                    f"The quotation omits negation ({words}) present in the source "
+                    "passage, which may reverse the legal meaning or court's holding."
+                ),
+                details={"omitted_words": sorted(s_neg - q_neg)},
+            )
+
+    # 2. Modal verb / obligation alteration
+    q_mand = q_tokens & _MANDATORY_WORDS
+    q_perm = q_tokens & _PERMISSIVE_WORDS
+    s_mand = s_tokens & _MANDATORY_WORDS
+    s_perm = s_tokens & _PERMISSIVE_WORDS
+    if (q_mand and s_perm and not (q_mand & s_mand)) or (
+        q_perm and s_mand and not (q_perm & s_perm)
+    ):
+        q_mod = ", ".join(sorted(q_mand | q_perm))
+        s_mod = ", ".join(sorted(s_mand | s_perm))
+        return MeaningAlteration(
+            kind="modal_altered",
+            severity="high",
+            title="Quotation alteration may alter meaning: Obligation altered",
+            description=(
+                f"The quotation changes obligation language ('{q_mod}' vs source '{s_mod}'); "
+                "mandatory or permissive standards may be altered."
+            ),
+            details={
+                "quote_modal": sorted(q_mand | q_perm),
+                "source_modal": sorted(s_mand | s_perm),
+            },
+        )
+
+    # 3. Antonym / contradictory terms
+    for term_a, term_b in _ANTONYM_PAIRS:
+        if (term_a in q_tokens and term_b in s_tokens) or (
+            term_b in q_tokens and term_a in s_tokens
+        ):
+            w_q = term_a if term_a in q_tokens else term_b
+            w_s = term_b if term_a in q_tokens else term_a
+            return MeaningAlteration(
+                kind="antonym_altered",
+                severity="critical",
+                title="Quotation alteration may reverse meaning: Contradictory term",
+                description=(
+                    f"The quotation contains an opposing term ('{w_q}' vs '{w_s}'), "
+                    "directly altering the judicial disposition or finding."
+                ),
+                details={"quote_term": w_q, "source_term": w_s},
+            )
+
+    # 4. Ellipsis omitting qualifiers
+    if "..." in quote or "…" in quote or "[. . .]" in quote or "[ ... ]" in quote:
+        lower_source = source_passage.lower()
+        lower_quote = quote.lower()
+        for qual in _QUALIFIER_WORDS:
+            if qual in lower_source and qual not in lower_quote:
+                return MeaningAlteration(
+                    kind="qualifier_omitted",
+                    severity="high",
+                    title="Quotation alteration may alter meaning: Exception or qualifier omitted",
+                    description=(
+                        f"The quotation ellipsis omits a key qualifier or exception ('{qual}') "
+                        "present in the source authority passage."
+                    ),
+                    details={"omitted_qualifier": qual},
+                )
+
+    return None
+
+
 def compare_quote(quote: str, source: str) -> QuoteComparison:
     """Similarity is a string signal only; every passage slices the original source."""
     if not source:
@@ -165,11 +279,29 @@ def compare_quote(quote: str, source: str) -> QuoteComparison:
             QuoteStatus.SOURCE_UNAVAILABLE, reason="Closest source passage exceeds excerpt limits."
         )
     similarity = alignment.score / 100
+    passage_text = source[left:right]
+    ctx_left = left
+    while ctx_left > 0 and source[ctx_left - 1] not in ".!?\n\f" and left - ctx_left < 200:
+        ctx_left -= 1
+    ctx_right = right
+    while (
+        ctx_right < len(source)
+        and source[ctx_right] not in ".!?\n\f"
+        and ctx_right - right < 200
+    ):
+        ctx_right += 1
+    meaning_alt = check_meaning_alteration(quote, source[ctx_left:ctx_right])
+    reason = (
+        meaning_alt.description
+        if meaning_alt
+        else "String similarity does not establish equivalent meaning or legal support."
+    )
     return QuoteComparison(
         QuoteStatus.CLOSE if similarity >= 0.85 else QuoteStatus.NOT_FOUND,
         similarity,
-        source[left:right],
+        passage_text,
         left,
         right,
-        "String similarity does not establish equivalent meaning or legal support.",
+        reason,
+        meaning_alt,
     )

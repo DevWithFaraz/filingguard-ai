@@ -65,10 +65,17 @@ def privacy_stage(analysis: Analysis, _budget: ProviderBudget) -> StageResult:
                 "ssn": "SSN-shaped identifier",
                 "financial_account": "Possible account number",
                 "birth_date": "Possible full date of birth",
+                "minor_name": "Possible unredacted minor name",
             }[signal.kind],
             description=(
-                "Review whether this identifier needs redaction before filing; "
-                "automated detection is not a compliance determination."
+                "Review whether this name refers to a minor requiring initials under "
+                "Fed. R. Civ. P. 5.2(a)(3) or local privacy rules; automated heuristic "
+                "detection carries explicit uncertainty."
+                if signal.kind == "minor_name"
+                else (
+                    "Review whether this identifier needs redaction before filing; "
+                    "automated detection is not a compliance determination."
+                )
             ),
             status="open",
             stage="privacy",
@@ -78,6 +85,34 @@ def privacy_stage(analysis: Analysis, _budget: ProviderBudget) -> StageResult:
             ai_assisted=False,
         )
         records.extend((finding, _evidence(analysis, finding, text, signal.start, signal.end)))
+    diagnostics = (analysis.document_snapshot or {}).get("diagnostics") or []
+    if diagnostics:
+        diag_text = "; ".join(diagnostics)
+        has_critical = any(
+            "no extractable text" in d.lower() or "excessive" in d.lower() for d in diagnostics
+        )
+        severity = "high" if has_critical else "medium"
+        diag_finding = Finding(
+            id=uuid4(),
+            analysis_id=analysis.id,
+            type="system",
+            severity=severity,
+            title="Document text parsing quality warning",
+            description=(
+                f"Potential text extraction quality issues detected: {diag_text}. "
+                "Unextracted, fused, or degraded text cannot be verified for citations, "
+                "quotations, or privacy risks."
+            ),
+            status="open",
+            stage="document",
+            start_offset=0,
+            end_offset=min(len(text), 100),
+            document_excerpt=text[:100],
+            ai_assisted=False,
+        )
+        records.extend(
+            (diag_finding, _evidence(analysis, diag_finding, text, 0, min(len(text), 100)))
+        )
     return StageResult(
         status=StageStatus.COMPLETED,
         coverage=Coverage(eligible=1, evaluated=1),
@@ -86,11 +121,28 @@ def privacy_stage(analysis: Analysis, _budget: ProviderBudget) -> StageResult:
 
 
 def court_stage(analysis: Analysis, _budget: ProviderBudget) -> StageResult:
+    snapshot = analysis.document_snapshot or {}
+    text = snapshot.get("text", "")
+    raw_pages = snapshot.get("pages")
+    pages_text: list[str] | None = None
+    if raw_pages:
+        extracted = []
+        for p in raw_pages:
+            if isinstance(p, str):
+                extracted.append(p)
+            elif isinstance(p, dict) and "start" in p and "end" in p:
+                extracted.append(text[p["start"] : p["end"]])
+            elif hasattr(p, "start") and hasattr(p, "end"):
+                extracted.append(text[p.start : p.end])
+        if extracted:
+            pages_text = extracted
+
     result = evaluate_disclosure(
         analysis.court_profile_id,
-        analysis.document_snapshot["text"],
+        text,
         analysis.ai_used,
         demo=analysis.mode == "demo",
+        pages=pages_text,
     )
     if result.status == "unavailable":
         return StageResult(
@@ -99,21 +151,30 @@ def court_stage(analysis: Analysis, _budget: ProviderBudget) -> StageResult:
             reason=result.reason,
         )
     records = []
+    profile = load_profile(analysis.court_profile_id)
+    rule_text = profile.ai_disclosure.requirement
     if result.status == "missing":
-        profile = load_profile(analysis.court_profile_id)
-        rule_text = profile.ai_disclosure.requirement
+        if profile.is_demo:
+            title = "Synthetic AI-use disclosure missing"
+            description = (
+                f"{rule_text} This is a training-only requirement; "
+                "verify actual court rules independently."
+            )
+        else:
+            title = "Required N.D. Tex. Local Rule 7.2(f) AI-use disclosure missing"
+            description = (
+                f"{rule_text} Automated detection checks heading presence only; "
+                "substantive legal compliance requires independent human review."
+            )
         finding = Finding(
             id=uuid4(),
             analysis_id=analysis.id,
             type="court_rule",
             severity="medium",
-            title="Synthetic AI-use disclosure missing",
+            title=title,
             status="open",
             stage="court_rules",
-            description=(
-                f"{rule_text} This is a training-only requirement; "
-                "verify actual court rules independently."
-            ),
+            description=description,
             rule_id=result.rule_id,
             ai_assisted=False,
         )
@@ -132,14 +193,23 @@ def court_stage(analysis: Analysis, _budget: ProviderBudget) -> StageResult:
                 ),
             )
         )
+    if profile.is_demo:
+        stage_reason = (
+            f"{result.reason or 'AI-use flag is no; requirement not triggered.'} "
+            "Synthetic court rule is an unvalidated synthetic exercise; "
+            "verify actual court rules independently."
+        )
+    else:
+        stage_reason = (
+            f"{result.reason or 'AI-use flag is no; requirement not triggered.'} "
+            "Automated heading check is not a legal sufficiency review."
+        )
+    if len(stage_reason) > 300:
+        stage_reason = stage_reason[:299] + "…"
     return StageResult(
         status=StageStatus.COMPLETED,
         coverage=Coverage(eligible=1, evaluated=1),
-        reason=(
-            f"{result.requirement} "
-            f"{result.reason or 'AI-use flag is no; requirement not triggered.'} "
-            "Automated heading check is not a legal sufficiency review."
-        ),
+        reason=stage_reason,
         records=tuple(records),
     )
 

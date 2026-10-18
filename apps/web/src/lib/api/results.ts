@@ -22,7 +22,8 @@ export interface ReviewResults {
     deductions: { finding_id: string; type: string; severity: string; points: number }[]; limitation: string };
   citations: { id: string; masked_raw_text: string; verification_status: string;
     authority_id: string | null; location: ResultLocation; reason?: string | null;
-    limitation?: string | null; authority?: { case_name: string | null; source_url: string | null } | null }[];
+    limitation?: string | null; authority?: { case_name: string | null; source_url: string | null } | null;
+    duplicate_count?: number | null; repeated_locations?: ResultLocation[] }[];
   claims: { id: string; text: string; location: ResultLocation; extraction_method: string;
     links: { id: string; citation_id: string; authority_id: string | null; support_status: string;
       explanation: string | null; confidence: number | null }[] }[];
@@ -129,13 +130,150 @@ export function safeSourceURL(value: unknown): value is string {
   try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password; }
   catch { return false; }
 }
-export async function downloadReport(id: string, format: 'markdown' | 'html'): Promise<void> {
+export async function downloadReport(id: string, format: 'markdown' | 'html' | 'pdf'): Promise<void> {
   const response = await authorizedResponse(`/analyses/${encodeURIComponent(id)}/report?format=${format}`);
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `filingguard-${id}.${format === 'html' ? 'html' : 'md'}`;
+  const ext = format === 'html' ? 'html' : format === 'pdf' ? 'pdf' : 'md';
+  anchor.download = `filingguard-${id}.${ext}`;
   document.body.append(anchor); anchor.click(); anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+export interface RedTeamWeakness {
+  id: string;
+  vulnerability_type: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  title: string;
+  challenge_theory: string;
+  impact_summary: string;
+  remediation_recommendation: string;
+  linked_finding_ids: string[];
+  linked_citation_ids: string[];
+  linked_claim_ids: string[];
+  linked_quote_ids: string[];
+}
+
+export interface RedTeamResponse {
+  analysis_id: string;
+  generated_at: string;
+  weaknesses: RedTeamWeakness[];
+  summary: string;
+  total_weaknesses: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  limitation: string;
+}
+
+export function validateRedTeamResponse(value: unknown, id: string): RedTeamResponse {
+  if (!record(value) || value.analysis_id !== id
+    || typeof value.generated_at !== 'string' || !Number.isFinite(Date.parse(value.generated_at))
+    || typeof value.summary !== 'string' || !integer(value.total_weaknesses)
+    || !integer(value.critical_count) || !integer(value.high_count)
+    || !integer(value.medium_count) || !integer(value.low_count)
+    || value.total_weaknesses !== (Number(value.critical_count) + Number(value.high_count) + Number(value.medium_count) + Number(value.low_count))
+    || (Array.isArray(value.weaknesses) && value.total_weaknesses !== value.weaknesses.length)
+    || typeof value.limitation !== 'string'
+    || !rows(value.weaknesses, 100, item => typeof item.title === 'string'
+      && ['critical', 'high', 'medium', 'low'].includes(String(item.severity))
+      && typeof item.challenge_theory === 'string'
+      && typeof item.impact_summary === 'string'
+      && typeof item.remediation_recommendation === 'string'
+      && Array.isArray(item.linked_finding_ids))) {
+    throw new Error('Unexpected red-team review response');
+  }
+  return value as unknown as RedTeamResponse;
+}
+
+export async function getRedTeam(id: string, signal?: AbortSignal): Promise<RedTeamResponse> {
+  const value = await authorized(`/analyses/${encodeURIComponent(id)}/red-team`, { signal });
+  return validateRedTeamResponse(value, id);
+}
+
+export async function runRedTeam(id: string): Promise<RedTeamResponse> {
+  const value = await authorized(`/analyses/${encodeURIComponent(id)}/red-team`, { method: 'POST' });
+  return validateRedTeamResponse(value, id);
+}
+
+export interface GroundedAnswerResponse {
+  analysis_id: string;
+  finding_id: string;
+  question: string;
+  answer: string;
+  status: 'answered' | 'refused' | 'no_evidence';
+  refusal_reason: 'broad_legal_advice' | 'out_of_scope' | 'none';
+  evidence_record_ids: string[];
+  source_authorities: string[];
+  source_urls: string[];
+  method_version: string;
+  created_at: string;
+}
+
+export interface GroundedQuestionHistory {
+  analysis_id: string;
+  finding_id: string;
+  questions: GroundedAnswerResponse[];
+  count: number;
+  limit: number;
+}
+
+export function validateGroundedAnswerResponse(value: unknown, analysisId: string, findingId: string): GroundedAnswerResponse {
+  if (!record(value) || value.analysis_id !== analysisId || value.finding_id !== findingId
+    || typeof value.question !== 'string'
+    || typeof value.answer !== 'string'
+    || !['answered', 'refused', 'no_evidence'].includes(String(value.status))
+    || !['broad_legal_advice', 'out_of_scope', 'none'].includes(String(value.refusal_reason))
+    || !Array.isArray(value.evidence_record_ids)
+    || !Array.isArray(value.source_authorities)
+    || !Array.isArray(value.source_urls)
+    || typeof value.method_version !== 'string'
+    || typeof value.created_at !== 'string') {
+    throw new Error('Unexpected grounded Q&A response');
+  }
+  return value as unknown as GroundedAnswerResponse;
+}
+
+export function validateGroundedQuestionHistory(value: unknown, analysisId: string, findingId: string): GroundedQuestionHistory {
+  if (!record(value) || value.analysis_id !== analysisId || value.finding_id !== findingId
+    || !integer(value.count) || !integer(value.limit)
+    || !Array.isArray(value.questions)) {
+    throw new Error('Unexpected grounded Q&A history response');
+  }
+  return value as unknown as GroundedQuestionHistory;
+}
+
+export async function askFindingQuestion(
+  analysisId: string,
+  findingId: string,
+  question: string,
+  signal?: AbortSignal,
+): Promise<GroundedAnswerResponse> {
+  const value = await authorized(
+    `/analyses/${encodeURIComponent(analysisId)}/findings/${encodeURIComponent(findingId)}/questions`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+      signal,
+    },
+  );
+  return validateGroundedAnswerResponse(value, analysisId, findingId);
+}
+
+export async function getFindingQuestions(
+  analysisId: string,
+  findingId: string,
+  signal?: AbortSignal,
+): Promise<GroundedQuestionHistory> {
+  const value = await authorized(
+    `/analyses/${encodeURIComponent(analysisId)}/findings/${encodeURIComponent(findingId)}/questions`,
+    { signal },
+  );
+  return validateGroundedQuestionHistory(value, analysisId, findingId);
+}
+
+

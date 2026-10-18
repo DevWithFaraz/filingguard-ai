@@ -17,7 +17,7 @@ export function IntakeComposer() {
   const [fileError, setFileError] = useState('');
   const [name, setName] = useState('Untitled filing');
   const [aiUsed, setAIUsed] = useState(false);
-  const [demoCourt, setDemoCourt] = useState('synthetic-demo-v1');
+  const [courtProfile, setCourtProfile] = useState('unverified');
   const input = useRef<HTMLInputElement>(null);
   const composer = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -37,9 +37,9 @@ export function IntakeComposer() {
     }
     setFile(candidate); setFileError('');
   }
-  const preparation = useMutation({ mutationFn: () => mode === 'demo' ? prepareDemo(aiUsed, demoCourt)
-    : mode === 'pdf' && file ? preparePDF(file, 'unverified', aiUsed)
-      : prepareText(text, name, 'unverified', aiUsed), retry: false,
+  const preparation = useMutation({ mutationFn: () => mode === 'demo' ? prepareDemo(aiUsed, courtProfile)
+    : mode === 'pdf' && file ? preparePDF(file, courtProfile, aiUsed)
+      : prepareText(text, name, courtProfile, aiUsed), retry: false,
     onSuccess: result => { setText(''); setFile(null); navigate(`/analyses/${result.analysis_id}`); },
   });
   const ready = enabled && !preparation.isPending && (mode === 'demo' || (mode === 'pdf' ? !!file
@@ -49,7 +49,17 @@ export function IntakeComposer() {
     <div className="intake-modes" role="group" aria-label="Document source">
       <span className="mode-indicator" aria-hidden="true" style={{ transform: `translateX(${(['text', 'pdf', 'demo'] as const).indexOf(mode) * 100}%)` }} />
       {(['text', 'pdf', 'demo'] as const).map(value => <button type="button" key={value}
-        aria-pressed={mode === value} disabled={preparation.isPending} onClick={() => { setMode(value); setAIUsed(value === 'demo'); setFileError(''); preparation.reset(); }}>
+        aria-pressed={mode === value} disabled={preparation.isPending} onClick={() => {
+          setMode(value);
+          setAIUsed(value === 'demo');
+          setFileError('');
+          if (value === 'demo') {
+            setCourtProfile('synthetic-demo-v1');
+          } else if (courtProfile === 'synthetic-demo-v1') {
+            setCourtProfile('unverified');
+          }
+          preparation.reset();
+        }}>
         {value === 'pdf' ? <Upload size={16} /> : value === 'demo' ? <FolderOpen size={16} /> : <FileText size={16} />}
         {value === 'pdf' ? 'PDF' : value === 'demo' ? 'Demo' : 'Text'}</button>)}
     </div><span className="composer-privacy"><LockKeyhole size={13} />{enabled ? 'Private session' : 'Submission disabled'}</span></div>
@@ -81,15 +91,17 @@ export function IntakeComposer() {
       <p>Synthetic filing with cached public sources. Expected scenarios are not executed findings.</p><span>Curated sample / Text-based PDF</span></div>}
     </div>
     <div className="intake-options"><div className="court-option"><label htmlFor="court">Court profile</label>
-      <select id="court" disabled={!enabled || preparation.isPending || mode !== 'demo'} value={mode === 'demo' ? demoCourt : 'unverified'}
-        onChange={event => setDemoCourt(event.target.value)}>
+      <select id="court" disabled={!enabled || preparation.isPending} value={courtProfile}
+        onChange={event => setCourtProfile(event.target.value)}>
         <option value="unverified">Court rules not configured</option>
-        <option value="synthetic-demo-v1">Synthetic demo court (not a real court)</option></select></div>
+        <option value="us-txnd-lr7-2f-v1">N.D. Tex. Local Rule 7.2(f) (Generative AI Heading)</option>
+        {mode === 'demo' && <option value="synthetic-demo-v1">Synthetic demo court (not a real court)</option>}</select></div>
       <label className="checkbox-label"><input type="checkbox" checked={aiUsed}
         disabled={!enabled || preparation.isPending} onChange={event => setAIUsed(event.target.checked)} />
         Generative AI used in this filing</label></div>
     {(fileError || preparation.isError) && <p role="alert">{fileError || preparation.error?.message || 'Preparation failed'}</p>}
-    {capabilities.isError && <p role="status">Intake availability could not be checked.
+    {preparation.isPending && <p className="sr-only" role="status" aria-live="polite">Preparing document for review…</p>}
+    {capabilities.isError && <p role="status" aria-live="polite">Intake availability could not be checked.
       <button className="secondary-button" onClick={() => void capabilities.refetch()}>Retry availability</button></p>}
     <div className="document-bottom"><span>{mode === 'text' ? `${count.toLocaleString()} / 100,000 characters`
       : mode === 'demo' ? 'Synthetic demo' : file ? 'PDF selected' : 'No PDF selected'}</span>

@@ -26,12 +26,19 @@ Reject encrypted/no-text/malformed/oversized/over-page/over-character PDFs with 
 paste-text fallback. Mixed blank pages keep positions and warn. Sparse text (<20
 non-whitespace characters) and replacement-character density (>2%) warn, without
 claiming complete extraction-quality detection. Maximum 2,000 paragraphs.
+`detect_parsing_diagnostics` (FR-025) analyzes extracted text for sparse or empty
+pages, Unicode replacement characters, fused tokens (>40 characters without whitespace),
+and low character density (<40 characters/page), recording diagnostic flags on
+`ExtractedDocument` and generating an actionable system finding in `privacy_stage`.
 
 `intake.py` saves a running preparation row, then segments, snapshot and completed
 document stage transactionally; final legal status stays not_run. Failures compensate
 file writes/creation, restart recovers unfinished preparations as interrupted.
 No citation/claim/quote engine, score or external provider request is executed.
 GET Activity returns only summaries, while exact original text is owner-scoped.
+Court-profile eligibility is checked before a repository or storage access. Live
+submissions accept only `unverified`; unsupported IDs remain unavailable rather
+than creating an intake record or implying a court-rule pass.
 
 Checks: `tests/unit/test_documents.py`, `tests/unit/test_intake_guard.py`,
 `tests/integration/test_intake.py`, `tests/e2e/intake.spec.ts` (real API and browser).

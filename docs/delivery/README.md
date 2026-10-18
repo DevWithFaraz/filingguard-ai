@@ -12,6 +12,8 @@ the working app on the host; T058 rehearses the released demo and failure modes.
 Local tests do not substitute for hosted storage, ownership, restart or expiry
 checks. A model response does not establish expert legal accuracy.
 
+[[docs/delivery/Release record - v0.1.0-mvp|Release record — v0.1.0-mvp]] records
+the verified commit, tag, live URLs, working MVP features and unresolved backlog.
 [[docs/delivery/Third-party notices]] records dependency and asset evidence.
 [[docs/delivery/LexHack requirements]] retains historical event instructions.
 No new submission deadline, paid hosting or confidential-data use is authorized.

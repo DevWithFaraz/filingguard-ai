@@ -1,6 +1,6 @@
 # FilingGuard AI - Ordered Task Checklist
 
-Updated: October 11, 2026. Source: [SRS](FilingGuard_AI_SRS.md).
+Updated: October 14, 2026. Source: [SRS](FilingGuard_AI_SRS.md).
 Product development continues after the missed LexHack deadline. No active time
 constraint or feature freeze. Historical submission records remain in docs/delivery.
 
@@ -16,6 +16,12 @@ P0 is the core product workflow. P1 extends a verified deployed core; P2 contain
 larger product capabilities. Security and legal-quality release gates still apply
 before real client use. More time does not change the free-credit budget or authorize
 paid hosting. See [[docs/decisions/ADR-005 - Product continuation and reviewed demo]].
+
+October 14 product-direction work preserves FilingGuard as a filing-centric
+pre-submission review product. T111 is a bounded, reversible source-traceability
+foundation; it does not activate a real court rule or change the hosted product.
+T106 remains the task for an active profile after a target filing context and full
+machine-checkable rule coverage are established.
 
 D007 non-home redesign is implemented and verified locally; homepage preserved.
 User visual feedback can refine this direction. Full accessibility/performance
@@ -601,18 +607,54 @@ Depends on T045-T050. SRS: FR-300 through FR-304; sections 17-18; AUD-001 throug
 
 Depends on T051-T056. SRS: DEP-001 through DEP-005, sections 19 and 23.
 
-- [ ] T057 - Release the working app with migrations, exact CORS/origins, secrets,
+- [x] T057 - Release the working app with migrations, exact CORS/origins, secrets,
   retention and single-process limits; verify readiness separately from liveness.
   Done when fresh hosted intake-to-export works and results remain session-scoped.
   October 11 preparation: readiness endpoint and focused fail-closed checks pass;
-  public read-only probe observes health 200, exact CORS and SPA routes 200, but
-  /ready and /capabilities remain 404. Read-only Neon TLS connectivity passes,
-  but no migration revision is recorded. Chrome is signed in but unavailable to
-  browser control here; no hosted mutation/migration or intake enablement occurred.
+  user reports both services Live on `5b37993`. Public read-only checks verify
+  health/capabilities, Activity/settings and exact/forbidden-origin behavior; the
+  reviewed sample loads with the locked filing hash. Readiness is 503 with intake
+  off. Following storage configuration/redeployment, private storage, schema,
+  cleanup, exact origins and provider configuration all pass. Neon TLS passes; schema-only
+  preflight found zero public tables and no recorded migration revision. User
+  confirmed Neon production branch and approved the additive migration. It commits
+  at `0004_citation_extraction`, with all 10 application tables and matching column
+  sets; independent read-only head check passes. Render private-storage readiness
+  is verified. User enabled a temporary synthetic intake window: readiness 200,
+  actual hosted cached-demo/PDF review, masked evidence/graph/exports, second-owner
+  read/run/rerun/delete denial and deletion pass. Controlled expiry/session pruning
+  passes through the hosted scheduled sweep in 21.969 seconds; timestamps are
+  accelerated only on newly created test records, not natural full-TTL observation.
+  October 11 at 18:07 UTC: user-completed API redeploy passes all 14 restart
+  controls: saved results/graphs unchanged, masked exports, controlled queued
+  metadata/stage recovery to interrupted, owner denial, readiness and fixture
+  deletion. Both fixtures and private test state are removed. This tests seeded
+  queued metadata, not termination of an actual in-flight worker. External provider
+  flags stay false. T057 passes at synthetic hosted acceptance scope; broad legal
+  QA, physical filesystem inspection and genuine provider rehearsal remain separate.
+  [[docs/sessions/2026-10-11 - Hosted synthetic acceptance]].
+  [[docs/sessions/2026-10-11 - Closed intake hosted checks]].
   Release procedure: [[docs/delivery/Deployment guide]].
-- [ ] T058 - Rehearse live and explicitly labeled cached demo modes on the hosted
+- [x] T058 - Rehearse live and explicitly labeled cached demo modes on the hosted
   app, including a forced dependency failure. Done when the fallback cannot be
   confused with live verification and restart recovery is understood.
+  October 11: bounded synthetic live/cached and controlled source-authentication
+  failure checks are prepared; syntax and read-only hosted readiness/CORS pass.
+  User enabled both providers privately and redeployed. Hosted normal phase passes
+  45 checks: genuine live Brown source/model control (47.594s), exact cached demo
+  with fresh independent verdicts and explicit source labels (57.829s), masked
+  exports and second-owner denial. Both fixtures deleted. Cached support coverage
+  remains partial with unavailable/insufficient-source outcomes; no universal
+  claim of curated model accuracy. October 12: controlled authentication failure
+  passes 46 checks; live citations stay unavailable with http_failure, cached
+  sources/quote checks and labeled exports remain usable. Both fixtures deleted.
+  Restored genuine credentials/semantic settings pass 25 fresh live checks in
+  42.937s: CourtListener citation verified, supported model verdict with three
+  bound evidence records, masked exports, owner denial and deletion. Public
+  readiness/routes/CORS also pass. T058 verified at synthetic hosted rehearsal
+  scope; broad real-case legal QA remains separate. Next active task: T060.
+  [[docs/sessions/2026-10-12 - Hosted dependency failure rehearsal]].
+  [[docs/sessions/2026-10-11 - Hosted provider rehearsal preparation]].
 - [x] T059 - Finish setup/deployment/troubleshooting docs, API configuration,
   limitations, third-party licenses/attribution and source links. Done when another
   developer can reproduce the app using the committed lockfiles and instructions.
@@ -637,48 +679,187 @@ Depends on T051-T056. SRS: DEP-001 through DEP-005, sections 19 and 23.
 - [ ] T060 - Prepare a two-to-three-minute demo, screenshots and recording showing
   citation misuse, quote evidence, graph, privacy/rules and report. Include AI limits
   honestly. Done when a product walkthrough matches the released behavior.
+  October 12: optional/deferred for current product work at the user's request;
+  not a blocker for the implemented MVP. Do not schedule hackathon presentation
+  work ahead of product readiness. [[docs/feedback/FB-014 - Product MVP before presentation work]].
 - [ ] T061 - Complete the official submission fields, project narrative, live URL,
   repository/demo links and team details; verify reviewer access and submit before
   the confirmed deadline. Retired: the deadline was missed; keep this historical
   task unchecked and exclude it from active scheduling. No submission is claimed.
-- [ ] T062 - Record the release commit/tag, known limitations and unresolved P1/P2
+- [x] T062 - Record the release commit/tag, known limitations and unresolved P1/P2
   work; verify release URLs once more. Done when the released build is reproducible.
+  October 17: release tag `v0.1.0-mvp` created and anchored to deployment commit
+  `5b37993` and application release revision `325451a`. Hosted probe verifies all
+  10 release controls: frontend routes 200, API health 200, capabilities 200,
+  readiness 200 with all checks true (`intake_enabled`, `private_storage`, `cleanup`,
+  `exact_origins`, `database_schema` at `0004_citation_extraction`, `provider_configuration`),
+  strict CORS origin enforcement and direct SPA routes. [[docs/delivery/Release record - v0.1.0-mvp]]
+  records verified capabilities, explicit limitations (confidential use gated by T212/T213,
+  heuristic scores, reference-only court rules, ephemeral storage, no OCR) and
+  the unresolved P1/P2 backlog. Clean locked dependency reproduction and tests pass.
+  [[docs/sessions/2026-10-17 - Release recording and hygiene]].
 
 ## P1 / 13. Enhancements after deployed P0 passes
 
 Execute in the order below after the deployed core passes. Each task also
 requires relevant unit/UI tests and regression of the P0 demo.
 
-- [ ] T101 - Legal Red-Team Mode (FR-240 through FR-245): rank weaknesses solely
+- [x] T101 - Legal Red-Team Mode (FR-240 through FR-245): rank weaknesses solely
   from existing findings/evidence, link every point back, and avoid drafting new
   strategy. Done when the demo review identifies planted weaknesses without inventing facts.
-- [ ] T102 - Rich lineage and explanations (FR-205, FR-224/225): expandable
+  October 17: implemented typed contracts (`RedTeamWeakness`, `RedTeamResponse`),
+  OpenAPI v1 export, and deterministic synthesis service ranking existing persisted
+  findings (critical/high/medium/low) with UUID5 stability. Endpoints `GET` and
+  `POST /api/v1/analyses/{analysis_id}/red-team` are session-owned and terminal-status
+  guarded. Frontend `RedTeamPanel` provides expandable adversarial challenges, impact
+  summaries, pre-filing review advice, metric counts, and jumps to underlying findings
+  in `ResultsView`. Verified: unit/integration tests pass (8 backend, 40 frontend),
+  Ruff check, ESLint, TypeScript, and Vite production build pass. Red-team synthesis
+  remains strictly grounded in persisted evidence and does not provide legal strategy.
+  [[docs/sessions/2026-10-17 - Legal Red-Team Mode implementation]].
+- [x] T102 - Rich lineage and explanations (FR-205, FR-224/225): expandable
   document-to-source-to-method chain and exported provenance. Done when every hop
   links to the same persisted evidence used for the finding.
-- [ ] T103 - Finding-grounded Q&A (FR-260 through FR-264): scoped evidence access,
+  October 17: implemented expandable determination explanations ("How was this determined?",
+  deterministic forensic check vs AI-assisted evaluation, uncertainty boundaries) and
+  interactive 5-hop visual lineage chain (Document Span -> Extraction Target -> Source Authority
+  -> Verification Method & Provenance -> Finding Verdict) in frontend ResultsView, linking
+  to official CourtListener slip opinions, exact character offsets, and SHA-256 digests.
+  Added structured 5-hop lineage chain and determination methodology to Markdown/HTML
+  report exports (`render_report`). Backend unit/integration tests (64 passed), frontend unit
+  tests (41 passed), linters (Ruff 0 errors, ESLint 0 errors), TypeScript typecheck (0 errors),
+  and Vite production build pass. See [[docs/sessions/2026-10-17 - Rich lineage and explanations implementation]].
+- [x] T103 - Finding-grounded Q&A (FR-260 through FR-264): scoped evidence access,
   cited answers, refusal of broad legal advice, missing-evidence behavior and request
   limits. Done when questions cannot cross sessions or produce unsupported authorities.
-- [ ] T104 - PDF report export (FR-305): select renderer, embed readable evidence,
+  October 17: implemented finding-grounded Q&A module (`apps/api/src/filingguard/modules/grounded_qa/`)
+  and REST endpoints `POST` and `GET /api/v1/analyses/{analysis_id}/findings/{finding_id}/questions`.
+  Grounded answers cite exact persisted evidence IDs and official CourtListener sources. Questions
+  requesting broad legal advice/strategy are detected and refused with a safe redirect to independent
+  legal counsel (FR-263). General document chat is excluded as out of scope (FR-264). Enforces
+  request limits (max 20 questions per analysis session) and input length validation (1-500 chars).
+  Frontend `FindingQA` component renders suggested prompts, live interactive Q&A thread, cited
+  evidence pills, disclaimer banners, and screen-reader polite announcements. Verified: 76 backend
+  tests (12 Q&A tests), 47 frontend unit tests, Ruff, ESLint, TypeScript, and Vite production build pass.
+  See [[docs/sessions/2026-10-17 - Finding-grounded QA implementation]].
+- [x] T104 - PDF report export (FR-305): select renderer, embed readable evidence,
   pagination and disclaimers. Done when exported pages are visually inspected and
   long findings wrap without clipping.
-- [ ] T105 - Graph polish (FR-105/106), multiple claims per authority (FR-064) and
+  October 17: selected ReportLab 5.0.1 (Platypus layout engine) for publication-grade,
+  paginated legal compliance reports (`apps/api/src/filingguard/modules/reports/pdf_generator.py`).
+  Features custom two-pass `NumberedCanvas` generating running headers (Page 2+) and running
+  footers with dynamic page counts (`Page X of Y`) and prominent statutory disclaimers.
+  Embeds structured metadata, integrity score deductions, category breakdown, stage coverage,
+  forensic findings with 5-hop lineage chains, exact retrieved source passages with SHA-256
+  checksums, and citation verification tables. All paragraphs and tables wrap within a 504 pt
+  printable area without clipping across multi-page documents. All text safely XML-escaped.
+  API endpoint `GET /api/v1/analyses/{id}/report?format=pdf` returns `application/pdf` with
+  attachment headers. Frontend client and `ResultsView` UI expose a dedicated "Download PDF" action.
+  Verified: 21 report tests (3 PDF unit, 1 PDF integration), full 740 backend tests, 47 web tests,
+  Ruff check (0 errors), ESLint (0 errors), TypeScript (0 errors), and Vite production build pass.
+  See [[docs/sessions/2026-10-17 - PDF report export implementation]].
+- [x] T105 - Graph polish (FR-105/106), multiple claims per authority (FR-064) and
   score-category filters (FR-186). Done when pan/zoom/fit, unsupported nodes and
   cross-view selection preserve correct finding context.
-- [ ] T106 - Additional verified real court profiles (FR-146): primary sources,
+  Evidence: category score cards act as accessible filters toggling typeFilter with active state
+  and reset actions (FR-186); graph toolbar provides ZoomIn, ZoomOut, FitView, and ResetView
+  controls (FR-105); unsupported claims render with rose background, alert borders, and warning badges
+  in graph and keyboard list (FR-106); multiple claims citing a single authority share node and expose
+  individual claim jump buttons and finding pills (FR-064); declarative cross-view selection preserves
+  finding context without cascading state effects. Verified: 16 report unit tests, 51 frontend tests,
+  Ruff (0 errors), ESLint (0 errors), TypeScript (0 errors), and Vite production build pass.
+  See [[docs/sessions/2026-10-17 - Graph polish and score-category filters]].
+- [x] T111 - Establish a versioned, reference-only court-rule source catalogue with
+  official URLs, source locators, issue/check dates, court and judge scope,
+  applicability state and explicit activation blockers. Done when source records
+  validate in tests and cannot be selected or evaluated as active court profiles.
+  Evidence: 2026-10-14 source-registry, deterministic-rule and intake regression
+  tests pass (14 passed) and Ruff passes. The
+  catalogue contains two primary-source records only; it does not complete T106,
+  assert either rule currently applies, or expose a real profile in live intake.
+- [x] T106 - Additional verified real court profiles (FR-146): primary sources,
   applicability/effective dates, judge-specific scope and profile regression tests.
-  Done when stale/unknown rules show limitations rather than a pass.
-- [ ] T107 - Deeper retrieval and forensics (FR-025, FR-045/046, FR-087, FR-127):
+  Done when stale/unknown rules show limitations rather than a pass. T111 provides
+  a reference-only baseline; select a target filing context and support every
+  applicable requirement before activating any profile.
+  Evidence: verified profile `us-txnd-lr7-2f-v1` for N.D. Tex. Local Civil Rule 7.2(f)
+  (Special Order 2-98, effective 2024-09-03). Implemented first-page placement
+  semantics, unpaginated plain text fallback, live mode intake, and dynamic
+  finding generation with explicit human review disclaimers. 788 API tests,
+  64 web tests, Ruff, ESLint, TypeScript pass.
+  See [[docs/sessions/2026-10-18 - Additional verified real court profiles]].
+- [x] T107 - Deeper retrieval and forensics (FR-025, FR-045/046, FR-087, FR-127):
   improve parsing diagnostics, duplicate display, versioned source cache,
   multi-passage retrieval and meaning-changing quote warnings. Done when benchmark
   quality improves without treating semantic similarity as an exact quotation.
-- [ ] T108 - Possible minor-name heuristics (FR-163), with explicit uncertainty
+  Acceptance evidence:
+  - FR-127: detect meaning-altering quote modifications (negation additions/omissions,
+    modal obligation shifts like shall/must vs may, contradictory antonyms, omitted
+    qualifying clauses before ellipses) in `quotes/service.py`, escalating findings to
+    critical/high severity with structured `meaning_alteration` metadata.
+  - FR-025: detect document parsing diagnostics (sparse/empty pages, replacement characters,
+    fused tokens >40 chars, low character density <40 chars/page) in `documents/extraction.py`,
+    recording `diagnostics` on `ExtractedDocument` and generating an actionable system finding.
+  - FR-045 & FR-046: detect duplicate citations, aggregate occurrences into `SafeCitation`
+    with `duplicate_count` and `repeated_locations`, render `Repeated ({count}x)` badge and
+    repeated location pills in `ResultsView.tsx`; track versioned source cache metadata
+    (`cached`, `cache_hit`, `cache_version="courtlistener-cache-v1"`) on `CitationVerificationMetadata`.
+  - FR-087: multi-passage retrieval across long opinions (>15,000 characters) in `propositions/passages.py`
+    selecting up to 4 non-overlapping qualified passages (<=12,000 code points) with structural
+    candidate diversity across early, middle, and late sections while prioritizing holding language
+    (`METHOD_VERSION = "lexical-qualified-multi-passage-v3"`).
+  - 749 API tests, 52 web tests, Ruff, ESLint, TypeScript (`tsc --noEmit`), and Vite build pass.
+- [x] T108 - Possible minor-name heuristics (FR-163), with explicit uncertainty
   and false-positive controls. Done when synthetic cases and benign controls are reviewed.
-- [ ] T109 - Durable job execution if needed: choose a worker/queue, leases,
+  Acceptance evidence:
+  - Synthetic detection: pattern extraction in `privacy/service.py` (`minor_name`) identifies
+    conventional minor indicators (e.g., "minor child Johnathan Doe", "as guardian of Emily Davis, a minor",
+    "Michael Brown, a minor", "minor: Sarah Connor"), extracting names and masking private spans.
+  - False-positive controls: `_valid_minor_name` in `privacy/checks.py` validates title-cased names
+    while suppressing compliant initials under Fed. R. Civ. P. 5.2(a)(3) ("A.B.", "J. D."),
+    benign non-person usage ("minor injuries", "minor accident", "minor delays"), case citation
+    party names ("Minor v. Happersett"), and institutional/legal entities ("United States District Court").
+  - Explicit uncertainty: `privacy_stage` creates high-severity findings with clear titles
+    ("Possible unredacted minor name") and explicit uncertainty disclosures recommending human review.
+  - Tested: 6 deterministic privacy checks unit tests in `test_deterministic_checks.py`, full
+    749 backend unit/integration tests, and Ruff linting pass.
+- [x] T109 - Durable job execution if needed: choose a worker/queue, leases,
   idempotency, crash recovery and bounded retries. Done when restart/rescheduling
   preserves results before enabling multiple API workers/replicas.
-- [ ] T110 - Expand accessibility, audit timing/correlation, retention automation
+  October 18: implemented database-backed transactional worker leases (`acquire_lease`,
+  `renew_lease`, `release_lease`, `recover_orphaned_leases`) in `AnalysisRepository`
+  using SQLAlchemy row locking (`with_for_update()`) and internal `lease_metadata` stored
+  in `Analysis.stage_states` (preserving zero-migration relational schema compatibility).
+  `ReviewOrchestrator` integrates lease acquisition, periodic renewal across stage transitions,
+  and release in `finally` blocks. `AnalysisLifecycle.recover()` invokes `recover_orphaned_leases()`
+  with bounded crash recovery (up to 2 retries before terminal `interrupted`), preserving
+  previously committed stage results idempotently. Authored ADR-015. 8 unit tests in
+  `test_durable_jobs.py`, full 772 backend tests, Ruff, and integration suites pass.
+  See [[docs/decisions/ADR-015 - Durable job execution and transactional worker leases]].
+- [x] T110 - Expand accessibility, audit timing/correlation, retention automation
   and failure observability (UX-005, LOG-003/004, NFR-023/044/063). Done when automated
   checks and manual assistive workflows pass with no raw filing data in telemetry.
+  Acceptance evidence:
+  - UX-005 (Accessibility announcements): polite live announcements (`role="status"`, `aria-live="polite"`)
+    added across loading and progress transitions in `PreparedView.tsx`, `ResultsView.tsx`,
+    `ActivityView.tsx`, `DemoReview.tsx`, `IntakeComposer.tsx`, `FindingQA.tsx`, `RedTeamPanel.tsx`,
+    `WorkspaceInfo.tsx`, `PipelineWalkthrough.tsx`, and `App.tsx` / `HomePage.tsx`. Tested with 10 targeted tests
+    in `accessibility.test.tsx` (62 web tests pass).
+  - LOG-003 & NFR-023 (Operational event & correlation logging): added `correlation_id={analysis_id}` to
+    operational logs across review lifecycle (`review.job.start`, `review.stage.start`, `review.stage.finish`,
+    `review.job.finish`, `analysis.prepared`, `review.queued`, `analysis.rerun`, `analysis.deleted`, route failure logs)
+    and error boundary middleware extracting analysis UUIDs from `X-Correlation-ID` headers, `analysis_id` query parameters,
+    or request paths without leaking raw filing content or request bodies.
+  - LOG-004 (Stage & review duration timing): added `duration_ms=%d` to stage completion and review job completion
+    logs measuring execution timing in milliseconds.
+  - NFR-044 (Automated batch retention cleanup): implemented `purge_all_expired` on `AnalysisRepository` and
+    `AnalysisLifecycle` purging expired analyses and documents in configurable batch transactions with `skip_locked=True`
+    row-locking, file deletion preceding DB row removal, failure tracking in `CleanupResult`, and batch continuation past failed items.
+  - NFR-063 (Automated verification): 11 comprehensive unit tests in `test_retention_and_observability.py`
+    covering batch purging, failure batch continuation, orphan protection, storage failure resilience, lifecycle coordination,
+    header/query correlation ID extraction, stage timing, and zero private content leakage in telemetry.
+  - All checks verified: 764 backend unit/integration tests (0 failures), 62 frontend tests (0 failures),
+    `ruff check .` (0 errors), `eslint .` (0 errors), and `tsc --noEmit` pass cleanly.
 
 ## P2 / 14. Extended product backlog
 
@@ -732,6 +913,26 @@ Advanced versions remain P1. P0 evidence capture remains distinct from P1 lineag
 visualization. Markdown/HTML export is P0; dedicated PDF export is P1.
 
 ## Work log
+
+- 2026-10-17: T062 verified. Created release tag `v0.1.0-mvp` anchored to deployment
+  commit `5b37993` / application revision `325451a`. Verified live hosted services
+  on Render (`check_hosted_release.mjs` passes all 10 controls with readiness 200).
+  Documented release identifiers, verified capabilities, explicit limitations and
+  unresolved backlog in [[docs/delivery/Release record - v0.1.0-mvp]]. Local and
+  committed builds remain reproducible. P0 release hygiene is complete. Next:
+  Phase B P1 universal review work (`T102` rich lineage or `T101` red-team mode).
+  [[docs/sessions/2026-10-17 - Release recording and hygiene]].
+
+- 2026-10-14: T111 verified locally. Added a validated, allowlisted
+  `reference_only` registry for two official court-order records, each with a
+  version, locator, scope, source-check date and explicit non-activation blockers.
+  Reference sources cannot load as active profiles and evaluate unavailable. Focused
+  API tests pass (14 passed); Ruff and diff whitespace check pass. This does not
+  assert current applicability, activate a real rule, change live intake, call a
+  provider, process a filing, migrate the database or deploy. Article 50 is recorded
+  as a separate future direction, not a filing profile. Next: T062 release hygiene;
+  before T106, select one target filing context and a complete requirement matrix.
+  [[docs/sessions/2026-10-14 - Filing-centric direction and court-source foundation]].
 
 - 2026-10-07: T033 verified locally. Implemented CourtListenerAdapter and schemas
   with token validation, cluster extraction, and bounded error mapping. Returns
@@ -854,3 +1055,156 @@ relaxed. T053/T054 are verified at local test scope (outages/refusal/interruptio
 input abuse, scoped results/evidence/reports, retention/deletion, masking and logs),
 not a production security certification. Full curated acceptance, accessibility/performance and
 hosted rollout remain open. [[docs/sessions/2026-10-10 - Grounded review verification]].
+
+## October 17 Phase B - Legal Red-Team Mode (T101)
+
+Completed T101 (FR-240 through FR-245). Synthesizes adversarial attack theories
+exclusively from persisted review findings, evidence, citations, claims, and quotes.
+UUID5 deterministic identifiers, strict session authorization, OpenAPI export,
+regenerated TypeScript contracts, responsive glass UI component with jumping to
+substantiating findings, and full unit/integration/typecheck coverage verified. Next: T102.
+
+## October 17 Phase B - Rich Lineage and Explanations (T102)
+
+Completed T102 (FR-205, FR-224/225). Implemented expandable forensic determination
+details with classification tags (AI-Assisted Evaluation vs Deterministic Forensic Check)
+and explicit uncertainty boundaries. Built a responsive 5-hop Visual Lineage Chain
+(01 Document Span -> 02 Extraction Target -> 03 Source Authority -> 04 Verification Method & Provenance -> 05 Finding Verdict)
+in the findings inspector, linking to live CourtListener sources with SHA-256 checksums and
+exact character offsets. Formatted report exports (`render_report`) with full determination methodology
+and ASCII-safe 5-hop lineage records in Markdown/HTML. 64 API tests, 41 web tests, Ruff, ESLint,
+TypeScript, and Vite production build pass. Next: T103.
+
+## October 17 Phase B - Finding-Grounded Q&A (T103)
+
+Completed T103 (FR-260 through FR-264). Implemented finding-grounded Q&A service and REST endpoints
+`POST` and `GET /api/v1/analyses/{analysis_id}/findings/{finding_id}/questions` citing exact persisted
+evidence IDs and official CourtListener opinions without cross-session leakage. Queries for broad
+legal advice/litigation strategy are detected and refused with safe redirect to independent counsel (FR-263).
+General document chat is excluded as out of scope (FR-264). Rate limits (max 20 questions) and length
+validation (1-500 chars) are enforced. Frontend `FindingQA` component adds interactive Q&A, prompt chips,
+cited evidence badges, and accessibility announcements. 76 API tests, 47 web tests, Ruff, ESLint,
+TypeScript, and Vite production build pass. Next: T104.
+
+## October 17 Phase B - PDF Report Export (T104)
+
+Completed T104 (FR-305). Implemented publication-grade PDF report generation in
+`apps/api/src/filingguard/modules/reports/pdf_generator.py` using ReportLab 5.0.1 Platypus flowables.
+Features custom two-pass `NumberedCanvas` tracking total pages for dynamic `Page X of Y` footers,
+running headers on subsequent pages, and prominent statutory disclaimers. Structured tables contain
+analysis metadata, integrity scores, category breakdowns, and stage coverage. Detailed forensic
+findings include 5-hop visual lineage chains, document scope offsets, and retrieved source authority
+passages with SHA-256 digests. Multi-page wrapping is verified without text clipping or margin collisions.
+Updated `service.py`, `intake.py` (`GET /api/v1/analyses/{id}/report?format=pdf`), OpenAPI specs,
+generated schemas, API client (`downloadReport(id, 'pdf')`), and `ResultsView` UI ("Download PDF" button).
+740 backend tests, 47 frontend tests, Ruff, ESLint, TypeScript, and Vite production build pass. Next: T105.
+
+## October 17 Phase B - Graph Polish and Score-Category Filters (T105)
+
+Completed T105 (FR-105/106, FR-064, FR-186). Category score cards now serve as accessible
+filter buttons with active states and clear actions (FR-186). The evidence graph includes
+dedicated toolbar zoom/pan/fit controls (FR-105). Unsupported claims are highlighted with warning
+borders and badges (FR-106). Multiple claims citing a single authority share an authority node
+and display individual claim jump buttons and linked finding pills (FR-064). Declarative selection
+preserves finding context across graph and findings inspection without cascading React 19 state
+violations. 16 backend report unit tests, 51 frontend tests, Ruff, ESLint, TypeScript, and Vite
+production build pass. Next: T106 / Phase B continuation.
+
+## October 17 Phase B - Deeper Retrieval and Forensics (T107)
+
+Completed T107 (FR-025, FR-045/046, FR-087, FR-127).
+1. FR-127 (Meaning-Changing Quote Warnings): Added `MeaningAlteration` schema and
+`check_meaning_alteration` in `quotes/service.py` detecting negation insertion/omission,
+modal obligation shifts (shall/must vs may), contradictory antonyms, and qualifying clauses
+dropped before ellipses. Quote finding severity escalates to critical/high with structured
+alteration metadata.
+2. FR-025 (Document Parsing Diagnostics): Added `detect_parsing_diagnostics` in `documents/extraction.py`
+flagging sparse/empty pages, replacement characters, fused tokens (>40 chars without whitespace),
+and low character density (<40 chars/page), recording diagnostic flags on `ExtractedDocument`
+and generating an actionable system finding during `privacy_stage`.
+3. FR-045 & FR-046 (Duplicate Citation Display & Source Cache Tracking): Aggregated citation
+occurrences into `SafeCitation` with `duplicate_count` and `repeated_locations`, rendering
+`Repeated ({count}x)` badges and location pills in `ResultsView.tsx`. Tracked source cache
+metadata (`cached`, `cache_hit`, `cache_version="courtlistener-cache-v1"`) on `CitationVerificationMetadata`.
+4. FR-087 (Multi-Passage Retrieval from Long Opinions): Upgraded `select_passages` in
+`propositions/passages.py` to `METHOD_VERSION = "lexical-qualified-multi-passage-v3"`,
+retrieving up to 4 non-overlapping passages (<=12,000 code points) with structural candidate
+diversity across early, middle, and late sections of opinions exceeding 15,000 characters while
+prioritizing holding language. Updated LLM adapter and batch executor limits to 4 passages.
+749 API tests, 52 web tests, Ruff, ESLint, TypeScript, and Vite production build pass. Next: T108 / Phase B continuation.
+
+## October 18 Phase B - Possible Minor-Name Heuristics (T108)
+
+Completed T108 (FR-163).
+Implemented local regex and contextual validation for unredacted minor names under Fed. R. Civ. P. 5.2(a)(3).
+1. Heuristic Pattern Detection (`privacy/service.py`): Added `minor_name` patterns anchoring on
+conventional legal phrases ("minor child", "minor son/daughter/ward", "a minor", "on behalf of ... a minor",
+"guardian ad litem for ... a minor", "minor: ..."). Masking replaces only the sensitive name span.
+2. False-Positive & Benign Controls (`privacy/checks.py`): Implemented `_valid_minor_name` ensuring
+candidates have 2-4 capitalized words, suppressing compliant initials ("A.B.", "J. D."), non-person
+phrases ("minor injuries", "minor delays"), citation contexts ("Minor v. ..."), and excluded legal/entity terms.
+3. Stage Findings & Explicit Uncertainty (`analyses/runners.py`): Generates `Possible unredacted minor name`
+findings with high severity and an explicit uncertainty statement emphasizing that heuristic detection is
+not a definitive legal compliance determination and human verification is required.
+Unit tests and benign control suites pass. Next: T106 / Phase B continuation.
+ 
+## October 18 Phase B - Accessibility, Retention & Observability (T110)
+
+Completed T110 (UX-005, LOG-003/004, NFR-023, NFR-044, NFR-063).
+1. Screen-reader Accessibility (UX-005): Added polite live announcements (`role="status"`, `aria-live="polite"`)
+   for loading spinners, async document preparation, review execution progress, report generation, question answering,
+   service availability, and graph inspection across `PreparedView.tsx`, `ResultsView.tsx`, `ActivityView.tsx`,
+   `DemoReview.tsx`, `IntakeComposer.tsx`, `FindingQA.tsx`, `RedTeamPanel.tsx`, `WorkspaceInfo.tsx`,
+   `PipelineWalkthrough.tsx`, and connection indicators in `App.tsx` / `HomePage.tsx`.
+2. Operational Correlation & Event Telemetry (LOG-003, NFR-023): Added `correlation_id={analysis_id}` to all operational
+   events across `ReviewOrchestrator` (`review.job.start`, `review.stage.start`, `review.stage.finish`, `review.stage.persist_failed`,
+   `review.submit_failed`, `review.job.finish`), intake routes (`analysis.prepared`, `review.queued`, `analysis.rerun`, `analysis.deleted`, route failure logs),
+   and global error boundary middleware (`install_error_boundary` supporting `X-Correlation-ID` header, `analysis_id` query param, or path).
+   Explicitly ensured private filing text, excerpts, and request bodies are never leaked into structured log records.
+3. Module & Job Duration Timing (LOG-004): Added module-level stage timing (`duration_ms=%d`) and total review job duration
+   (`duration_ms=%d`) tracking execution latency in milliseconds.
+4. Automated Retention Cleanup (NFR-044): Implemented `purge_all_expired` on `AnalysisRepository` and `AnalysisLifecycle`
+   for batched pruning of expired documents and analyses with `skip_locked=True` row-locking, file deletion before DB row cascade,
+   batch continuation past failed items, and failure counting in `CleanupResult`.
+5. Automated Verification (NFR-063): Added 11 unit tests in `test_retention_and_observability.py` and 10 accessibility
+   tests in `accessibility.test.tsx`. 764 API tests, 62 web tests, Ruff, ESLint, TypeScript, and Vite build pass.
+Next: T109.
+
+## October 18 Phase B - Durable Job Execution & Transactional Worker Leases (T109)
+
+Completed T109.
+1. Architecture Decision Record ([[docs/decisions/ADR-015 - Durable job execution and transactional worker leases]]):
+   - Selected database-backed transactional worker leases in PostgreSQL / SQLite fallback using row-locking
+     (`with_for_update()`) instead of external message brokers (Celery, Redis, RabbitMQ, Temporal),
+     preserving the zero-cost serverless Neon PostgreSQL architecture.
+   - Encapsulated lease state (`worker_id`, `lease_expires_at`, `retry_count`) inside `stage_states["lease_metadata"]`
+     to avoid breaking Alembic migrations. Updated stage iteration in `intake.py` and `reports/service.py` to filter by `StageName`.
+2. Database Repository Methods (`AnalysisRepository`):
+   - `acquire_lease`: atomically claims queued or expired running jobs, preventing double-execution.
+   - `renew_lease`: periodically extends lease duration during long stage execution.
+   - `release_lease`: clears active worker claims upon job completion, failure, or interruption.
+   - `recover_orphaned_leases`: identifies abandoned jobs with expired leases; reschedules with bounded retries
+     (`retry_count < max_retries`), and marks exceeded jobs `interrupted` while preserving committed stage records.
+3. Review Orchestrator & Lifecycle:
+   - `ReviewOrchestrator`: acquires lease in `_run_and_release`, periodically renews before each stage and after stage update,
+     and releases lease in `finally` block.
+   - `AnalysisLifecycle.recover()`: delegates to `recover_orphaned_leases()` and returns recovery counts `(rescheduled, interrupted)`.
+4. Automated Verification:
+   - 8 unit tests in `test_durable_jobs.py` covering atomic acquisition, mutual exclusion, renewal, expired reacquisition,
+     bounded crash recovery, terminal interruption, stage idempotency, and zero telemetry leakage.
+   - Full test suite passes: 772 backend tests (0 failures), Ruff linting clean, and integration suites pass.
+Next: Phase B complete.
+
+## October 18 Phase B - Additional Verified Real Court Profiles (T106)
+
+Completed T106 (FR-146):
+1. Created verified real court profile `us-txnd-lr7-2f-v1.json` for U.S. District Court for the Northern District of Texas, Local Civil Rule 7.2(f) (Special Order 2-98, effective September 3, 2024), requiring a first-page heading 'Use of Generative Artificial Intelligence' when AI was used.
+2. Updated `service.py` with `placement: Literal["anywhere", "first_page"]`, page-aware placement verification (first-page check, later-page placement error detection, and unpaginated plain text fallback with clear boundary disclaimers), review mode enforcement, and effective date period validation.
+3. Refactored `runners.py#court_stage` to safely extract page boundary text from `analysis.document_snapshot.get("pages")` and dynamically generate real court rule findings with explicit human review disclaimers.
+4. Registered `us-txnd-lr7-2f-v1` in `PROFILES` with `applicability="verified"` and `is_demo=False`, updating `CourtProfileSummary` contract and enabling `us-txnd-lr7-2f-v1` in `prepare` and `submit_file`.
+5. Updated frontend `IntakeComposer.tsx` to enable court profile selection in live mode (`unverified`, `us-txnd-lr7-2f-v1`) as well as demo mode (`synthetic-demo-v1`), and updated `PreparedView.tsx` to map `us-txnd-lr7-2f-v1` to `"N.D. Tex. LR 7.2(f)"`.
+6. Verified with 788 API tests, 64 web tests, Ruff, ESLint, and TypeScript. All checks passed.
+See [[docs/sessions/2026-10-18 - Additional verified real court profiles]].
+
+
+

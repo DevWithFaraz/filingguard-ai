@@ -4,6 +4,8 @@ tags: [research]
 ---
 # Research and external sources
 
+- [[docs/research/Court rules and EU AI Act product direction - 2026-10-14]]
+
 - [[docs/research/Grounded proposition live acceptance - 2026-10-10]]
 
 [[Home]] | [[docs/templates/Research Template]]

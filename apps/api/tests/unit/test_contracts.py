@@ -281,6 +281,8 @@ def test_openapi_components_and_review_routes_are_declared():
         "/api/v1/analyses/{analysis_id}/graph",
         "/api/v1/analyses/{analysis_id}/report",
         "/api/v1/analyses/{analysis_id}/findings/{finding_id}/evidence",
+        "/api/v1/analyses/{analysis_id}/findings/{finding_id}/questions",
+        "/api/v1/analyses/{analysis_id}/red-team",
     }
 
 

@@ -485,3 +485,13 @@ def test_verified_citation_stage_runner_e2e() -> None:
     assert cit_records[0].start_offset != cit_records[1].start_offset
     assert cit_records[0].raw_text == text[cit_records[0].start_offset : cit_records[0].end_offset]
     assert cit_records[1].raw_text == text[cit_records[1].start_offset : cit_records[1].end_offset]
+
+    # 6. Cache tracking metadata verified (FR-046)
+    verif_0 = cit_records[0].extraction_metadata["verification"]
+    verif_1 = cit_records[1].extraction_metadata["verification"]
+    assert verif_0["cached"] is False
+    assert verif_0["cache_hit"] is False
+    assert verif_0["cache_version"] == "courtlistener-cache-v1"
+    assert verif_1["cached"] is True
+    assert verif_1["cache_hit"] is True
+    assert verif_1["cache_version"] == "courtlistener-cache-v1"

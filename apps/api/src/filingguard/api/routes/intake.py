@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Annotated, Literal
 from urllib.parse import unquote
@@ -15,6 +16,10 @@ from filingguard.api.contracts import (
     CourtProfileSummary,
     DeleteResponse,
     DemoSubmission,
+    GroundedAnswerResponse,
+    GroundedQuestionHistory,
+    GroundedQuestionRequest,
+    RedTeamResponse,
     SafeAuthority,
     SafeCitation,
     SafeCitationsResponse,
@@ -48,7 +53,12 @@ from filingguard.modules.documents.intake import (
     prepared,
 )
 from filingguard.modules.documents.service import extract_pdf
+from filingguard.modules.grounded_qa.service import (
+    ask_finding_question,
+    get_finding_qa_history,
+)
 from filingguard.modules.privacy.service import mask_excerpt
+from filingguard.modules.red_team.service import synthesize_red_team
 from filingguard.modules.reports.service import (
     render_report,
     saved_evidence,
@@ -57,6 +67,7 @@ from filingguard.modules.reports.service import (
 )
 from filingguard.modules.scoring.service import score_review
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -115,6 +126,13 @@ def store_document(request: Request, document, *, name, court, ai_used, data=Non
             data=data,
             demo=demo,
         )
+        logger.info(
+            "analysis.prepared analysis_id=%s correlation_id=%s mode=%s paragraphs=%d",
+            identity,
+            identity,
+            "demo" if demo else "live",
+            len(document.paragraphs),
+        )
         return prepared(service, request.state.owner_hash, identity)
     except PDFValidationError as error:
         raise DocumentError(error.code) from None
@@ -122,7 +140,8 @@ def store_document(request: Request, document, *, name, court, ai_used, data=Non
         raise HTTPException(429, headers={"Retry-After": "60"}) from None
     except ValueError:
         raise HTTPException(422) from None
-    except (SQLAlchemyError, StorageError):
+    except (SQLAlchemyError, StorageError) as error:
+        logger.error("analysis.prepare_failed error_type=%s", type(error).__name__)
         raise HTTPException(503) from None
 
 
@@ -160,7 +179,7 @@ async def submit_file(
 ):
     if request.headers.get("content-type", "").split(";", 1)[0] != "application/pdf":
         raise HTTPException(415)
-    if court_profile_id != "unverified":
+    if court_profile_id not in {"unverified", "us-txnd-lr7-2f-v1"}:
         raise HTTPException(422)
     data = await request.body()
     try:
@@ -238,7 +257,11 @@ def review_status(request: Request, analysis_id: UUID):
     try:
         repository = lifecycle(request).repository
         row = repository.get_analysis(request.state.owner_hash, analysis_id)
-        stages = [StageState.model_validate(state) for state in row.stage_states.values()]
+        stages = [
+            StageState.model_validate(state)
+            for k, state in row.stage_states.items()
+            if k in {stage.value for stage in StageName}
+        ]
         coverage = Coverage(
             eligible=sum(stage.coverage.eligible for stage in stages),
             evaluated=sum(stage.coverage.evaluated for stage in stages),
@@ -330,6 +353,12 @@ def review_citations(request: Request, analysis_id: UUID):
             safe_authorities_map[auth.id] = safe_auth
         text = analysis.document_snapshot["text"]
         masked = mask_excerpt(text, 0, len(text))
+        citation_groups: dict[str, list] = {}
+        for row in records:
+            key = (row.normalized_text or row.raw_text or "").strip().lower()
+            if key:
+                citation_groups.setdefault(key, []).append(row)
+
         citations = []
         for row in records:
             if (
@@ -342,6 +371,22 @@ def review_citations(request: Request, analysis_id: UUID):
 
             display = masked.text[row.start_offset : row.end_offset]
             safe_auth = safe_authorities_map.get(row.authority_id) if row.authority_id else None
+            key = (row.normalized_text or row.raw_text or "").strip().lower()
+            group = citation_groups.get(key, [row])
+            dup_count = len(group)
+            repeated_locs = (
+                [
+                    DocumentLocation(
+                        start=other.start_offset,
+                        end=other.end_offset,
+                        page_number=other.page_number,
+                        segment_id=other.segment_id,
+                    )
+                    for other in sorted(group, key=lambda r: r.start_offset)
+                ]
+                if dup_count > 1
+                else []
+            )
             citations.append(
                 SafeCitation(
                     id=row.id,
@@ -363,6 +408,8 @@ def review_citations(request: Request, analysis_id: UUID):
                     limitation=(row.extraction_metadata.get("verification") or {}).get(
                         "limitation"
                     ),
+                    duplicate_count=dup_count,
+                    repeated_locations=repeated_locs,
                 )
             )
         return SafeCitationsResponse(
@@ -422,17 +469,97 @@ def review_evidence(request: Request, analysis_id: UUID, finding_id: UUID):
         raise HTTPException(503) from None
 
 
+@router.post(
+    "/analyses/{analysis_id}/findings/{finding_id}/questions",
+    response_model=GroundedAnswerResponse,
+)
+def ask_finding_qa(
+    request: Request,
+    analysis_id: UUID,
+    finding_id: UUID,
+    payload: GroundedQuestionRequest,
+):
+    try:
+        repo = _terminal_results(request, analysis_id)
+        return ask_finding_question(
+            repo,
+            request.state.owner_hash,
+            analysis_id,
+            finding_id,
+            payload.question,
+        )
+    except AnalysisNotFound:
+        raise HTTPException(404) from None
+    except LookupError:
+        raise HTTPException(404) from None
+    except OverflowError:
+        raise HTTPException(429, headers={"Retry-After": "60"}) from None
+    except (SQLAlchemyError, ValueError, KeyError, TypeError) as error:
+        logger.error(
+            "finding_qa.failed analysis_id=%s correlation_id=%s finding_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            finding_id,
+            type(error).__name__,
+        )
+        raise HTTPException(503) from None
+
+
+@router.get(
+    "/analyses/{analysis_id}/findings/{finding_id}/questions",
+    response_model=GroundedQuestionHistory,
+)
+def get_finding_qa(
+    request: Request,
+    analysis_id: UUID,
+    finding_id: UUID,
+):
+    try:
+        repo = _terminal_results(request, analysis_id)
+        return get_finding_qa_history(
+            repo,
+            request.state.owner_hash,
+            analysis_id,
+            finding_id,
+        )
+    except AnalysisNotFound:
+        raise HTTPException(404) from None
+    except LookupError:
+        raise HTTPException(404) from None
+    except (SQLAlchemyError, ValueError, KeyError, TypeError) as error:
+        logger.error(
+            "finding_qa.history_failed analysis_id=%s correlation_id=%s "
+            "finding_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            finding_id,
+            type(error).__name__,
+        )
+        raise HTTPException(503) from None
+
+
 @router.get("/analyses/{analysis_id}/report")
 def review_report(
-    request: Request, analysis_id: UUID, format: Literal["markdown", "html"] = "markdown"
+    request: Request,
+    analysis_id: UUID,
+    format: Literal["markdown", "html", "pdf"] = "markdown",
 ):
     try:
         repo = _terminal_results(request, analysis_id)
         result = saved_results(repo, request.state.owner_hash, analysis_id)
-        suffix = "html" if format == "html" else "md"
+        if format == "pdf":
+            suffix = "pdf"
+            media_type = "application/pdf"
+        elif format == "html":
+            suffix = "html"
+            media_type = "text/html"
+        else:
+            suffix = "md"
+            media_type = "text/markdown"
+
         return Response(
             render_report(result, format=format),
-            media_type="text/html" if format == "html" else "text/markdown",
+            media_type=media_type,
             headers={
                 "Content-Disposition": f'attachment; filename="filingguard-{analysis_id}.{suffix}"',
                 "Cache-Control": "no-store",
@@ -442,6 +569,24 @@ def review_report(
     except AnalysisNotFound:
         raise HTTPException(404) from None
     except (SQLAlchemyError, ValueError, KeyError, TypeError):
+        raise HTTPException(503) from None
+
+
+@router.post("/analyses/{analysis_id}/red-team", response_model=RedTeamResponse)
+@router.get("/analyses/{analysis_id}/red-team", response_model=RedTeamResponse)
+def review_red_team(request: Request, analysis_id: UUID):
+    try:
+        repo = _terminal_results(request, analysis_id)
+        return synthesize_red_team(repo, request.state.owner_hash, analysis_id)
+    except AnalysisNotFound:
+        raise HTTPException(404) from None
+    except (SQLAlchemyError, ValueError, KeyError, TypeError) as error:
+        logger.error(
+            "red_team.failed analysis_id=%s correlation_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            type(error).__name__,
+        )
         raise HTTPException(503) from None
 
 
@@ -468,6 +613,12 @@ def run_review(request: Request, analysis_id: UUID):
             request.app.state.admission.slot, runners
         )
         review.start(request.state.owner_hash, analysis_id)
+        logger.info(
+            "review.queued analysis_id=%s correlation_id=%s mode=%s",
+            analysis_id,
+            analysis_id,
+            row.mode,
+        )
         return AnalysisAccepted(analysis_id=analysis_id, status="queued", mode=row.mode)
     except AnalysisNotFound:
         raise HTTPException(404) from None
@@ -475,7 +626,13 @@ def run_review(request: Request, analysis_id: UUID):
         raise HTTPException(409) from None
     except OverflowError:
         raise HTTPException(409) from None
-    except (SQLAlchemyError, ValueError, RuntimeError):
+    except (SQLAlchemyError, ValueError, RuntimeError) as error:
+        logger.error(
+            "review.queue_failed analysis_id=%s correlation_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            type(error).__name__,
+        )
         raise HTTPException(503) from None
 
 
@@ -484,6 +641,12 @@ def rerun_review(request: Request, analysis_id: UUID):
     try:
         service = lifecycle(request)
         new_id = service.repository.clone_for_rerun(request.state.owner_hash, analysis_id)
+        logger.info(
+            "analysis.rerun analysis_id=%s correlation_id=%s new_analysis_id=%s",
+            analysis_id,
+            analysis_id,
+            new_id,
+        )
         return prepared(service, request.state.owner_hash, new_id)
     except AnalysisNotFound:
         raise HTTPException(404) from None
@@ -491,7 +654,13 @@ def rerun_review(request: Request, analysis_id: UUID):
         raise HTTPException(409) from None
     except OverflowError:
         raise HTTPException(429, headers={"Retry-After": "60"}) from None
-    except (SQLAlchemyError, ValueError):
+    except (SQLAlchemyError, ValueError) as error:
+        logger.error(
+            "analysis.rerun_failed analysis_id=%s correlation_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            type(error).__name__,
+        )
         raise HTTPException(503) from None
 
 
@@ -499,10 +668,21 @@ def rerun_review(request: Request, analysis_id: UUID):
 def delete_document(request: Request, analysis_id: UUID):
     try:
         lifecycle(request).delete(request.state.owner_hash, analysis_id)
+        logger.info(
+            "analysis.deleted analysis_id=%s correlation_id=%s",
+            analysis_id,
+            analysis_id,
+        )
     except AnalysisNotFound:
         raise HTTPException(404) from None
     except AnalysisNotReady:
         raise HTTPException(409) from None
-    except (SQLAlchemyError, StorageError):
+    except (SQLAlchemyError, StorageError) as error:
+        logger.error(
+            "analysis.delete_failed analysis_id=%s correlation_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            type(error).__name__,
+        )
         raise HTTPException(503) from None
     return DeleteResponse(analysis_id=analysis_id, deleted=True)

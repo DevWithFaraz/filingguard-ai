@@ -2,19 +2,47 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
-import { downloadReport, getEvidence, getGraph, getResults, safeSourceURL, validateResults,
-  type FindingEvidence, type ReviewGraph, type ReviewResults } from '../../lib/api/results';
+import { downloadReport, getEvidence, getGraph, getRedTeam, getResults, runRedTeam, safeSourceURL, validateResults,
+  type FindingEvidence, type RedTeamResponse, type ReviewGraph, type ReviewResults } from '../../lib/api/results';
 import { ResultsView } from './ResultsView';
 
 vi.mock('../../lib/api/results', async importOriginal => ({
   ...await importOriginal<typeof import('../../lib/api/results')>(),
   getResults: vi.fn(), getGraph: vi.fn(), getEvidence: vi.fn(), downloadReport: vi.fn(),
+  getRedTeam: vi.fn(), runRedTeam: vi.fn(),
 }));
+export const mockZoomIn = vi.fn();
+export const mockZoomOut = vi.fn();
+export const mockFitView = vi.fn();
+
 vi.mock('@xyflow/react', () => ({
-  Background: () => null, Controls: () => null,
-  ReactFlow: ({ nodes, onNodeClick }: { nodes: { id: string; data: { label: string } }[];
-    onNodeClick: (event: unknown, node: { id: string }) => void }) => <div data-testid="flow">
-    {nodes.map(node => <button key={node.id} onClick={() => onNodeClick(null, node)}>{node.data.label}</button>)}</div>,
+  Background: () => null,
+  Controls: () => null,
+  Panel: ({ children }: { children: React.ReactNode }) => <div data-testid="flow-panel">{children}</div>,
+  ReactFlowProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useReactFlow: () => ({
+    zoomIn: mockZoomIn,
+    zoomOut: mockZoomOut,
+    fitView: mockFitView,
+  }),
+  ReactFlow: ({
+    nodes,
+    children,
+    onNodeClick,
+  }: {
+    nodes: { id: string; data: { label: string } }[];
+    children?: React.ReactNode;
+    onNodeClick: (event: unknown, node: { id: string }) => void;
+  }) => (
+    <div data-testid="flow">
+      {children}
+      {nodes.map(node => (
+        <button key={node.id} onClick={() => onNodeClick(null, node)}>
+          {node.data.label}
+        </button>
+      ))}
+    </div>
+  ),
 }));
 const id = 'b9127518-6920-45c2-915b-18ce3fa7d876';
 const coverage = { eligible: 3, evaluated: 2, unavailable: 1, pending: 0, truncated: false, limitation: null };
@@ -55,12 +83,41 @@ const evidence: FindingEvidence = { analysis_id: id, finding_id: 'quote-finding'
   model_version: null, prompt_version: null, provenance: 'synthetic',
 }] };
 
+const redTeamFixture: RedTeamResponse = {
+  analysis_id: id,
+  generated_at: '2026-10-08T08:00:00Z',
+  total_weaknesses: 1,
+  critical_count: 0,
+  high_count: 1,
+  medium_count: 0,
+  low_count: 0,
+  summary: '1 vulnerability identified across filing checks.',
+  limitation: 'Synthesized from verified findings.',
+  weaknesses: [
+    {
+      id: 'weakness-1',
+      severity: 'high',
+      vulnerability_type: 'altered_quotation',
+      title: 'Quotation divergence in precedent authority',
+      challenge_theory: 'Opposing counsel will highlight that the quotation diverges from source.',
+      impact_summary: 'Could undermine the credibility of arguments relying on this passage.',
+      remediation_recommendation: 'Verify the excerpt directly against official slip opinion.',
+      linked_finding_ids: ['quote-finding'],
+      linked_citation_ids: ['citation-1'],
+      linked_claim_ids: ['claim-1'],
+      linked_quote_ids: ['quote-1'],
+    },
+  ],
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getResults).mockResolvedValue(fixture());
   vi.mocked(getGraph).mockResolvedValue(graph);
   vi.mocked(getEvidence).mockResolvedValue(evidence);
   vi.mocked(downloadReport).mockResolvedValue();
+  vi.mocked(getRedTeam).mockResolvedValue(redTeamFixture);
+  vi.mocked(runRedTeam).mockResolvedValue(redTeamFixture);
 });
 function open() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -88,7 +145,7 @@ it('filters findings and loads owner-scoped evidence with source offsets and met
   fireEvent.click(screen.getByRole('button', { name: /medium Quotation differs/ }));
   expect(await screen.findByRole('link', { name: /Open source/ })).toHaveAttribute('href', evidence.evidence[0]!.source_url);
   expect(getEvidence).toHaveBeenCalledWith(id, 'quote-finding', expect.any(AbortSignal));
-  expect(screen.getByText('quote-forensics-v1')).toBeInTheDocument();
+  expect(screen.getAllByText('quote-forensics-v1').length).toBeGreaterThan(0);
   expect(screen.getByText('32–74 · Unicode code points')).toBeInTheDocument();
   expect(screen.getByText('a'.repeat(64))).toBeInTheDocument();
   expect(screen.getByText(/Next review action: compare the filing/)).toBeInTheDocument();
@@ -177,3 +234,211 @@ it('graph load failure preserves available independent findings', async () => {
   expect(within(alert).getByRole('button', { name: 'Retry graph' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /medium Quotation differs/ })).toBeInTheDocument();
 });
+
+it('integrates Red-Team mode in results jump navigation and triggers finding selection', async () => {
+  open();
+  expect(await screen.findByRole('link', { name: 'Red Team' })).toHaveAttribute('href', '#result-red-team');
+  expect(await screen.findByRole('heading', { name: /Legal Red-Team Mode/ })).toBeInTheDocument();
+  expect(screen.getByText(/1 vulnerability identified across filing checks/)).toBeInTheDocument();
+  expect(screen.getByText('Quotation divergence in precedent authority')).toBeInTheDocument();
+  expect(screen.getByText(/Opposing counsel will highlight/)).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole('button', { name: /Jump to Finding/ }));
+  expect(await screen.findByRole('heading', { name: 'Quotation differs from source' })).toBeInTheDocument();
+});
+
+it('renders expandable determination methodology and 5-hop evidence lineage chain (FR-205, FR-224)', async () => {
+  open();
+  await screen.findByText('Unknown');
+  // Select quote finding
+  fireEvent.click(screen.getByRole('button', { name: /medium Quotation differs/ }));
+
+  // FR-205: Expandable "How was this determined?"
+  expect(screen.getByText('How was this determined?')).toBeInTheDocument();
+  expect(screen.getByText('Multi-tier quotation forensics')).toBeInTheDocument();
+  expect(screen.getByText('Deterministic Forensic Check')).toBeInTheDocument();
+  expect(screen.getByText(/String similarity measures lexical overlap/)).toBeInTheDocument();
+
+  // FR-224: Visual Lineage Chain
+  const lineage = screen.getByLabelText('Evidence lineage chain');
+  expect(within(lineage).getByRole('heading', { name: 'Evidence Lineage Chain' })).toBeInTheDocument();
+  expect(within(lineage).getByText('01')).toBeInTheDocument();
+  expect(within(lineage).getByText('Document Span')).toBeInTheDocument();
+  expect(within(lineage).getByText('Offsets 10–30')).toBeInTheDocument();
+
+  expect(within(lineage).getByText('02')).toBeInTheDocument();
+  expect(within(lineage).getByText('Extraction Target')).toBeInTheDocument();
+
+  expect(within(lineage).getByText('03')).toBeInTheDocument();
+  expect(within(lineage).getByText('Source Authority')).toBeInTheDocument();
+  expect(await within(lineage).findByRole('link', { name: /Open official source/ })).toHaveAttribute(
+    'href',
+    'https://www.courtlistener.com/opinion/123/',
+  );
+  expect(within(lineage).getByText('Offsets 32–74')).toBeInTheDocument();
+
+  expect(within(lineage).getByText('04')).toBeInTheDocument();
+  expect(within(lineage).getByText('Verification Method')).toBeInTheDocument();
+  expect(within(lineage).getByText('quote-forensics-v1')).toBeInTheDocument();
+  expect(within(lineage).getByText('Provenance: synthetic')).toBeInTheDocument();
+
+  expect(within(lineage).getByText('05')).toBeInTheDocument();
+  expect(within(lineage).getByText('Finding Verdict')).toBeInTheDocument();
+});
+
+it('users can click score category cards to filter findings and clear filters (FR-186)', async () => {
+  const value = fixture();
+  value.score.categories = [
+    { type: 'privacy', eligible: 1, evaluated: 1, value: 75, deducted_points: 25 },
+    { type: 'quote', eligible: 1, evaluated: 1, value: 92, deducted_points: 8 },
+  ];
+  vi.mocked(getResults).mockResolvedValue(value);
+  open();
+
+  await screen.findByText('Unknown');
+  // Both findings initially visible
+  expect(screen.getByRole('button', { name: /critical Private identifier detected/ })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /medium Quotation differs/ })).toBeInTheDocument();
+
+  // Click privacy category card
+  const privacyBtn = screen.getByRole('button', { name: /privacy 75\/100/ });
+  fireEvent.click(privacyBtn);
+
+  // Now only privacy finding is shown
+  expect(screen.getByRole('button', { name: /critical Private identifier detected/ })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /medium Quotation differs/ })).not.toBeInTheDocument();
+
+  // Clear button appears and works
+  const clearPill = screen.getByRole('button', { name: 'Clear category filter' });
+  fireEvent.click(clearPill);
+
+  // Both findings restored
+  expect(screen.getByRole('button', { name: /critical Private identifier detected/ })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /medium Quotation differs/ })).toBeInTheDocument();
+});
+
+it('provides zoom in, zoom out, fit to view and reset controls on the evidence graph (FR-105)', async () => {
+  open();
+  await screen.findByRole('heading', { name: 'Evidence relationships' });
+
+  const zoomInBtn = screen.getByRole('button', { name: 'Zoom in graph' });
+  const zoomOutBtn = screen.getByRole('button', { name: 'Zoom out graph' });
+  const fitViewBtn = screen.getByRole('button', { name: 'Fit graph to view' });
+  const resetBtn = screen.getByRole('button', { name: 'Reset graph view' });
+
+  expect(zoomInBtn).toBeInTheDocument();
+  expect(zoomOutBtn).toBeInTheDocument();
+  expect(fitViewBtn).toBeInTheDocument();
+  expect(resetBtn).toBeInTheDocument();
+
+  fireEvent.click(zoomInBtn);
+  expect(mockZoomIn).toHaveBeenCalled();
+
+  fireEvent.click(zoomOutBtn);
+  expect(mockZoomOut).toHaveBeenCalled();
+
+  fireEvent.click(fitViewBtn);
+  expect(mockFitView).toHaveBeenCalled();
+
+  fireEvent.click(resetBtn);
+  expect(mockFitView).toHaveBeenCalledTimes(2);
+});
+
+it('renders unsupported claims as separate warning nodes in visual graph and accessible list (FR-106)', async () => {
+  const customGraph: ReviewGraph = {
+    analysis_id: id,
+    nodes: [
+      { id: 'section-1', kind: 'section', label: 'Paragraph 1', status: 'extracted', finding_ids: [] },
+      { id: 'claim-warning', kind: 'claim', label: 'Unsupported fabricated claim', status: 'unsupported', finding_ids: ['critical-finding'] },
+      { id: 'authority-1', kind: 'authority', label: 'Example authority', status: 'verified', finding_ids: [] },
+    ],
+    edges: [
+      { id: 'edge-1', source: 'section-1', target: 'claim-warning', label: 'contains claim' },
+      { id: 'edge-2', source: 'claim-warning', target: 'authority-1', label: 'contradicted' },
+    ],
+  };
+  vi.mocked(getGraph).mockResolvedValue(customGraph);
+  open();
+
+  await screen.findByRole('heading', { name: 'Evidence relationships' });
+
+  // Visual flow mock renders node labels: should include warning indicator
+  expect(screen.getByText(/⚠️ UNSUPPORTED/)).toBeInTheDocument();
+
+  // Keyboard accessible list exposes warning badge
+  fireEvent.click(screen.getByText('Keyboard accessible graph list (3 nodes)'));
+  expect(screen.getByText(/⚠️ \[Warning: Unsupported claim\]/)).toBeInTheDocument();
+});
+
+it('associates multiple claims with a single authority and provides cross-view navigation (FR-064)', async () => {
+  const multiClaimGraph: ReviewGraph = {
+    analysis_id: id,
+    nodes: [
+      { id: 'section-1', kind: 'section', label: 'Paragraph 1', status: 'extracted', finding_ids: [] },
+      { id: 'claim-1', kind: 'claim', label: 'First Proposition', status: 'supported', finding_ids: ['quote-finding'] },
+      { id: 'claim-2', kind: 'claim', label: 'Second Proposition', status: 'unsupported', finding_ids: ['critical-finding'] },
+      { id: 'authority-shared', kind: 'authority', label: 'Brown v. Board of Education', status: 'verified', finding_ids: ['quote-finding', 'critical-finding'] },
+    ],
+    edges: [
+      { id: 'e-1', source: 'section-1', target: 'claim-1', label: 'contains' },
+      { id: 'e-2', source: 'section-1', target: 'claim-2', label: 'contains' },
+      { id: 'e-3', source: 'claim-1', target: 'authority-shared', label: 'supported' },
+      { id: 'e-4', source: 'claim-2', target: 'authority-shared', label: 'unsupported' },
+    ],
+  };
+  vi.mocked(getGraph).mockResolvedValue(multiClaimGraph);
+  open();
+
+  await screen.findByRole('heading', { name: 'Evidence relationships' });
+  fireEvent.click(screen.getByText('Keyboard accessible graph list (4 nodes)'));
+
+  // Select the shared authority
+  fireEvent.click(screen.getByRole('button', { name: /authority: Brown v. Board of Education/ }));
+
+  // FR-064: Should show associated claims count and buttons
+  expect(await screen.findByText(/Associated claims \(2\):/)).toBeInTheDocument();
+  const claimsSection = screen.getByText(/Associated claims \(2\):/).closest('div')!;
+  expect(within(claimsSection).getByRole('button', { name: /First Proposition/ })).toBeInTheDocument();
+  expect(within(claimsSection).getByRole('button', { name: /Second Proposition/ })).toBeInTheDocument();
+
+  // Cross-view finding buttons for both linked findings
+  expect(screen.getByText(/Linked findings:/)).toBeInTheDocument();
+  const findingButtons = screen.getAllByRole('button', { name: /Quotation differs from source|Private identifier detected/ });
+  expect(findingButtons.length).toBeGreaterThanOrEqual(1);
+
+  // Clicking an associated claim button switches selection to that claim
+  fireEvent.click(within(claimsSection).getByRole('button', { name: /Second Proposition/ }));
+  const selectionText = await screen.findByText(/Selected claim:/);
+  expect(selectionText.parentElement).toHaveTextContent(/Selected claim:\s*Second Proposition/);
+});
+
+it('displays duplicate citation badges and repeated locations (FR-045)', async () => {
+  const custom = fixture();
+  custom.citations = [
+    {
+      id: 'citation-1',
+      masked_raw_text: '347 U.S. 483',
+      verification_status: 'verified',
+      authority_id: 'authority-1',
+      location: { start: 10, end: 22, page_number: 1, segment_id: 'segment-1' },
+      duplicate_count: 2,
+      repeated_locations: [
+        { start: 10, end: 22, page_number: 1, segment_id: 'segment-1' },
+        { start: 80, end: 92, page_number: 3, segment_id: 'segment-3' },
+      ],
+    },
+  ];
+  vi.mocked(getResults).mockResolvedValue(custom);
+  open();
+
+  await screen.findByRole('heading', { name: 'Inspect the source checks' });
+  fireEvent.click(screen.getByText(/Citation occurrences \(1\)/));
+
+  expect(await screen.findByText('Repeated (2x)')).toBeInTheDocument();
+  expect(screen.getByText('Repeated in filing:')).toBeInTheDocument();
+  expect(screen.getByText(/Span 10–22 \(Page 1\)/)).toBeInTheDocument();
+  expect(screen.getByText(/Span 80–92 \(Page 3\)/)).toBeInTheDocument();
+});
+
+
+

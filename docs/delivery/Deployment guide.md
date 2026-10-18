@@ -1,6 +1,6 @@
 ---
 type: guide
-status: verified-shell
+status: hosted-synthetic-acceptance-verified
 date: 2026-10-11
 tags: [deployment]
 ---
@@ -9,13 +9,33 @@ tags: [deployment]
 October 11 release status: accessibility, measured local limits/performance and
 the complete genuine-model curated journey pass. Final regression evidence is in
 [[docs/sessions/2026-10-11 - Accessibility performance and release gates]].
-Read-only hosted checks still observe frontend SPA routes 200 and API health 200
-with exact CORS, but /ready and /capabilities return 404. The older shell remains
-deployed. The release checkpoint is published on `codex/release-checkpoint`;
-no hosted migration, configuration change or public intake enablement occurred.
+User reports both services Live on `5b37993`. Read-only hosted checks now verify
+frontend SPA routes, API health/capabilities and reviewed sample preview 200 with
+exact CORS and the sample's locked filing hash. Readiness now returns 200 after
+the user enables the temporary synthetic intake window. Hosted cached-demo/PDF
+engine runs, owner isolation, masked exports, deletion and accelerated synthetic
+expiry pass. The 18:07 UTC API restart check verifies unchanged saved results/graphs,
+masked exports and controlled queued-state recovery; both fixtures are deleted.
+The user enabled both provider stages for T058. Genuine hosted live Brown and
+explicit cached-source/fresh-model reviews pass their bounded controls, including
+masked exports and owner denial; both fixtures are deleted. Coverage remains
+partial. October 12 controlled source-authentication failure passes: live citations
+remain unavailable and explicitly selected cached sources/quotes/exports work.
+The genuine token and semantic setting are restored. A fresh live review passes
+25 checks (42.937s), including real source/model evidence, masked exports, owner
+denial and deletion. Public readiness/routes/CORS pass again. T058 is verified
+at synthetic rehearsal scope; the temporary failure settings are retired.
+Latest evidence: [[docs/sessions/2026-10-12 - Hosted dependency failure rehearsal]].
+Earlier prerequisite evidence:
+[[docs/sessions/2026-10-11 - Closed intake hosted checks]].
+The release checkpoint is published on `codex/release-checkpoint`;
+the approved Neon production migration now commits at `0004_citation_extraction`.
+Render private-storage readiness and the synthetic workflow are verified. Intake
+is enabled for synthetic acceptance; external providers are enabled for T058.
 The user's Chrome is signed in, but Chrome control is unavailable in this execution
-environment. T057 remains open; liveness alone is
-insufficient. The concrete rollout below is prepared for the existing free services.
+environment. T057 passes at synthetic hosted acceptance scope; direct physical
+filesystem inspection and expert legal QA remain separate. The concrete rollout
+below records the existing free services and the procedure for future releases.
 
 T008 in [[TODO]]. Current target: Render static frontend and free Python API,
 plus Neon free PostgreSQL. User created both accounts and the Neon project;
@@ -182,9 +202,22 @@ as an automatic rollback.
 
 The release branch is published; select `codex/release-checkpoint` and wait for
 its GitHub Checks run to pass before manually deploying. Dashboard changes,
-hosted migration and hosted acceptance remain outstanding. The configured Neon
-connection passed the read-only TLS probe on October 11, but has no recorded
-Alembic revision; the migration step above is still necessary.
+hosted migration and hosted acceptance remain outstanding. The user has deployed
+the closed-intake services. The configured Neon connection passes the read-only
+TLS probe. User confirmed the same host/database and production branch, then
+approved migration. The transaction commits through `0004_citation_extraction`;
+all 10 application tables and column sets match, and an independent read-only
+revision check passes. Do not rerun the initial empty-schema migration helper.
+
+With intake still off, set `PRIVATE_STORAGE_DIRECTORY=/tmp/filingguard-private`
+in the API environment after migration and redeploy. The adapter creates the root
+with POSIX mode 0700 and rejects existing foreign roots, links or group/other
+permissions. Its successful startup establishes these adapter checks; public
+readiness alone is not a direct filesystem inspection. Expect readiness to remain
+503 because intake is off, while `private_storage`, `database_schema` and `cleanup`
+are now verified true after the user's storage configuration/redeployment. Without configured recoverable
+storage, readiness does not initialize a DB engine and keeps `database_schema`
+false even if the separately checked database has been migrated.
 
 ## Sources and related notes
 September 28 preparation release boundary: latest code remains local and public

@@ -6,17 +6,24 @@ Render the saved analysis and evidence without reclassifying it.
 
 Analysis snapshot in; escaped report content and downloadable export out.
 
-`service.py` assembles owner-scoped stored results, graph and evidence views.
+`service.py` assembles owner-scoped stored results, graph, evidence, and report views.
 It validates evidence snapshot hashes and exact slices before returning evidence,
 masks identifiers against complete snapshots before clipping, and retains original
 Unicode locations, source hashes/times and method/model/prompt metadata.
+Per T102 and T104 (FR-224/225, FR-205, FR-305), exported Markdown, HTML, and
+PDF reports embed an explicit 5-hop Evidence Lineage Chain (Document Span ->
+Extraction Target -> Source Authority -> Verification Method -> Finding Verdict),
+exact retrieved source passages with SHA-256 digests, and prominent statutory
+legal assurance disclaimers.
 
 Private terminal-analysis routes serve `/results`, `/graph`, finding `/evidence`
-and `/report?format=markdown|html`. Active results/graph/export requests return 409;
+and `/report?format=markdown|html|pdf`. Active results/graph/export requests return 409;
 foreign or expired analyses return 404. Exports use saved classifications without
 provider calls, include score deductions/coverage/limits and evidence, and set
 no-store headers. Exports include source mode and per-evidence cache/live provenance.
-HTML escapes the entire report body and disallows script content.
+HTML escapes the entire report body and disallows script content. PDF export uses
+ReportLab Platypus with a custom two-pass `NumberedCanvas` for exact running headers,
+footers (`Page X of Y`), strict margin confinement, table wrapping, and escaping.
 
 Graph IDs derive from stored section/claim/authority/citation/link IDs. Finding
 relations connect selection to detail; the frontend offers a bounded React Flow
