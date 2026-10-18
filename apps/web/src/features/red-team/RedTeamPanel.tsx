@@ -181,6 +181,7 @@ export function RedTeamPanel({ analysisId, onSelectFinding }: RedTeamPanelProps)
                         onClick={() => toggleExpand(weakness.id, index)}
                         aria-expanded={isExpanded}
                         aria-controls={`weakness-detail-${weakness.id}`}
+                        aria-label={isExpanded ? `Collapse vulnerability: ${weakness.title}` : `Expand vulnerability: ${weakness.title}`}
                       >
                         <h3 className="red-team-weakness-title">{weakness.title}</h3>
                         <span

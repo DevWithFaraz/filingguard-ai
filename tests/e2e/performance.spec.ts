@@ -28,7 +28,7 @@ for (const maximum of [false, true]) test(maximum ? 'maximum text review timing'
     const documentURL = page.url();
     const began = performance.now();
     await page.getByRole('button', { name: 'Run local checks' }).click();
-    await expect(page.locator('.local-review [role="status"]')).toContainText(/Review (in progress|completed|partial)/);
+    await expect(page.locator('.local-review [role="status"]').first()).toContainText(/Review (in progress|completed|partial)/);
     const progress = performance.now() - began;
     await expect(page.getByRole('link', { name: 'Open review results' })).toBeVisible({ timeout: 100000 });
     const analysis = performance.now() - began;

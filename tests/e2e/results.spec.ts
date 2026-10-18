@@ -54,7 +54,7 @@ test('local review to masked evidence, graph list and authenticated saved report
   };
 
   await page.getByLabel('Finding category').selectOption('privacy');
-  const finding = page.getByRole('button', { name: /SSN-shaped identifier/ });
+  const finding = page.locator('.results-finding-list').getByRole('button', { name: /SSN-shaped identifier/ });
   await finding.focus();
   const evidenceResponse = page.waitForResponse(response => response.url().includes('/findings/') && response.url().endsWith('/evidence'));
   await page.keyboard.press('Enter');
@@ -68,7 +68,7 @@ test('local review to masked evidence, graph list and authenticated saved report
   await expect(page.locator('.result-detail')).toContainText('Next review action');
 
   await page.getByLabel('Finding category').selectOption('quote');
-  await page.getByRole('button', { name: /Quotation source comparison unavailable/ }).focus();
+  await page.locator('.results-finding-list').getByRole('button', { name: /Quotation source comparison unavailable/ }).focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.result-detail h2')).toHaveText('Quotation source comparison unavailable');
   await expect(page.locator('.result-detail')).toContainText('legal support');
