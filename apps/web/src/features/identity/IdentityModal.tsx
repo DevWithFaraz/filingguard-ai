@@ -97,7 +97,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
           <div className="identity-modal-title-row">
             <UserCheck size={20} className="identity-icon" />
             <h2 id="identity-modal-title">
-              {current?.bound ? `Account: ${current.username}` : 'Reviewer Identity (Optional)'}
+              {current?.bound ? `Account: ${current.username}` : 'Sign In / Sign Up (Optional)'}
             </h2>
           </div>
           <button
@@ -145,7 +145,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
                   setStatusMessage(null);
                 }}
               >
-                Claim Current Session
+                Sign Up / Claim
               </button>
               <button
                 type="button"
@@ -157,7 +157,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
                   setStatusMessage(null);
                 }}
               >
-                Sign In to Existing
+                Sign In
               </button>
             </div>
 
@@ -215,7 +215,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
                   disabled={claimMutation.isPending || loginMutation.isPending}
                 >
                   <LogIn size={14} />
-                  {mode === 'claim' ? 'Claim Account' : 'Sign In'}
+                  {mode === 'claim' ? 'Create Account' : 'Sign In'}
                 </button>
                 <button type="button" className="secondary-button" onClick={onClose}>
                   Cancel
