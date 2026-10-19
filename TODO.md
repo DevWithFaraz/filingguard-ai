@@ -997,7 +997,8 @@ visualization. Markdown/HTML export is P0; dedicated PDF export is P1.
   saved matters, finding collaboration/dispositions, batch processing, and Word add-in)
   and release gate governance (production data protection and legal quality protocol)
   passed 855 backend tests (2 skipped), 67 web tests, Ruff, ESLint, TypeScript, and
-  Vite production build. Hosted Neon database intentionally remains at `0004_citation_extraction`.
+  Vite production build. Hosted Neon database successfully upgraded to `0010_batch_processing`
+  with live Render readiness 200 OK across all 10 controls.
 
 - 2026-10-17: T062 verified. Created release tag `v0.1.0-mvp` anchored to deployment
   commit `5b37993` / application revision `325451a`. Verified live hosted services

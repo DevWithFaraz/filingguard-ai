@@ -42,13 +42,13 @@ Completed the remaining tasks of the P2 backlog:
 - Web Vitest suite: 67 passed out of 67 (`npm run test:web`).
 - Backend pytest suite: 855 passed, 2 skipped, 0 failed across all 857 test items (`node scripts/api.mjs run pytest`).
 - Web production build: clean build completed (`npm run build`).
+- Hosted Neon PostgreSQL upgrade: user-authorized upgrade executed and committed to `0010_batch_processing`. All 16 application tables verified present. Render hosted probe passes all 10 controls with 200 OK and `readiness=true` (`database_schema=true`).
 
 ## Checks not run
-- Migrations `0005` through `0010` have intentionally NOT been applied to hosted Neon database (`DATABASE_URL` remains at `0004_citation_extraction`).
 - Live production threat pen-test and real human legal-expert audits remain operational gates before accepting real client filings.
 
 ## Blockers and next step
-All P2 tasks (T201 through T213) are completed and verified.
+All P2 tasks (T201 through T213) are completed, verified, and migrated on hosted Neon.
 
 ## Related
 [[TODO]] · [[FilingGuard_AI_SRS]] · [[docs/decisions/ADR-017 - Word Add-in integration surface and document synchronization]]
