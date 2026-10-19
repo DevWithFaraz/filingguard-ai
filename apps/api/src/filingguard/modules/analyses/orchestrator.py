@@ -27,6 +27,8 @@ REVIEW_STAGES = (
     StageName.PRIVACY,
     StageName.COURT_RULES,
     StageName.CITATIONS,
+    StageName.STATUTES,
+    StageName.TABLE_OF_AUTHORITIES,
     StageName.CLAIMS,
     StageName.PROPOSITIONS,
     StageName.QUOTES,

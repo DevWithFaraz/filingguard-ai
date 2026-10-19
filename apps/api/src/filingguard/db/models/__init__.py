@@ -11,6 +11,8 @@ from filingguard.db.models.entities import (
     DocumentSegment,
     EvidenceRecord,
     Finding,
+    IdentitySession,
+    LocalIdentity,
     Quote,
 )
 
@@ -25,5 +27,7 @@ __all__ = [
     "DocumentSegment",
     "EvidenceRecord",
     "Finding",
+    "IdentitySession",
+    "LocalIdentity",
     "Quote",
 ]

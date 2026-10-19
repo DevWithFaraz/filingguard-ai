@@ -81,6 +81,7 @@ def test_unsupported_law_journal_and_unknown_reporter() -> None:
 
     assert {"law", "journal", "reporter_candidate"} <= by_kind.keys()
     assert all(item.extraction.support == "unsupported" for item in result.occurrences)
+    assert by_kind["law"].normalized_text is None
     assert by_kind["reporter_candidate"].raw_text == "123 QQQ 456"
     assert all(text[item.start : item.end] == item.raw_text for item in result.occurrences)
     assert "false positives" in result.limitation

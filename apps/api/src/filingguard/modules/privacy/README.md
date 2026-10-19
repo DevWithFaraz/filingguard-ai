@@ -1,6 +1,6 @@
 # privacy
 
-Priority: P0. Tasks: T022, T030-T031 in the root TODO.md.
+Priority: P0. Tasks: T022, T030-T031, T205 in the root TODO.md.
 
 Detect sensitive patterns locally and provide masked review findings.
 
@@ -23,6 +23,14 @@ and institutional/legal entity tokens. The local review stage saves owner-scoped
 findings with a high-severity alert, explicit uncertainty disclaimer, and exact private evidence;
 the HTTP findings projection never returns raw evidence. Benign citation/date/minor
 controls and the curated fixture are tested. Detection is not legal compliance.
+
+T205 adds versioned jurisdictional privacy policy bindings on court profiles
+(FR-167). `resolve_privacy_policy` consults a conservative catalog: unknown,
+stale, source-mismatched or demo/live-mismatched policies are unavailable and
+do not enable extra identifier kinds. Default detectors remain SSN, financial
+account, full DOB and possible minor names. The synthetic demo may enable email
+findings; the N.D. Tex. profile binds Fed. R. Civ. P. 5.2 as a reminder only
+(no extra kinds). This is not nationwide privacy-rule coverage.
 
 T022/T031 integration is implemented: the real semantic adapter masks the full
 filing before selecting any outgoing proposition boundary. Fixed-host payload

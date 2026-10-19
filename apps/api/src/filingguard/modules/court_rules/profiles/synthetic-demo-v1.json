@@ -13,5 +13,27 @@
     "trigger": "ai_used",
     "requirement": "This synthetic exercise requires an AI-use disclosure when AI was used.",
     "heading": "AI USE DISCLOSURE"
+  },
+  "page_limit": {
+    "rule_id": "demo-page-limit",
+    "max_pages": 20,
+    "filing_scope": "synthetic_demo_brief",
+    "requirement": "This synthetic exercise treats extracted page count above 20 as exceeding a training page limit. Not a real court rule and not a court-counted-page determination."
+  },
+  "required_headings": [
+    {
+      "rule_id": "demo-statement-of-issues",
+      "heading": "STATEMENT OF ISSUES",
+      "placement": "anywhere",
+      "requirement": "This synthetic exercise requires a standalone heading titled STATEMENT OF ISSUES. Not a real court rule."
+    }
+  ],
+  "privacy_policy": {
+    "policy_id": "synthetic-demo-privacy-v1",
+    "version": "synthetic-privacy-v1",
+    "source_url": "Curated FilingGuard training fixture; not a privacy statute",
+    "source_checked_on": "2026-10-19",
+    "extra_identifier_kinds": ["email"],
+    "reminder": "Training-only extra identifier scan (email). Not a jurisdiction redaction rule."
   }
 }

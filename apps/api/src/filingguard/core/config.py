@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     review_stage_timeout_seconds: float = Field(default=30, gt=0, le=300, allow_inf_nan=False)
     max_provider_attempts: int = Field(default=60, ge=1, le=60)
     courtlistener_api_token: str | None = None
+    statute_source_url: str | None = None
     source_verification_enabled: bool = False
     semantic_review_enabled: bool = False
     groq_api_key: SecretStr | None = None

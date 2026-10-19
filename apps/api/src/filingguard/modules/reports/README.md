@@ -17,7 +17,10 @@ exact retrieved source passages with SHA-256 digests, and prominent statutory
 legal assurance disclaimers.
 
 Private terminal-analysis routes serve `/results`, `/graph`, finding `/evidence`
-and `/report?format=markdown|html|pdf`. Active results/graph/export requests return 409;
+and `/report?format=markdown|html|pdf|graph-svg|graph-png`. Markdown, HTML, and PDF
+reports embed a Claim-Authority Graph image generated from `saved_graph()` plus an
+accessible node/relationship list. `graph-svg` and `graph-png` download that same
+saved graph as a readable image. Active results/graph/export requests return 409;
 foreign or expired analyses return 404. Exports use saved classifications without
 provider calls, include score deductions/coverage/limits and evidence, and set
 no-store headers. Exports include source mode and per-evidence cache/live provenance.

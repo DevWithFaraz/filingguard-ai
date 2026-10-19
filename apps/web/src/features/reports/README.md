@@ -12,3 +12,6 @@ do not duplicate legal analysis or scoring logic in the browser.
 D007 adds a direct Report shortcut on results and a shared themed export section
 with separate Markdown/HTML actions, busy/error states and document/activity
 navigation. Downloaded report content/format remains owned by the backend.
+The evidence graph toolbar Download graph action requests
+`/report?format=graph-svg` for the saved analysis graph. Markdown/HTML/PDF
+reports also include that image and an accessible node/relationship list.

@@ -12,7 +12,7 @@ from filingguard.integrations.providers.runtime import ProviderBudget
 from filingguard.modules.analyses.execution import ReviewSegment
 from filingguard.modules.analyses.schemas import QuoteStatus, StageName, StageStatus
 from filingguard.modules.quotes.runner import quotes_stage
-from filingguard.modules.quotes.schemas import MAX_QUOTE_CHARS, MAX_SOURCE_CHARS
+from filingguard.modules.quotes.schemas import MAX_QUOTE_CHARS, MAX_SOURCE_CHARS, SEMANTIC_METHOD
 from filingguard.modules.quotes.service import associate_quote, compare_quote, extract_quotes
 
 
@@ -147,6 +147,10 @@ def test_comparison_order_and_original_offsets(quote, source, status):
         assert source[comparison.source_start : comparison.source_end] == comparison.passage
     if status == QuoteStatus.CLOSE:
         assert "meaning" in comparison.reason
+        assert comparison.semantic_similarity is not None
+        assert comparison.semantic_similarity.method == SEMANTIC_METHOD
+    if status in {QuoteStatus.EXACT, QuoteStatus.NORMALIZED}:
+        assert comparison.semantic_similarity is None
 
 
 def test_short_unmatched_quote_does_not_receive_fuzzy_certification():
@@ -221,6 +225,12 @@ def test_source_unavailable_does_not_become_not_found(missing):
     assert result.coverage.unavailable == 1 and result.coverage.evaluated == 0
     quote = next(row for row in result.records if isinstance(row, Quote))
     assert quote.match_status == "source_unavailable" and quote.similarity is None
+    document = next(
+        row
+        for row in result.records
+        if isinstance(row, EvidenceRecord) and row.source_type == "document"
+    )
+    assert document.source_metadata.get("semantic_similarity") is None
 
 
 def test_multiple_nearby_authorities_never_select_first_arbitrarily():
@@ -325,10 +335,24 @@ def test_meaning_alteration_negation_inserted_escalates_to_critical():
     text = '“Equal access is not a fundamental public right.” 123 U.S. 456'
     analysis, _, _ = context(text, source="Equal access is a fundamental public right.")
     result = run(analysis)
+    quote = next(row for row in result.records if isinstance(row, Quote))
     finding = next(row for row in result.records if isinstance(row, Finding))
+    assert quote.match_status == "close"
     assert finding.severity == "critical"
     assert "Negation added" in finding.title
     assert "reverse the legal meaning" in finding.description
+    assert "not meaning-preservation" in finding.description
+    assert "uncalibrated" in finding.description
+    document = next(
+        row
+        for row in result.records
+        if isinstance(row, EvidenceRecord) and row.source_type == "document"
+    )
+    semantic = document.source_metadata["semantic_similarity"]
+    assert semantic["method"] == SEMANTIC_METHOD
+    assert semantic["negation"] is True
+    assert semantic["material_change"] is True
+    assert semantic["score"] < 1.0
 
 
 def test_meaning_alteration_negation_omitted_escalates_to_critical():
@@ -371,4 +395,40 @@ def test_meaning_alteration_antonym_contradictory_term_escalates_to_critical():
     finding = next(row for row in result.records if isinstance(row, Finding))
     assert finding.severity == "critical"
     assert "Contradictory term" in finding.title
+
+
+def test_unrelated_close_fuzz_does_not_become_exact():
+    quote = "The plaintiff filed a timely notice of appeal after judgment."
+    source = "The plaintiff filed a timely motion to dismiss after discovery."
+    comparison = compare_quote(quote, source)
+    assert comparison.status not in {QuoteStatus.EXACT, QuoteStatus.NORMALIZED}
+    assert comparison.semantic_similarity is not None
+    assert comparison.semantic_similarity.score < 1.0
+    assert "uncalibrated" in comparison.semantic_similarity.limitation
+    assert "not exact quotation" in comparison.semantic_similarity.limitation
+    text = f'“{quote}” 123 U.S. 456'
+    analysis, _, _ = context(text, source=source)
+    result = run(analysis)
+    stored = next(row for row in result.records if isinstance(row, Quote))
+    finding = next(row for row in result.records if isinstance(row, Finding))
+    assert stored.match_status not in {"exact", "normalized"}
+    assert "uncalibrated" in finding.description
+    assert "not meaning-preservation" in finding.description
+
+
+def test_semantic_similarity_flags_omission_without_treating_as_exact():
+    quote = "Notice is required before termination to all occupants."
+    source = "Notice is required before termination except in emergencies to all occupants."
+    comparison = compare_quote(quote, source)
+    assert comparison.status not in {QuoteStatus.EXACT, QuoteStatus.NORMALIZED}
+    assert comparison.semantic_similarity is not None
+    assert comparison.semantic_similarity.omission is True
+    assert comparison.semantic_similarity.material_change is True
+    assert comparison.meaning_alteration is None
+
+
+def test_empty_source_semantic_similarity_is_absent():
+    comparison = compare_quote("Equal access is a fundamental public right.", "")
+    assert comparison.status == QuoteStatus.SOURCE_UNAVAILABLE
+    assert comparison.semantic_similarity is None
 

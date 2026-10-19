@@ -21,6 +21,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { downloadReport, getEvidence, getGraph, getResults, safeSourceURL,
   type FindingEvidence, type ResultFinding, type ReviewGraph } from '../../lib/api/results';
+import { ClaimCorrectionForm } from '../findings/ClaimCorrectionForm';
 import './results.css';
 import { WorkflowHero } from '../../components/layout/WorkflowShell';
 import { RedTeamPanel } from '../red-team/RedTeamPanel';
@@ -40,10 +41,17 @@ function getDeterminationDetails(finding: ResultFinding) {
     case 'quote':
       return {
         methodName: 'Multi-tier quotation forensics',
-        description: 'Evaluated using exact string matching, whitespace/punctuation-normalized comparison, and RapidFuzz token similarity against retrieved opinion text.',
-        limitation: 'String similarity measures lexical overlap and does not establish that a quotation preserves original legal meaning. Any ellipses, brackets, or wording changes require human inspection.',
+        description: 'Evaluated using exact string matching, whitespace/punctuation-normalized comparison, RapidFuzz string similarity, and a separate local token-overlap semantic review signal when strings diverge.',
+        limitation: 'String similarity measures lexical overlap and does not establish that a quotation preserves original legal meaning. The local semantic signal is uncalibrated and is not exact quotation or legal-meaning proof. Any ellipses, brackets, or wording changes require human inspection.',
       };
     case 'claim_support':
+      if (/fact/i.test(finding.title)) {
+        return {
+          methodName: 'Heuristic filing-versus-source fact comparison',
+          description: 'Bounded dates, named parties, and numeric holdings in the filing excerpt were compared with retrieved source passages. This is a separate review signal from proposition support classification and does not invent legal analogies.',
+          limitation: 'Heuristic fact matching is an uncalibrated review flag, not a legal determination. Missing source facts are insufficient or unavailable, never a pass. Primary passages require human review.',
+        };
+      }
       return {
         methodName: 'Grounded proposition semantic analysis',
         description: 'The claim was extracted from surrounding text and evaluated against retrieved authoritative opinion passages using structured generative analysis.',
@@ -60,6 +68,12 @@ function getDeterminationDetails(finding: ResultFinding) {
         methodName: 'Court profile rule compliance',
         description: 'Evaluated against requirements defined in the selected court profile, including mandatory AI-disclosure language and filing length bounds.',
         limitation: 'Court profiles represent documented baseline rules. Specific judges or individual divisions may enforce standing orders not captured in this profile.',
+      };
+    case 'table_of_authorities':
+      return {
+        methodName: 'Table of Authorities consistency audit',
+        description: 'Detected a Table of Authorities heading, extracted comparable reporter identities from the table and body, and compared them both ways, including listed page leaders when present.',
+        limitation: 'Heuristic section bounds and Eyecite coverage can miss short forms, unnamed authorities, and non-reporter entries. This is a document-consistency signal, not a court-rule determination.',
       };
     default:
       return {
@@ -107,9 +121,10 @@ function FindingLineageChain({ finding, evidence }: { finding: ResultFinding; ev
             <small className="lineage-step-hint">
               {finding.type === 'citation' && 'Case citation occurrence'}
               {finding.type === 'quote' && 'Filing quotation passage'}
-              {finding.type === 'claim_support' && 'Extracted proposition'}
+              {finding.type === 'claim_support' && (/fact/i.test(finding.title) ? 'Filing fact versus source fact' : 'Extracted proposition')}
               {finding.type === 'privacy' && 'Personal data pattern'}
               {finding.type === 'court_rule' && 'Court profile rule'}
+              {finding.type === 'table_of_authorities' && 'Table of Authorities entry'}
               {finding.type === 'system' && 'Pipeline boundary'}
             </small>
           </div>
@@ -238,9 +253,17 @@ interface EvidenceGraphProps {
   selectedFindingId: string | null;
   onSelectFinding: (id: string) => void;
   findings: ResultFinding[];
+  onDownloadGraph: () => void;
+  graphDownloadPending: boolean;
 }
 
-function GraphControlsBar() {
+function GraphControlsBar({
+  onDownloadGraph,
+  graphDownloadPending,
+}: {
+  onDownloadGraph: () => void;
+  graphDownloadPending: boolean;
+}) {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   return (
     <Panel position="top-right" className="graph-toolbar" aria-label="Graph viewport controls">
@@ -280,6 +303,16 @@ function GraphControlsBar() {
       >
         <RotateCcw size={14} />
       </button>
+      <button
+        type="button"
+        className="graph-toolbar-btn"
+        onClick={onDownloadGraph}
+        disabled={graphDownloadPending}
+        title="Download graph as SVG from saved analysis"
+        aria-label="Download graph"
+      >
+        <Download size={14} />
+      </button>
     </Panel>
   );
 }
@@ -289,6 +322,8 @@ function EvidenceGraphInner({
   selectedFindingId,
   onSelectFinding,
   findings,
+  onDownloadGraph,
+  graphDownloadPending,
 }: EvidenceGraphProps) {
   const [selectedNodeOverride, setSelectedNodeOverride] = useState<{
     findingId: string | null;
@@ -403,7 +438,10 @@ function EvidenceGraphInner({
             >
               <Background />
               <Controls showInteractive={true} />
-              <GraphControlsBar />
+              <GraphControlsBar
+                onDownloadGraph={onDownloadGraph}
+                graphDownloadPending={graphDownloadPending}
+              />
             </ReactFlow>
           </div>
           <details className="result-graph-list">
@@ -513,7 +551,10 @@ export function ResultsView() {
     retry: false, gcTime: 0, refetchInterval: state => ['queued', 'running'].includes(state.state.data?.status ?? '') ? 1500 : false });
   const graph = useQuery({ queryKey: ['review-graph', id, query.data?.status],
     queryFn: ({ signal }) => getGraph(id, signal), enabled: !!query.data, retry: false, gcTime: 0 });
-  const report = useMutation({ mutationFn: (format: 'markdown' | 'html' | 'pdf') => downloadReport(id, format), retry: false });
+  const report = useMutation({
+    mutationFn: (format: 'markdown' | 'html' | 'pdf' | 'graph-svg' | 'graph-png') => downloadReport(id, format),
+    retry: false,
+  });
   if (query.isPending) return <section className="results-view"><WorkflowHero eyebrow="OPENING YOUR SAVED REVIEW" title="Review results" description="Loading the private findings, coverage and evidence for this document." /><p className="workflow-notice" role="status" aria-live="polite">Loading private review results</p></section>;
   if (query.isError) return <section className="results-view"><WorkflowHero eyebrow="RECONNECT TO YOUR REVIEW" title="Results unavailable" description="This saved review could not be opened. Retry the request or return to your document to check its status." /><div className="workflow-notice" role="alert">{query.error.message}</div>
     <div className="workflow-actions results-bottom-actions"><button className="secondary-button" onClick={() => void query.refetch()}>Retry results</button><Link className="document-text-link" to={`/analyses/${id}`}>Back to document and review progress<ArrowRight size={15} /></Link></div></section>;
@@ -599,7 +640,7 @@ export function ResultsView() {
       {stage.reason && <small>{stage.reason}</small>}</li>)}</ol></article></div>
     <section aria-labelledby="findings-title"><div className="results-section-heading"><h2 id="findings-title">Findings ({results.findings.length})</h2>
       <div className="results-filters"><label>Finding category<select value={typeFilter} onChange={event => setTypeFilter(event.target.value)}>
-        <option value="all">All categories</option>{['citation', 'claim_support', 'quote', 'privacy', 'court_rule', 'system'].map(value => <option value={value} key={value}>{label(value)}</option>)}</select></label>
+        <option value="all">All categories</option>{['citation', 'claim_support', 'quote', 'privacy', 'court_rule', 'table_of_authorities', 'system'].map(value => <option value={value} key={value}>{label(value)}</option>)}</select></label>
         <label>Finding severity<select value={severityFilter} onChange={event => setSeverityFilter(event.target.value)}><option value="all">All severities</option>
           {['critical', 'high', 'medium', 'low', 'info'].map(value => <option key={value} value={value}>{value}</option>)}</select></label>
         {typeFilter !== 'all' && (
@@ -645,7 +686,8 @@ export function ResultsView() {
             </ul>
           </div>
         )}</li>)}</ul></details>
-      <details><summary>Extracted claims ({results.claims.length})</summary><ul>{results.claims.map(item => <li key={item.id}><p>{item.text}</p>
+      <details><summary>Extracted claims ({results.claims.length})</summary><ul>{results.claims.map(item => <li key={item.id}>
+        <ClaimCorrectionForm analysisId={id} claim={item} />
         <small>{label(item.extraction_method)} extraction · Span {item.location.start}–{item.location.end}</small>
         {!item.links.length && <p>No authority links were available.</p>}
         <ul>{item.links.map(link => <li key={link.id}><strong>{label(link.support_status)}</strong><p>{link.explanation ?? 'No support explanation is available.'}</p></li>)}</ul></li>)}</ul></details>
@@ -663,6 +705,8 @@ export function ResultsView() {
         selectedFindingId={selectedId}
         onSelectFinding={setSelectedId}
         findings={results.findings}
+        onDownloadGraph={() => report.mutate('graph-svg')}
+        graphDownloadPending={report.isPending}
       />
     )}</div>
     <section id="result-report" className="results-export"><div><span className="document-kicker">TAKE THE EVIDENCE WITH YOU</span><h2>Saved-result report</h2><p>Export this review and its stored evidence. No new classification is performed.</p></div>

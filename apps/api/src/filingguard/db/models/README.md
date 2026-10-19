@@ -97,3 +97,15 @@ Populated SQLite 0003 -> 0004 -> 0003 preserves citations and scoped foreign key
 schema/model agreement and offline dialect SQL are regression checked. No live
 Neon/production 0004 migration is authorized or performed. See
 [[docs/decisions/ADR-009 - Local citation occurrences before source verification]].
+Migration `0005_table_of_authorities` extends the findings type check to include
+`table_of_authorities`. Migration `0006_claim_corrections` adds
+`Claim.correction_history` JSON/JSONB (default `[]`) so user edits never rewrite
+`Claim.text`. Local tests upgrade through `0007_local_identities`; hosted Neon remains at
+`0004_citation_extraction` until an explicit production migration is approved.
+
+Migration `0007_local_identities` adds optional `local_identities` (unique username,
+hashed secret, unique claimed `owner_hash`) and `identity_sessions` (bearer SHA-256
+to claimed owner, 55-minute expiry). Anonymous sessions are unchanged. This is a
+local recovery claim, not production authentication. See
+[[apps/api/src/filingguard/modules/identity/README]] and
+[[docs/decisions/ADR-016 - Optional local identity claim]].

@@ -33,7 +33,11 @@ controls, cross-segment spans, truncation and tampered provenance. Pipeline and
 private API integration checks are owned by
 [[apps/api/src/filingguard/modules/analyses/README]]. No provider is called here.
 
-Related: [[TODO]] (T037), [[FilingGuard_AI_SRS#9.4 Claim Extraction]],
+Manual corrections (T206 / FR-065) live in
+[[apps/api/src/filingguard/modules/claim_corrections/README]]. Original `text` is
+immutable; history is a separate JSON field.
+
+Related: [[TODO]] (T037, T206), [[FilingGuard_AI_SRS#9.4 Claim Extraction]],
 [[docs/decisions/ADR-004 - Truthful contracts and scoped evidence]],
 [[docs/decisions/ADR-009 - Local citation occurrences before source verification]],
 [[apps/api/src/filingguard/modules/citations/README]],

@@ -4,6 +4,8 @@ tags: [decisions]
 ---
 # Decisions
 
+- [[docs/decisions/ADR-016 - Optional local identity claim]]
+
 - [[docs/decisions/ADR-015 - Durable job execution and transactional worker leases]]
 
 - [[docs/decisions/ADR-014 - Filing-centric court rules and separate Article 50 direction]]

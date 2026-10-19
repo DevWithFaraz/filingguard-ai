@@ -1,7 +1,8 @@
 # HTTP routes
 
 Implemented: health (liveness), readiness, capabilities, court-profile metadata,
-reviewed demo preview, anonymous sessions, private text/PDF/demo preparation,
+reviewed demo preview, anonymous sessions, optional local identity claim/login,
+private text/PDF/demo preparation,
 analysis status/run/rerun, saved findings/citations/results/evidence/graph/reports
 and deletion. Private routes enforce origin/session ownership and no-store.
 Provider requests and classifications belong to contained module runners.

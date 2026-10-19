@@ -28,11 +28,22 @@ from filingguard.modules.citations.schemas import (
     EXTRACTION_LIMITATION,
     CitationExtractionMetadata,
 )
+from filingguard.modules.claim_corrections.schemas import (
+    ClaimCorrectionEntry,
+    ClaimCorrectionRequest,
+    ClaimCorrectionResponse,
+)
 from filingguard.modules.evidence.schemas import EvidenceRecord
 from filingguard.modules.grounded_qa.schemas import (
     GroundedAnswerResponse,
     GroundedQuestionHistory,
     GroundedQuestionRequest,
+)
+from filingguard.modules.identity.schemas import (
+    IdentityClaimed,
+    IdentityClaimRequest,
+    IdentityLoginRequest,
+    IdentitySessionIssued,
 )
 from filingguard.modules.red_team.schemas import RedTeamResponse
 
@@ -66,7 +77,15 @@ class AnalysisAccepted(Contract):
 
 class SafeFinding(Contract):
     id: UUID
-    type: Literal["privacy", "court_rule", "citation", "claim_support", "quote", "system"]
+    type: Literal[
+        "privacy",
+        "court_rule",
+        "citation",
+        "claim_support",
+        "quote",
+        "table_of_authorities",
+        "system",
+    ]
     severity: Literal["info", "low", "medium", "high", "critical"]
     title: Label
     description: str
@@ -145,6 +164,9 @@ class SafeClaim(Contract):
     location: DocumentLocation
     extraction_method: Literal["heuristic", "ai"]
     links: list[SafeClaimLink] = Field(max_length=200)
+    corrected_text: str | None = None
+    correction_history: list[ClaimCorrectionEntry] = Field(default_factory=list, max_length=20)
+    propositions_stale: bool = False
 
 
 class SafeQuote(Contract):
@@ -165,7 +187,9 @@ class ScoreDeduction(Contract):
 
 
 class ScoreCategory(Contract):
-    type: Literal["citation", "claim_support", "quote", "privacy", "court_rule"]
+    type: Literal[
+        "citation", "claim_support", "quote", "privacy", "court_rule", "table_of_authorities"
+    ]
     eligible: int = Field(ge=0)
     evaluated: int = Field(ge=0)
     value: int | None = Field(default=None, ge=0, le=100)
@@ -178,7 +202,7 @@ class ReviewScore(Contract):
     provisional: Literal[True] = True
     version: Literal["integrity-v1"] = "integrity-v1"
     deductions: list[ScoreDeduction]
-    categories: list[ScoreCategory] = Field(default_factory=list, max_length=5)
+    categories: list[ScoreCategory] = Field(default_factory=list, max_length=6)
     limitation: str
 
 
@@ -289,7 +313,7 @@ class GraphResponse(Contract):
 
 class ReportResponse(Contract):
     analysis_id: UUID
-    format: Literal["markdown", "html"]
+    format: Literal["markdown", "html", "pdf", "graph-svg", "graph-png"]
     content: Annotated[str, Field(min_length=1)]
     mode: AnalysisMode
 
@@ -353,6 +377,12 @@ CONTRACT_MODELS = [
     CourtProfilesResponse,
     DeleteResponse,
     RedTeamResponse,
+    ClaimCorrectionRequest,
+    ClaimCorrectionResponse,
+    IdentityClaimRequest,
+    IdentityLoginRequest,
+    IdentityClaimed,
+    IdentitySessionIssued,
     GroundedQuestionRequest,
     GroundedAnswerResponse,
     GroundedQuestionHistory,

@@ -61,6 +61,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/identities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Claim Identity */
+        post: operations["claim_identity_api_v1_identities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/identities/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login Identity */
+        post: operations["login_identity_api_v1_identities_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/identities/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Identity Me */
+        get: operations["identity_me_api_v1_identities_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -243,6 +294,23 @@ export interface paths {
         get: operations["review_citations_api_v1_analyses__analysis_id__citations_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/claims/{claim_id}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Correct Claim */
+        post: operations["correct_claim_api_v1_analyses__analysis_id__claims__claim_id__corrections_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -548,6 +616,58 @@ export interface components {
              * @default null
              */
             cache_version: string | null;
+        };
+        /** ClaimCorrectionEntry */
+        ClaimCorrectionEntry: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Corrected Text */
+            corrected_text: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ClaimCorrectionRequest */
+        ClaimCorrectionRequest: {
+            /** Corrected Text */
+            corrected_text: string;
+        };
+        /** ClaimCorrectionResponse */
+        ClaimCorrectionResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Claim Id
+             * Format: uuid
+             */
+            claim_id: string;
+            /** Original Text */
+            original_text: string;
+            /** Corrected Text */
+            corrected_text: string;
+            /** History */
+            history: components["schemas"]["ClaimCorrectionEntry"][];
+            /**
+             * Propositions Stale
+             * @default true
+             * @constant
+             */
+            propositions_stale: true;
+            /** Affected Link Ids */
+            affected_link_ids: string[];
+            /**
+             * Limitation
+             * @default User corrections are stored separately from the original extraction and do not rewrite document offsets. Proposition support for the corrected claim is marked stale. POST /analyses/{analysis_id}/rerun clones a new analysis and re-extracts claims without this correction; in-place proposition-only re-run is not available. Existing proposition findings from the original extraction are not deleted.
+             */
+            limitation: string;
         };
         /** CourtProfileSummary */
         CourtProfileSummary: {
@@ -901,6 +1021,42 @@ export interface components {
              */
             status: "ok";
         };
+        /** IdentityClaimRequest */
+        IdentityClaimRequest: {
+            /** Username */
+            username: string;
+            /** Secret */
+            secret: string;
+        };
+        /** IdentityClaimed */
+        IdentityClaimed: {
+            /** Username */
+            username: string;
+            /**
+             * Bound
+             * @default true
+             */
+            bound: boolean;
+        };
+        /** IdentityLoginRequest */
+        IdentityLoginRequest: {
+            /** Username */
+            username: string;
+            /** Secret */
+            secret: string;
+        };
+        /** IdentitySessionIssued */
+        IdentitySessionIssued: {
+            /** Token */
+            token: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Username */
+            username: string;
+        };
         /** PageSpan */
         PageSpan: {
             /** Page Number */
@@ -1238,6 +1394,18 @@ export interface components {
             extraction_method: "heuristic" | "ai";
             /** Links */
             links: components["schemas"]["SafeClaimLink"][];
+            /**
+             * Corrected Text
+             * @default null
+             */
+            corrected_text: string | null;
+            /** Correction History */
+            correction_history?: components["schemas"]["ClaimCorrectionEntry"][];
+            /**
+             * Propositions Stale
+             * @default false
+             */
+            propositions_stale: boolean;
         };
         /** SafeClaimLink */
         SafeClaimLink: {
@@ -1279,7 +1447,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "privacy" | "court_rule" | "citation" | "claim_support" | "quote" | "system";
+            type: "privacy" | "court_rule" | "citation" | "claim_support" | "quote" | "table_of_authorities" | "system";
             /**
              * Severity
              * @enum {string}
@@ -1481,7 +1649,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "citation" | "claim_support" | "quote" | "privacy" | "court_rule";
+            type: "citation" | "claim_support" | "quote" | "privacy" | "court_rule" | "table_of_authorities";
             /** Eligible */
             eligible: number;
             /** Evaluated */
@@ -1522,7 +1690,7 @@ export interface components {
          * StageName
          * @enum {string}
          */
-        StageName: "document" | "citations" | "claims" | "propositions" | "quotes" | "privacy" | "court_rules";
+        StageName: "document" | "citations" | "claims" | "propositions" | "quotes" | "privacy" | "court_rules" | "table_of_authorities" | "statutes";
         /** StageState */
         StageState: {
             name: components["schemas"]["StageName"];
@@ -1789,7 +1957,7 @@ export interface components {
          * FindingType
          * @enum {string}
          */
-        FindingType: "citation" | "claim_support" | "quote" | "privacy" | "court_rule" | "system";
+        FindingType: "citation" | "claim_support" | "quote" | "privacy" | "court_rule" | "table_of_authorities" | "system";
         /** FindingsResponse */
         FindingsResponse: {
             /**
@@ -1925,7 +2093,7 @@ export interface components {
              * Format
              * @enum {string}
              */
-            format: "markdown" | "html";
+            format: "markdown" | "html" | "pdf" | "graph-svg" | "graph-png";
             /** Content */
             content: string;
             mode: components["schemas"]["AnalysisMode"];
@@ -2027,6 +2195,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    claim_identity_api_v1_identities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdentityClaimRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdentityClaimed"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    login_identity_api_v1_identities_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdentityLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdentitySessionIssued"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    identity_me_api_v1_identities_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdentityClaimed"];
                 };
             };
         };
@@ -2370,6 +2624,42 @@ export interface operations {
             };
         };
     };
+    correct_claim_api_v1_analyses__analysis_id__claims__claim_id__corrections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                claim_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClaimCorrectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClaimCorrectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     review_results_api_v1_analyses__analysis_id__results_get: {
         parameters: {
             query?: never;
@@ -2535,7 +2825,7 @@ export interface operations {
     review_report_api_v1_analyses__analysis_id__report_get: {
         parameters: {
             query?: {
-                format?: "markdown" | "html" | "pdf";
+                format?: "markdown" | "html" | "pdf" | "graph-svg" | "graph-png";
             };
             header?: never;
             path: {

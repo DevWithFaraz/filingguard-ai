@@ -668,6 +668,10 @@
   border-color: #a789c7;
   color: #3b1070;
 }
+.graph-toolbar-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
 .result-graph-selection-detail {
   margin-top: 14px;
   padding: 14px 16px;

@@ -12,9 +12,12 @@ Source URLs are limited to credential-free HTTP(S); text renders through React.
 
 React Flow consumes persisted graph nodes/relationships. It bounds the visual view
 to the first 200 nodes and explicitly announces clipping; a keyboard accessible
-list exposes every stored node and outgoing relationship. Only backend-provided
-`finding_ids` connect graph selection to findings. There are no invented graph
-relations, legal classifications or frontend score calculations.
+list exposes every stored node and outgoing relationship. The graph toolbar
+Download graph action requests the saved backend SVG (`/report?format=graph-svg`);
+exported Markdown/HTML/PDF reports include the same image and an accessible
+node/relationship list. Only backend-provided `finding_ids` connect graph
+selection to findings. There are no invented graph relations, legal
+classifications or frontend score calculations.
 
 Saved quotation results retain closest passages and string similarity as a signal
 separate from legal support or equivalent meaning. Authenticated Markdown/HTML

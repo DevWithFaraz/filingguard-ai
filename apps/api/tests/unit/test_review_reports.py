@@ -131,7 +131,9 @@ def report_input():
 
 def test_html_escapes_all_untrusted_finding_markup():
     report = render_report(report_input(), format="html")
-    assert "<script>" not in report and "<img " not in report
+    assert "<script>" not in report
+    assert "<img src=x" not in report
+    assert "<figure><img alt=" in report
     assert "&lt;script&gt;" in report and "&lt;img " in report
     assert "&lt;b&gt;source&lt;/b&gt;" in report
 
@@ -447,6 +449,147 @@ def test_saved_graph_multiple_claims_per_authority_and_unsupported_warning_nodes
     # Finding IDs linked correctly
     assert finding_unsupported in claim_nodes[f"claim:{claim2_id}"]["finding_ids"]
     assert finding_unsupported in auth_node["finding_ids"]
+
+
+def sample_saved_graph():
+    return {
+        "analysis_id": str(uuid4()),
+        "nodes": [
+            {
+                "id": "section:1",
+                "kind": "section",
+                "label": "Paragraph 1",
+                "status": "extracted",
+            },
+            {
+                "id": "claim:1",
+                "kind": "claim",
+                "label": "Segregation in public schools violates equal protection.",
+                "status": "supported",
+            },
+            {
+                "id": "claim:2",
+                "kind": "claim",
+                "label": "The doctrine of separate but equal was upheld in this filing.",
+                "status": "unsupported",
+            },
+            {
+                "id": "authority:1",
+                "kind": "authority",
+                "label": "Brown v. Board of Education",
+                "status": "verified",
+            },
+        ],
+        "edges": [
+            {
+                "id": "e1",
+                "source": "section:1",
+                "target": "claim:1",
+                "label": "citation context",
+            },
+            {
+                "id": "e2",
+                "source": "section:1",
+                "target": "claim:2",
+                "label": "citation context",
+            },
+            {"id": "e3", "source": "claim:1", "target": "authority:1", "label": "supported"},
+            {
+                "id": "e4",
+                "source": "claim:2",
+                "target": "authority:1",
+                "label": "contradicted",
+            },
+        ],
+    }
+
+
+def test_graph_export_uses_saved_statuses_and_accessible_equivalent():
+    from filingguard.modules.reports.graph_export import (
+        GRAPH_DISCLAIMER,
+        accessible_graph_markdown,
+        layout_graph_pages,
+        render_graph_png,
+        render_graph_svg_document,
+    )
+
+    graph = sample_saved_graph()
+    svg = render_graph_svg_document(graph)
+    markdown = accessible_graph_markdown(graph)
+    png = render_graph_png(graph)
+    assert svg.startswith("<svg")
+    assert GRAPH_DISCLAIMER in svg
+    assert "status: supported" in svg
+    assert "status: unsupported" in svg
+    assert "status: verified" in svg
+    assert "supported</text>" in svg or ">supported</text>" in svg
+    assert "contradicted" in svg
+    assert "Brown v. Board of Education" in svg
+    assert "not a legal conclusion" in markdown
+    assert "status: supported" in markdown
+    assert "status: unsupported" in markdown
+    assert "status: verified" in markdown
+    assert "— contradicted →" in markdown
+    assert png.startswith(b"\x89PNG")
+    pages = layout_graph_pages(graph)
+    assert pages[0].width >= 900
+    assert all(box.height >= 76 for page in pages for box in page.boxes)
+
+
+def test_reports_embed_graph_image_and_escape_graph_labels():
+    results = report_input()
+    graph = sample_saved_graph()
+    graph["nodes"][1]["label"] = "<script>alert('graph')</script> Equal protection claim"
+    results["graph"] = graph
+    markdown = render_report(results, format="markdown")
+    html = render_report(results, format="html")
+    svg = render_report(results, format="graph-svg")
+    assert "Claim-Authority Graph" in markdown
+    assert "not a legal conclusion" in markdown
+    assert "status: unsupported" in markdown
+    assert "<img alt=" in markdown
+    assert "data:image/svg+xml" in markdown
+    assert "<script>alert('graph')" not in html
+    assert "&lt;script&gt;" in html
+    assert 'alt="' in html and "<figcaption>" in html
+    assert "&lt;script&gt;" in svg
+    assert "<script>alert('graph')" not in svg
+
+    pdf_bytes = render_report(results, format="pdf")
+    extracted = "\n".join(page.extract_text() for page in PdfReader(io.BytesIO(pdf_bytes)).pages)
+    assert "Claim-Authority Graph" in extracted
+    assert "not a legal conclusion" in extracted
+    assert "unsupported" in extracted
+    assert "verified" in extracted
+
+
+def test_long_graph_splits_across_pages_instead_of_clipping():
+    from filingguard.modules.reports.graph_export import layout_graph_pages, wrap_label
+
+    long_label = "The filing repeats a long proposition about due process " * 6
+    nodes = [
+        {
+            "id": f"claim:{index}",
+            "kind": "claim",
+            "label": f"{index} {long_label}",
+            "status": "heuristic",
+        }
+        for index in range(18)
+    ]
+    graph = {"nodes": nodes, "edges": []}
+    pages = layout_graph_pages(graph)
+    assert len(pages) >= 2
+    wrapped = wrap_label(long_label)
+    assert len(wrapped) > 3
+    assert all(len(line) <= 32 for line in wrapped)
+    results = report_input()
+    results["graph"] = graph
+    pdf_bytes = render_report(results, format="pdf")
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    assert len(reader.pages) >= 2
+    svg = render_report(results, format="graph-svg")
+    assert "Page 1 of" in svg
+    assert "Page 2 of" in svg
 
 
 

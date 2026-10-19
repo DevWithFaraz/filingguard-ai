@@ -15,6 +15,8 @@ Repeats keep distinct occurrence IDs/locations. A unique full-case reporter can
 have a normalized lookup string; ambiguity retains candidate reporter names and
 no normalized identity. Short/Id./supra/reference mentions remain unresolved.
 Law/journal/unknown formats remain unsupported rather than authority verdicts.
+Statute and regulation strings (`kind=law`) are verified by the separate
+[[apps/api/src/filingguard/modules/statutes/README|statutes]] stage, not CourtListener.
 
 A narrow numeric-reporter heuristic retains additional candidates, including
 split-line/page formats Eyecite misses. It can produce false positives and miss
@@ -59,8 +61,8 @@ Normal registration selects `verified_citation_stage` only when source verificat
 is explicitly enabled; otherwise extraction remains local. The parent passes the
 CourtListener credential only through that worker's private stdin. Partial source
 outcomes now retain accurate coverage and retrieval receipts through parent
-validation and atomic persistence. Unsupported/short/ambiguous local formats are
-not sent as authority queries. Original occurrences and limits stay inspectable.
+validation and atomic persistence. Unsupported/short/ambiguous local formats, including law and journal citations, are
+not sent as CourtListener authority queries. Original occurrences and limits stay inspectable.
 Distinct authority queries are capped at 25 independently of normalized aliases;
 source snapshots and finding-detail snapshots each have a 6 MiB JSON budget.
 Missing budgeted source text becomes unavailable, never a clipped complete opinion.

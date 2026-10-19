@@ -14,7 +14,19 @@ from filingguard.db.models import (
     Quote,
 )
 from filingguard.modules.analyses.schemas import Coverage, StageName, StageState
+from filingguard.modules.claim_corrections.text import (
+    history_entries,
+    latest_corrected_text,
+    uses_user_correction,
+)
 from filingguard.modules.privacy.service import mask_excerpt
+from filingguard.modules.reports.graph_export import (
+    accessible_graph_markdown,
+    graph_html_figures,
+    markdown_graph_section,
+    render_graph_png,
+    render_graph_svg_document,
+)
 from filingguard.modules.reports.pdf_generator import generate_pdf_report
 from filingguard.modules.scoring.service import score_review
 
@@ -181,6 +193,17 @@ def saved_results(repository, owner, identity):
             "location": location(c),
             "extraction_method": c.extraction_method,
             "links": links.get(c.id, []),
+            "corrected_text": safe_text(latest_corrected_text(c), filing),
+            "correction_history": [
+                {
+                    "id": entry["id"],
+                    "corrected_text": safe_text(entry.get("corrected_text"), filing),
+                    "created_at": entry["created_at"],
+                }
+                for entry in history_entries(c)
+                if entry.get("id") and entry.get("corrected_text") and entry.get("created_at")
+            ],
+            "propositions_stale": uses_user_correction(c),
         }
         for c in rows[Claim]
     ]
@@ -214,8 +237,9 @@ def saved_results(repository, owner, identity):
     }
 
 
-def saved_graph(repository, owner, identity):
-    results = saved_results(repository, owner, identity)
+def saved_graph(repository, owner, identity, results=None):
+    if results is None:
+        results = saved_results(repository, owner, identity)
     segments = {str(s.id): s for s in repository.list_records(owner, identity, DocumentSegment)}
     nodes, edges = {}, []
     citations = {c["id"]: c for c in results["citations"]}
@@ -364,6 +388,10 @@ def _safe_evidence(row, filing):
 def render_report(results, *, format="markdown"):
     if format == "pdf":
         return generate_pdf_report(results)
+    if format == "graph-svg":
+        return render_graph_svg_document(results.get("graph"))
+    if format == "graph-png":
+        return render_graph_png(results.get("graph"))
     score = results["score"]
     score_label = score["value"] if score["value"] is not None else "unavailable"
     coverage = results["coverage"]
@@ -474,6 +502,8 @@ def render_report(results, *, format="markdown"):
     lines.extend(["", "## Claim contexts"])
     for claim in results["claims"]:
         lines.append(claim["text"])
+        if claim.get("corrected_text"):
+            lines.append(f"User-corrected extraction: {claim['corrected_text']}")
         for link in claim["links"]:
             lines.append(
                 f"- {link['support_status']}: {link['explanation'] or 'Support check not run'}"
@@ -493,8 +523,13 @@ def render_report(results, *, format="markdown"):
         lines.append(f"- {deduction['type']}/{deduction['severity']}: {deduction['points']} points")
     content = "\n".join(lines)
     if format == "html":
+        graph_block = graph_html_figures(results.get("graph"))
         return (
             "<!doctype html><html lang='en'><meta charset='utf-8'><title>FilingGuard review</title>"
-            "<body><pre>" + escape(content) + "</pre></body></html>"
+            "<body>"
+            + graph_block
+            + "<pre>"
+            + escape(content + "\n\n" + accessible_graph_markdown(results.get("graph")))
+            + "</pre></body></html>"
         )
-    return content
+    return content + "\n\n" + markdown_graph_section(results)

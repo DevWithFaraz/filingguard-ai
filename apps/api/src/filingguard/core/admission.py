@@ -52,9 +52,7 @@ def authenticate(request: Request):
     token = request.headers.get("authorization", "")
     if not re.fullmatch(r"Bearer [A-Za-z0-9_-]{43}", token):
         raise AnalysisNotFound("Authorization required")
-    owner = sha256(token[7:].encode()).hexdigest()
-    expiry = lifecycle(request).repository.session_expiry(owner)
-    return owner, expiry
+    return lifecycle(request).repository.resolve_session(sha256(token[7:].encode()).hexdigest())
 
 
 class IntakeGuard:
@@ -65,8 +63,11 @@ class IntakeGuard:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         path, method = scope["path"], scope["method"]
-        private = path == "/api/v1/analyses" or path.startswith("/api/v1/analyses/")
-        session = path == "/api/v1/sessions" and method == "POST"
+        analyses = path == "/api/v1/analyses" or path.startswith("/api/v1/analyses/")
+        identity_login = path == "/api/v1/identities/login"
+        identity_protected = path.startswith("/api/v1/identities") and not identity_login
+        session = (path == "/api/v1/sessions" or identity_login) and method == "POST"
+        private = analyses or identity_protected
         if not (private or session) or method == "OPTIONS":
             return await self.app(scope, receive, send)
         from filingguard.api.errors import _response
@@ -116,7 +117,7 @@ class IntakeGuard:
         except Exception:
             return await reject(503, "service_unavailable", "Service is temporarily unavailable")
         acquired = False
-        if private and method == "POST" and not path.endswith("/run"):
+        if analyses and method == "POST" and not path.endswith("/run"):
             acquired = admission.slot.acquire(blocking=False)
             if not acquired:
                 return await reject(409, "busy", "Another document is being prepared; try again")

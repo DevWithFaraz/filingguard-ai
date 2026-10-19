@@ -11,7 +11,13 @@ MAX_QUOTE_CHARS = 2000
 MAX_SOURCE_CHARS = 500000
 LIMITATION = (
     "Heuristic quotation extraction and nearby citation association; string similarity "
-    "does not establish legal support or equivalent meaning."
+    "does not establish legal support or equivalent meaning. String similarity is not "
+    "meaning-preservation."
+)
+SEMANTIC_METHOD = "negation-aware-token-overlap-v1"
+SEMANTIC_LIMITATION = (
+    "The local token-overlap semantic signal is uncalibrated and is not exact quotation, "
+    "meaning-preservation, or legal-meaning proof."
 )
 
 
@@ -41,6 +47,26 @@ class MeaningAlteration:
 
 
 @dataclass(frozen=True)
+class SemanticSimilarity:
+    score: float
+    method: str
+    limitation: str
+    negation: bool = False
+    omission: bool = False
+    material_change: bool = False
+
+    def as_metadata(self) -> dict:
+        return {
+            "score": self.score,
+            "method": self.method,
+            "limitation": self.limitation,
+            "negation": self.negation,
+            "omission": self.omission,
+            "material_change": self.material_change,
+        }
+
+
+@dataclass(frozen=True)
 class QuoteComparison:
     status: QuoteStatus
     similarity: float | None = None
@@ -49,3 +75,4 @@ class QuoteComparison:
     source_end: int | None = None
     reason: str | None = None
     meaning_alteration: MeaningAlteration | None = None
+    semantic_similarity: SemanticSimilarity | None = None

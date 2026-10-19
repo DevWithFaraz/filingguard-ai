@@ -9,10 +9,13 @@ from filingguard.modules.analyses.schemas import QuoteStatus
 from filingguard.modules.quotes.schemas import (
     MAX_QUOTE_CHARS,
     MAX_SOURCE_CHARS,
+    SEMANTIC_LIMITATION,
+    SEMANTIC_METHOD,
     MeaningAlteration,
     QuoteAssociation,
     QuoteComparison,
     QuoteOccurrence,
+    SemanticSimilarity,
 )
 
 _BLOCK = re.compile(r"(?m)^(?: {4,}|\t|> )\S[^\n\f]*(?:\n(?: {4,}|\t|> )\S[^\n\f]*)*")
@@ -147,16 +150,61 @@ _ANTONYM_PAIRS = (
     ("liable", "immune"),
     ("enforceable", "unenforceable"),
 )
+_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "of",
+        "to",
+        "in",
+        "on",
+        "for",
+        "by",
+        "as",
+        "at",
+        "from",
+        "with",
+        "that",
+        "this",
+        "these",
+        "those",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "it",
+        "its",
+        "their",
+        "there",
+    }
+)
+_TOKEN_RE = re.compile(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b")
+
+
+def _word_tokens(text: str) -> set[str]:
+    return set(_TOKEN_RE.findall(text.lower()))
+
+
+def _negation_tokens(tokens: set[str]) -> set[str]:
+    found = set(tokens & _NEGATION_WORDS)
+    found.update(token for token in tokens if token.endswith("n't"))
+    return found
 
 
 def check_meaning_alteration(quote: str, source_passage: str) -> MeaningAlteration | None:
     """Detect changes in negation, modal obligations, omitted qualifiers, or antonyms."""
-    q_tokens = set(re.findall(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b", quote.lower()))
-    s_tokens = set(re.findall(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b", source_passage.lower()))
+    q_tokens = _word_tokens(quote)
+    s_tokens = _word_tokens(source_passage)
 
     # 1. Negation alteration
-    q_neg = q_tokens & _NEGATION_WORDS
-    s_neg = s_tokens & _NEGATION_WORDS
+    q_neg = _negation_tokens(q_tokens)
+    s_neg = _negation_tokens(s_tokens)
     if q_neg != s_neg:
         if q_neg - s_neg:
             words = ", ".join(sorted(q_neg - s_neg))
@@ -245,6 +293,54 @@ def check_meaning_alteration(quote: str, source_passage: str) -> MeaningAlterati
     return None
 
 
+def evaluate_semantic_similarity(quote: str, source_passage: str) -> SemanticSimilarity:
+    """Local token-overlap review signal; never treated as exact quotation or legal meaning."""
+    q_tokens = _word_tokens(quote)
+    s_tokens = _word_tokens(source_passage)
+    union = q_tokens | s_tokens
+    score = round(len(q_tokens & s_tokens) / len(union), 4) if union else 0.0
+    q_neg = _negation_tokens(q_tokens)
+    s_neg = _negation_tokens(s_tokens)
+    negation = q_neg != s_neg
+
+    def content(tokens: set[str]) -> set[str]:
+        return {
+            token
+            for token in tokens
+            if token not in _STOPWORDS
+            and token not in _NEGATION_WORDS
+            and not token.endswith("n't")
+        }
+
+    q_content, s_content = content(q_tokens), content(s_tokens)
+    omitted, inserted = s_content - q_content, q_content - s_content
+    quote_len = max(len(q_tokens), 1)
+    source_len = max(len(s_tokens), 1)
+    length_ratio = min(quote_len, source_len) / max(quote_len, source_len)
+    omitted_frac = len(omitted) / len(s_content) if s_content else 0.0
+    omission = bool(omitted) and length_ratio >= 0.4 and (
+        omitted_frac >= 0.15 or length_ratio >= 0.7
+    )
+    antonym = any(
+        (term_a in q_tokens and term_b in s_tokens) or (term_b in q_tokens and term_a in s_tokens)
+        for term_a, term_b in _ANTONYM_PAIRS
+    )
+    q_mand, q_perm = q_tokens & _MANDATORY_WORDS, q_tokens & _PERMISSIVE_WORDS
+    s_mand, s_perm = s_tokens & _MANDATORY_WORDS, s_tokens & _PERMISSIVE_WORDS
+    modal = (q_mand and s_perm and not (q_mand & s_mand)) or (
+        q_perm and s_mand and not (q_perm & s_perm)
+    )
+    material_change = bool(negation or antonym or modal or (omitted and inserted))
+    return SemanticSimilarity(
+        score=score,
+        method=SEMANTIC_METHOD,
+        limitation=SEMANTIC_LIMITATION,
+        negation=negation,
+        omission=omission,
+        material_change=material_change,
+    )
+
+
 def compare_quote(quote: str, source: str) -> QuoteComparison:
     """Similarity is a string signal only; every passage slices the original source."""
     if not source:
@@ -291,10 +387,14 @@ def compare_quote(quote: str, source: str) -> QuoteComparison:
     ):
         ctx_right += 1
     meaning_alt = check_meaning_alteration(quote, source[ctx_left:ctx_right])
+    semantic = evaluate_semantic_similarity(quote, passage_text)
     reason = (
         meaning_alt.description
         if meaning_alt
-        else "String similarity does not establish equivalent meaning or legal support."
+        else (
+            "String similarity does not establish equivalent meaning or legal support. "
+            "String similarity is not meaning-preservation."
+        )
     )
     return QuoteComparison(
         QuoteStatus.CLOSE if similarity >= 0.85 else QuoteStatus.NOT_FOUND,
@@ -304,4 +404,5 @@ def compare_quote(quote: str, source: str) -> QuoteComparison:
         right,
         reason,
         meaning_alt,
+        semantic,
     )

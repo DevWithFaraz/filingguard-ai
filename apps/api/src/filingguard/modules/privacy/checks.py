@@ -29,11 +29,17 @@ _EXCLUDED_NAME_TERMS = frozenset(
 )
 
 
-def detect_sensitive(text: str) -> tuple[PrivacySignal, ...]:
+_DEFAULT_FINDING_KINDS = frozenset({"ssn", "financial_account", "birth_date", "minor_name"})
+
+
+def detect_sensitive(
+    text: str, extra_identifier_kinds: tuple[str, ...] = ()
+) -> tuple[PrivacySignal, ...]:
+    allowed = _DEFAULT_FINDING_KINDS | frozenset(extra_identifier_kinds)
     masked = mask_excerpt(text, 0, len(text))
     signals = []
     for item in masked.detections:
-        if item.kind not in {"ssn", "financial_account", "birth_date", "minor_name"}:
+        if item.kind not in allowed:
             continue
         if item.kind == "birth_date":
             raw = text[item.start : item.end]

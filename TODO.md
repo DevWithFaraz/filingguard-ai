@@ -1,6 +1,6 @@
 # FilingGuard AI - Ordered Task Checklist
 
-Updated: October 14, 2026. Source: [SRS](FilingGuard_AI_SRS.md).
+Updated: October 19, 2026. Source: [SRS](FilingGuard_AI_SRS.md).
 Product development continues after the missed LexHack deadline. No active time
 constraint or feature freeze. Historical submission records remain in docs/delivery.
 
@@ -866,23 +866,78 @@ requires relevant unit/UI tests and regression of the P0 demo.
 These are future capabilities; T212-T213 are release gates for real client use,
 regardless of their original backlog priority. Core development uses public/synthetic data.
 
-- [ ] T201 - Table of Authorities audit (FR-280 through FR-284): detect TOA,
+- [x] T201 - Table of Authorities audit (FR-280 through FR-284): detect TOA,
   normalize/deduplicate authorities, compare body versus table both ways, show
   missing/extra entries and page references; handle documents with no TOA.
-- [ ] T202 - Statute/regulation verification (FR-047): add source adapters,
+  October 19: added a local `table_of_authorities` review stage that detects a
+  heading, compares comparable reporter identities both ways, records listed page
+  leaders, and skips when no table is present. Missing body authorities are
+  medium findings; extra table entries and non-overlapping pages are low.
+  Verified: 794 API tests (2 skipped), 65 web tests, Ruff, ESLint, TypeScript,
+  OpenAPI export. Hosted Neon remains at `0004_citation_extraction` until an
+  explicit `0005_table_of_authorities` upgrade. Heuristic detection is not a
+  court-rule determination.
+  [[docs/sessions/2026-10-19 - Table of Authorities audit]].
+- [x] T202 - Statute/regulation verification (FR-047): add source adapters,
   jurisdiction/version/effective-date handling, evidence and coverage tests.
-- [ ] T203 - Filing-versus-case fact comparison (FR-088) with grounded passages,
+  October 19: `statutes` review stage with catalog/HTTP adapters. Unconfigured
+  source is unavailable only when law citations exist (not skipped-as-pass).
+  No law citations is skipped. Findings reuse `citation` (`stage=statutes`).
+  Scoring folds statutes coverage into the citation category. No Neon CHECK
+  change. Verified: parent ruff; pytest statutes + citations + contracts +
+  orchestrator 73 passed. `STATUTE_SOURCE_URL` unset; no live GovInfo/LII.
+  [[docs/sessions/2026-10-19 - Statute and regulation verification]].
+- [x] T203 - Filing-versus-case fact comparison (FR-088) with grounded passages,
   uncertainty and human review rather than unsupported legal analogies.
-- [ ] T204 - Semantic quote similarity (FR-128) as a separate review signal with
+  October 19: heuristic date/party/numeric comparison inside proposition review.
+  Matching facts add no finding; contradictions flag "Filing fact may not match
+  source fact"; missing source facts are insufficient, never a pass. Semantic
+  review off keeps the check unavailable. Verified: pytest
+  `test_fact_comparison.py` + `test_propositions.py` 32 passed; parent re-run of
+  quotes/facts/propositions 75 passed; Ruff clean.
+  [[docs/sessions/2026-10-19 - Filing versus case fact comparison]].
+- [x] T204 - Semantic quote similarity (FR-128) as a separate review signal with
   evaluations for negation, omission and material meaning changes.
-- [ ] T205 - Advanced formatting/local-rule checks (FR-147) and jurisdictional
+  October 19: local negation-aware token overlap after exact/normalized/fuzzy
+  matching. Status enum unchanged; close match with inserted negation stays
+  critical; source unavailable has no semantic object; no provider calls.
+  Verified: `test_quotes.py` 43 passed; parent combined 75 passed; Ruff clean.
+  [[docs/sessions/2026-10-19 - Semantic quote similarity]].
+- [x] T205 - Advanced formatting/local-rule checks (FR-147) and jurisdictional
   privacy policies (FR-167), versioned and source-verified.
-- [ ] T206 - Manual claim corrections (FR-065) with history, affected-check reruns
+  October 19: optional profile `page_limit` / `required_headings` / `privacy_policy`.
+  Demo: 20 extracted pages, `STATEMENT OF ISSUES`, email extras. N.D. Tex. stays
+  LR 7.2(f) plus a conservative FRCP 5.2 reminder; LR 7.2(c) off (filing type
+  unknown). Unknown/stale policy and unpaginated page limits are unavailable, not
+  a pass. Parent: unpaginated page-limit coverage is stage `partial`. Verified:
+  ruff; pytest court_rules + privacy + source registry + curated-demo 36 passed.
+  No Neon migration. [[docs/sessions/2026-10-19 - Advanced formatting and jurisdictional privacy]].
+- [x] T206 - Manual claim corrections (FR-065) with history, affected-check reruns
   and clear separation of user edits from original extraction.
-- [ ] T207 - Graph image export (FR-107/306) including a readable report image and
+  October 19: `POST /analyses/{id}/claims/{claim_id}/corrections` stores history on
+  `Claim.correction_history` (Alembic `0006_claim_corrections`) without rewriting
+  original text. Affected links are marked stale; there is no in-place
+  proposition-only rerun. Full `/rerun` clones a new analysis and re-extracts
+  without the correction. Owner isolation and expiry 404s pass. OpenAPI exported.
+  Verified: ruff; 45 focused API tests (corrections, contracts, readiness).
+  Hosted Neon remains at `0004`; do not apply 0005/0006 without approval.
+  [[docs/sessions/2026-10-19 - Manual claim corrections]].
+- [x] T207 - Graph image export (FR-107/306) including a readable report image and
   accessible equivalent; ensure exported status matches the stored analysis.
+  October 19: SVG/PNG from `saved_graph()`, embedded in Markdown/HTML/PDF with an
+  accessible node list; Results toolbar Download graph uses `graph-svg`.
+  Verified: `test_review_reports.py` 19 passed; Ruff clean; OpenAPI includes
+  graph-svg/graph-png. Hosted visual print-size check not run.
+  [[docs/sessions/2026-10-19 - Graph image export]].
 - [ ] T208 - Authentication, saved matters/history and production authorization;
   define ownership/migration of anonymous analyses and evaluate security tests.
+  October 19 identity-claim slice (not full T208): optional username + PBKDF2
+  secret binds the current anonymous `owner_hash`; login issues a recovery
+  bearer. Anonymous tab sessions unchanged. Cross-owner 404; missing/expired
+  tokens 401. Local Alembic `0007_local_identities`. No web UI, matters, OAuth,
+  or hosted Neon upgrade. Parent verified: ruff; pytest identity + intake +
+  readiness + contracts + persistence 120 passed.
+  [[docs/sessions/2026-10-19 - Optional local identity claim]].
 - [ ] T209 - Reviewer roles, collaboration/comments and review status with
   auditable attribution and matter-level permissions.
 - [ ] T210 - Batch processing with durable workers, quotas, cancellation,
@@ -913,6 +968,13 @@ Advanced versions remain P1. P0 evidence capture remains distinct from P1 lineag
 visualization. Markdown/HTML export is P0; dedicated PDF export is P1.
 
 ## Work log
+
+- 2026-10-19: P2 T201–T204, T206–T207, T202 verified locally (TOA, statutes,
+  facts, semantic quotes, claim corrections, graph export, T205 formatting/
+  privacy). T208 identity-claim slice verified locally; remaining T208 is
+  matters/history and production auth. Hosted Neon still at
+  `0004_citation_extraction` (local Alembic through `0007`). T212/T213 remain
+  confidential-use gates.
 
 - 2026-10-17: T062 verified. Created release tag `v0.1.0-mvp` anchored to deployment
   commit `5b37993` / application revision `325451a`. Verified live hosted services
@@ -1206,5 +1268,20 @@ Completed T106 (FR-146):
 6. Verified with 788 API tests, 64 web tests, Ruff, ESLint, and TypeScript. All checks passed.
 See [[docs/sessions/2026-10-18 - Additional verified real court profiles]].
 
+## October 19 Phase C - Table of Authorities Audit (T201)
 
+Completed T201 (FR-280 through FR-284).
+1. Detection: standalone `TABLE OF AUTHORITIES` / `TABLE OF CASES` / `INDEX OF AUTHORITIES`
+   headings; section ends at a later known heading. Uncertain bounds stay unavailable.
+   No table is skipped with zero eligible checks.
+2. Comparison: Eyecite full-case, law, journal, and reporter-candidate identities are
+   normalized and compared body→table and table→body. Short forms are excluded.
+3. Findings: missing body authorities (medium), extra table entries (low), listed-page
+   mismatches (low), with body/listed page references in the description.
+4. Contracts/UI: new stage and finding type, sixth score category, results filter and
+   lineage copy, red-team/Q&A handling, migration `0005_table_of_authorities`.
+5. Verified: 794 API tests (2 skipped), 65 web tests, Ruff, ESLint, TypeScript, OpenAPI
+   export/generation. Hosted Neon is not migrated.
+Next: remaining T208 (matters/history and production authorization).
+[[docs/sessions/2026-10-19 - Table of Authorities audit]].
 

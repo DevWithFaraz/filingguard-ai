@@ -41,6 +41,8 @@ class StageName(StrEnum):
     QUOTES = "quotes"
     PRIVACY = "privacy"
     COURT_RULES = "court_rules"
+    TABLE_OF_AUTHORITIES = "table_of_authorities"
+    STATUTES = "statutes"
 
 
 class CitationStatus(StrEnum):
@@ -85,6 +87,7 @@ class FindingType(StrEnum):
     QUOTE = "quote"
     PRIVACY = "privacy"
     COURT_RULE = "court_rule"
+    TABLE_OF_AUTHORITIES = "table_of_authorities"
     SYSTEM = "system"
 
 

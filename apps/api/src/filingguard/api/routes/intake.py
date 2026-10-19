@@ -12,6 +12,8 @@ from starlette.responses import Response
 
 from filingguard.api.contracts import (
     AnalysisAccepted,
+    ClaimCorrectionRequest,
+    ClaimCorrectionResponse,
     CourtProfilesResponse,
     CourtProfileSummary,
     DeleteResponse,
@@ -44,6 +46,7 @@ from filingguard.modules.analyses.schemas import (
     StageState,
 )
 from filingguard.modules.citations.schemas import CitationExtractionMetadata
+from filingguard.modules.claim_corrections.service import apply_claim_correction
 from filingguard.modules.documents.extraction import extract_text
 from filingguard.modules.documents.intake import (
     PROFILES,
@@ -434,6 +437,45 @@ def _terminal_results(request, analysis_id):
     return repository
 
 
+@router.post(
+    "/analyses/{analysis_id}/claims/{claim_id}/corrections",
+    response_model=ClaimCorrectionResponse,
+)
+def correct_claim(
+    request: Request,
+    analysis_id: UUID,
+    claim_id: UUID,
+    body: ClaimCorrectionRequest,
+):
+    try:
+        repo = _terminal_results(request, analysis_id)
+        return apply_claim_correction(
+            repo,
+            request.state.owner_hash,
+            analysis_id,
+            claim_id,
+            body.corrected_text,
+        )
+    except AnalysisNotFound:
+        raise HTTPException(404) from None
+    except LookupError:
+        raise HTTPException(404) from None
+    except AnalysisNotReady:
+        raise HTTPException(409) from None
+    except ValueError:
+        raise HTTPException(422) from None
+    except (SQLAlchemyError, KeyError, TypeError) as error:
+        logger.error(
+            "claim_correction.failed analysis_id=%s correlation_id=%s "
+            "claim_id=%s error_type=%s",
+            analysis_id,
+            analysis_id,
+            claim_id,
+            type(error).__name__,
+        )
+        raise HTTPException(503) from None
+
+
 @router.get("/analyses/{analysis_id}/results", response_model=SavedResultsResponse)
 def review_results(request: Request, analysis_id: UUID):
     try:
@@ -542,28 +584,40 @@ def get_finding_qa(
 def review_report(
     request: Request,
     analysis_id: UUID,
-    format: Literal["markdown", "html", "pdf"] = "markdown",
+    format: Literal["markdown", "html", "pdf", "graph-svg", "graph-png"] = "markdown",
 ):
     try:
         repo = _terminal_results(request, analysis_id)
         result = saved_results(repo, request.state.owner_hash, analysis_id)
+        result["graph"] = saved_graph(
+            repo, request.state.owner_hash, analysis_id, results=result
+        )
         if format == "pdf":
             suffix = "pdf"
             media_type = "application/pdf"
         elif format == "html":
             suffix = "html"
             media_type = "text/html"
+        elif format == "graph-svg":
+            suffix = "svg"
+            media_type = "image/svg+xml"
+        elif format == "graph-png":
+            suffix = "png"
+            media_type = "image/png"
         else:
             suffix = "md"
             media_type = "text/markdown"
 
+        csp = "default-src 'none'; sandbox"
+        if format == "html":
+            csp = "default-src 'none'; img-src data:; sandbox"
         return Response(
             render_report(result, format=format),
             media_type=media_type,
             headers={
                 "Content-Disposition": f'attachment; filename="filingguard-{analysis_id}.{suffix}"',
                 "Cache-Control": "no-store",
-                "Content-Security-Policy": "default-src 'none'; sandbox",
+                "Content-Security-Policy": csp,
             },
         )
     except AnalysisNotFound:

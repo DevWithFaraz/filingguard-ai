@@ -217,6 +217,34 @@ def synthesize_weaknesses(
                 )
             )
 
+        elif f_type == "table_of_authorities" and f_sev in ("critical", "high", "medium"):
+            weaknesses.append(
+                RedTeamWeakness(
+                    id=_derive_weakness_id(f_id, "unresolved_authority"),
+                    vulnerability_type="unresolved_authority",
+                    severity="medium",
+                    title=f"Table of Authorities inconsistency: {f_title}"[:255],
+                    challenge_theory=(
+                        "Opposing counsel can argue the filing's Table of Authorities is "
+                        "incomplete or padded, undermining the reliability of the cited "
+                        "authorities and inviting a clerk or court to question the brief's care."
+                    ),
+                    impact_summary=(
+                        "Procedural objection, reduced credibility, or a request to correct the "
+                        "table before the court relies on the cited authorities."
+                    ),
+                    remediation_recommendation=(
+                        "Reconcile body citations with Table of Authorities entries and listed "
+                        "page references. Confirm each comparable reporter identity appears in "
+                        "both places or is intentionally omitted for a documented reason."
+                    ),
+                    linked_finding_ids=linked_findings,
+                    linked_citation_ids=linked_citations,
+                    linked_claim_ids=linked_claims,
+                    linked_quote_ids=linked_quotes,
+                )
+            )
+
         # 6. Under-Supported or Ambiguous Claim (FR-241, FR-243)
         elif f_type == "claim_support" and f_sev in ("medium", "low"):
             weaknesses.append(

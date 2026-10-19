@@ -52,7 +52,7 @@ the 202 response; the worker saves running and terminal stage states independent
 Duplicate starts and active deletion conflict; wrong-owner IDs remain 404. A failed
 stage is recorded without suppressing independent later checks, preserving earlier
 commits. `runners.py` registers privacy/profile checks, local citation/claim
-extraction and quote forensics. Explicit flags select the CourtListener citation
+extraction, statute/regulation verification, Table of Authorities comparison, and quote forensics. Explicit flags select the CourtListener citation
 worker and Groq grounded proposition worker; both external flags default off.
 The normal `/run` accepts live input and hash-revalidated curated demo input, but
 disabled providers/missing sources yield explicit partial coverage. Owner-scoped

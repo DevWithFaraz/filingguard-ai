@@ -1,8 +1,9 @@
 # court_rules
 
-Priority: P0 / Phase B. Tasks: T028-T029, T106 in the root TODO.md.
+Priority: P0 / Phase B. Tasks: T028-T029, T106, T205 in the root TODO.md.
 
-Load validated profiles and evaluate applicable disclosure checks.
+Load validated profiles and evaluate applicable disclosure, optional page-limit
+and extra heading checks.
 
 Selected versioned profile and AI-use setting in; rule findings and applicability limits out.
 
@@ -23,6 +24,19 @@ records. They support traceable maintenance research but cannot be loaded by
 intentional: an order can be judge-specific, have an unconfirmed current status, or
 require more than the evaluator's heading check can establish.
 
+Optional `page_limit` and `required_headings` fields are evaluated only when
+present on the selected in-scope profile. Page limits need extracted page
+boundaries; unknown length is an unavailable limitation, never a pass. Extra
+headings reuse standalone-line matching and first-page/anywhere placement.
+N.D. Tex. LR 7.2(c) length limits are not activated: they depend on filing type
+(principal brief 25 pages, reply 10, other local rules such as LR 56.5) which
+this evaluator does not receive. The live profile therefore keeps formatting
+fields absent rather than claiming a nationwide or even district-wide page check.
+
+Optional `privacy_policy` bindings carry a versioned policy id, source URL and
+checked date. The privacy catalog applies extra identifier kinds only when the
+id/version/source are known and current.
+
 The disclosure evaluator checks the AI-used flag and standalone heading presence.
 Placement rules support `first_page` and `anywhere`:
 - For `first_page` rules with paginated documents, the evaluator inspects the
@@ -32,4 +46,5 @@ Placement rules support `first_page` and `anywhere`:
 - Automated heading detection is not content adequacy, legal sufficiency, or
   compliance certification. Independent human review is always required. Missing
   disclosures produce versioned rule findings and evidence records. See [[TODO]]
-  T028-T029, T106 and [[docs/sessions/2026-10-18 - Additional verified real court profiles]].
+  T028-T029, T106, T205 and
+  [[docs/sessions/2026-10-19 - Advanced formatting and jurisdictional privacy]].

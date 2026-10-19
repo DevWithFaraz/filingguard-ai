@@ -16,8 +16,12 @@ HTTP errors use the ApiError envelope, a server-generated request UUID and no-st
 headers. Validation/internal errors do not echo inputs or provider exceptions.
 JSON booleans are strict. Never accept an owner/session hash from a request body.
 POST /api/v1/sessions requires an allowed browser Origin and returns an opaque
-bearer/expiry with 201/no-store. All /analyses operations require Authorization:
-Bearer token, owner hash lookup and unexpired server state. Foreign IDs return 404.
+bearer/expiry with 201/no-store. Optional `POST /api/v1/identities` binds the
+current anonymous `owner_hash` to a local username and hashed secret;
+`POST /api/v1/identities/login` issues a recovery bearer for that owner. All
+/analyses operations require Authorization: Bearer token, owner hash lookup and
+unexpired server state. Foreign IDs return 404. Missing or expired bearers return
+401. This is not production auth, OAuth or multi-user collaboration.
 
 POST /analyses/text consumes TextSubmission; POST /analyses/file consumes raw PDF
 bytes with `court_profile_id`/`ai_used` query metadata and encoded X-Document-Name

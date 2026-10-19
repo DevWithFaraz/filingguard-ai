@@ -12,6 +12,32 @@ export interface ResultFinding {
   claim_id?: string | null; authority_id?: string | null; citation_id?: string | null;
   quote_id?: string | null; segment_id?: string | null;
 }
+export interface ClaimCorrectionEntry {
+  id: string;
+  corrected_text: string;
+  created_at: string;
+}
+export interface ResultClaim {
+  id: string;
+  text: string;
+  location: ResultLocation;
+  extraction_method: string;
+  links: { id: string; citation_id: string; authority_id: string | null; support_status: string;
+    explanation: string | null; confidence: number | null }[];
+  corrected_text: string | null;
+  correction_history: ClaimCorrectionEntry[];
+  propositions_stale: boolean;
+}
+export interface ClaimCorrectionResponse {
+  analysis_id: string;
+  claim_id: string;
+  original_text: string;
+  corrected_text: string;
+  history: ClaimCorrectionEntry[];
+  propositions_stale: true;
+  affected_link_ids: string[];
+  limitation: string;
+}
 export interface ReviewResults {
   analysis_id: string; document_name: string; created_at: string; court_profile_id: string;
   mode: 'live' | 'demo'; status: string;
@@ -24,9 +50,7 @@ export interface ReviewResults {
     authority_id: string | null; location: ResultLocation; reason?: string | null;
     limitation?: string | null; authority?: { case_name: string | null; source_url: string | null } | null;
     duplicate_count?: number | null; repeated_locations?: ResultLocation[] }[];
-  claims: { id: string; text: string; location: ResultLocation; extraction_method: string;
-    links: { id: string; citation_id: string; authority_id: string | null; support_status: string;
-      explanation: string | null; confidence: number | null }[] }[];
+  claims: ResultClaim[];
   quotes: { id: string; text: string; location: ResultLocation; citation_id: string | null;
     match_status: string; similarity: number | null; closest_passage: string | null }[];
   findings: ResultFinding[]; limitation: string;
@@ -69,30 +93,57 @@ export function validateResults(value: unknown, id: string): ReviewResults {
     || !(value.score.value === null || (integer(value.score.value) && value.score.value <= 100))
     || !(value.score.risk_level === null || ['needs_review', 'high_risk'].includes(String(value.score.risk_level)))
     || !Array.isArray(value.score.deductions) || typeof value.score.limitation !== 'string'
-    || !(value.score.categories === undefined || (Array.isArray(value.score.categories) && value.score.categories.length <= 5
+    || !(value.score.categories === undefined || (Array.isArray(value.score.categories) && value.score.categories.length <= 6
       && new Set(value.score.categories.map(item => record(item) ? item.type : null)).size === value.score.categories.length
-      && value.score.categories.every(item => record(item) && ['citation', 'claim_support', 'quote', 'privacy', 'court_rule'].includes(String(item.type))
+      && value.score.categories.every(item => record(item) && ['citation', 'claim_support', 'quote', 'privacy', 'court_rule', 'table_of_authorities'].includes(String(item.type))
         && integer(item.eligible) && integer(item.evaluated) && item.evaluated <= item.eligible && integer(item.deducted_points)
         && (item.value === null || (integer(item.value) && item.value <= 100))
         && (item.evaluated > 0 || item.value === null))))
     || !value.score.deductions.every(item => record(item) && typeof item.finding_id === 'string' && integer(item.points))
-    || !Array.isArray(value.stages) || value.stages.length > 7 || !value.stages.every(item => record(item)
+    || !Array.isArray(value.stages) || value.stages.length > 9 || !value.stages.every(item => record(item)
       && typeof item.name === 'string' && [...statuses, 'skipped', 'unavailable'].includes(String(item.status))
       && coverage(item.coverage) && typeof item.applicable === 'boolean'
       && (item.reason === null || typeof item.reason === 'string'))
-    || !rows(value.findings, 2000, item => ['citation', 'claim_support', 'quote', 'privacy', 'court_rule', 'system'].includes(String(item.type))
+    || !rows(value.findings, 2000, item => ['citation', 'claim_support', 'quote', 'privacy', 'court_rule', 'table_of_authorities', 'system'].includes(String(item.type))
       && ['info', 'low', 'medium', 'high', 'critical'].includes(String(item.severity))
       && typeof item.title === 'string' && typeof item.description === 'string' && integer(item.evidence_count)
       && (item.masked_excerpt === null || typeof item.masked_excerpt === 'string'))
     || !rows(value.citations, 200, item => typeof item.masked_raw_text === 'string' && typeof item.verification_status === 'string' && location(item.location))
     || !rows(value.claims, 200, item => typeof item.text === 'string' && location(item.location) && Array.isArray(item.links)
-      && item.links.every(link => record(link) && typeof link.support_status === 'string' && (link.explanation === null || typeof link.explanation === 'string')))
+      && item.links.every(link => record(link) && typeof link.support_status === 'string' && (link.explanation === null || typeof link.explanation === 'string'))
+      && (item.corrected_text === undefined || item.corrected_text === null || typeof item.corrected_text === 'string')
+      && (item.propositions_stale === undefined || typeof item.propositions_stale === 'boolean')
+      && (item.correction_history === undefined || (Array.isArray(item.correction_history)
+        && item.correction_history.length <= 20
+        && item.correction_history.every(entry => record(entry) && typeof entry.id === 'string'
+          && typeof entry.corrected_text === 'string' && typeof entry.created_at === 'string'))))
     || !rows(value.quotes, 50, item => typeof item.text === 'string' && location(item.location)
       && ['not_run', 'exact', 'normalized', 'close', 'not_found', 'source_unavailable'].includes(String(item.match_status))
       && (item.similarity === null || (typeof item.similarity === 'number' && Number.isFinite(item.similarity) && item.similarity >= 0 && item.similarity <= 1))
       && (item.closest_passage === null || typeof item.closest_passage === 'string'))
     || typeof value.limitation !== 'string') throw new Error('Unexpected review results');
   return value as unknown as ReviewResults;
+}
+export async function submitClaimCorrection(
+  analysisId: string,
+  claimId: string,
+  correctedText: string,
+): Promise<ClaimCorrectionResponse> {
+  const value = await authorized(
+    `/analyses/${encodeURIComponent(analysisId)}/claims/${encodeURIComponent(claimId)}/corrections`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ corrected_text: correctedText }),
+    },
+  );
+  if (!record(value) || value.analysis_id !== analysisId || value.claim_id !== claimId
+    || typeof value.original_text !== 'string' || typeof value.corrected_text !== 'string'
+    || value.propositions_stale !== true || typeof value.limitation !== 'string'
+    || !Array.isArray(value.history) || !Array.isArray(value.affected_link_ids)) {
+    throw new Error('Unexpected claim correction response');
+  }
+  return value as unknown as ClaimCorrectionResponse;
 }
 export async function getResults(id: string, signal?: AbortSignal): Promise<ReviewResults> {
   return validateResults(await authorized(`/analyses/${encodeURIComponent(id)}/results`, { signal }), id);
@@ -130,13 +181,20 @@ export function safeSourceURL(value: unknown): value is string {
   try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password; }
   catch { return false; }
 }
-export async function downloadReport(id: string, format: 'markdown' | 'html' | 'pdf'): Promise<void> {
+export async function downloadReport(
+  id: string,
+  format: 'markdown' | 'html' | 'pdf' | 'graph-svg' | 'graph-png',
+): Promise<void> {
   const response = await authorizedResponse(`/analyses/${encodeURIComponent(id)}/report?format=${format}`);
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  const ext = format === 'html' ? 'html' : format === 'pdf' ? 'pdf' : 'md';
+  const ext = format === 'html' ? 'html'
+    : format === 'pdf' ? 'pdf'
+    : format === 'graph-svg' ? 'svg'
+    : format === 'graph-png' ? 'png'
+    : 'md';
   anchor.download = `filingguard-${id}.${ext}`;
   document.body.append(anchor); anchor.click(); anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);

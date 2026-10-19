@@ -267,6 +267,9 @@ def test_openapi_components_and_review_routes_are_declared():
         "/api/v1/capabilities",
         "/api/v1/court-profiles",
         "/api/v1/sessions",
+        "/api/v1/identities",
+        "/api/v1/identities/login",
+        "/api/v1/identities/me",
         "/api/v1/analyses",
         "/api/v1/analyses/text",
         "/api/v1/analyses/file",
@@ -283,6 +286,7 @@ def test_openapi_components_and_review_routes_are_declared():
         "/api/v1/analyses/{analysis_id}/findings/{finding_id}/evidence",
         "/api/v1/analyses/{analysis_id}/findings/{finding_id}/questions",
         "/api/v1/analyses/{analysis_id}/red-team",
+        "/api/v1/analyses/{analysis_id}/claims/{claim_id}/corrections",
     }
 
 

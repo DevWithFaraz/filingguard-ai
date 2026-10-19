@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from filingguard.api.errors import install_error_boundary
 from filingguard.api.routes.demos import router as demos_router
 from filingguard.api.routes.health import router as health_router
+from filingguard.api.routes.identity import router as identity_router
 from filingguard.api.routes.intake import router as intake_router
 from filingguard.core.admission import Admission, IntakeGuard
 from filingguard.core.config import Settings
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(demos_router, prefix="/api/v1")
+    app.include_router(identity_router, prefix="/api/v1")
     app.include_router(intake_router, prefix="/api/v1")
     return app
 

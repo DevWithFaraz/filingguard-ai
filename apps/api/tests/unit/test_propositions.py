@@ -410,6 +410,23 @@ def test_worker_round_trip_preserves_prior_link_update_and_evidence():
     assert evidence.snapshot_text == analysis.document_snapshot["text"]
 
 
+def test_user_correction_does_not_rewrite_original_or_break_filing_span():
+    analysis = context()
+    claim = analysis.review_claims[0]
+    original = claim.text
+    claim.correction_history = [
+        {
+            "id": str(uuid4()),
+            "corrected_text": "Emergencies never excuse the notice requirement.",
+            "created_at": datetime.now(UTC).isoformat(),
+        }
+    ]
+    result = review_propositions(analysis, adapter=None)
+    assert claim.text == original
+    assert result.updates[0].claim_id == claim.id
+    assert original == analysis.document_snapshot["text"]
+
+
 def test_cached_brown_controls_retrieve_conclusion_without_expected_span_hint():
     import json
     from pathlib import Path

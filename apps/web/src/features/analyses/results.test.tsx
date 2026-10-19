@@ -64,7 +64,8 @@ function fixture(): ReviewResults {
       authority_id: 'authority-1', location }],
     claims: [{ id: 'claim-1', text: 'Equal access is not a fundamental public right.', location,
       extraction_method: 'heuristic', links: [{ id: 'link-1', citation_id: 'citation-1',
-        authority_id: 'authority-1', support_status: 'unclear', explanation: 'Limited passage coverage.', confidence: null }] }],
+        authority_id: 'authority-1', support_status: 'unclear', explanation: 'Limited passage coverage.', confidence: null }],
+      corrected_text: null, correction_history: [], propositions_stale: false }],
     quotes: [{ id: 'quote-1', text: 'Equal access is not a fundamental public right.', location,
       citation_id: 'citation-1', match_status: 'close', similarity: .93,
       closest_passage: 'Equal access is a fundamental public right.' }],
@@ -168,6 +169,24 @@ it('shows saved category values and keeps unrun categories unknown', async () =>
   expect(() => validateResults({ ...value, score: { ...value.score, categories: [
     { type: 'claim_support', eligible: 1, evaluated: 0, value: 100, deducted_points: 0 },
   ] } }, id)).toThrow();
+});
+
+it('accepts table of authorities findings and score categories', async () => {
+  const value = fixture();
+  value.findings.push({
+    id: 'toa-finding', type: 'table_of_authorities', severity: 'medium',
+    title: 'Authority missing from Table of Authorities: 576 U.S. 644',
+    description: 'The body cites 576 U.S. 644, but that identity was not found in the table.',
+    masked_excerpt: '576 U.S. 644', start: 40, end: 51, evidence_count: 1, ai_assisted: false,
+  });
+  value.score.categories = [
+    { type: 'table_of_authorities', eligible: 2, evaluated: 2, value: 85, deducted_points: 15 },
+  ];
+  expect(validateResults(value, id).findings.some(item => item.type === 'table_of_authorities')).toBe(true);
+  vi.mocked(getResults).mockResolvedValue(value);
+  open();
+  fireEvent.change(await screen.findByLabelText('Finding category'), { target: { value: 'table_of_authorities' } });
+  expect(screen.getByRole('button', { name: /medium Authority missing from Table of Authorities/ })).toBeInTheDocument();
 });
 
 it('the accessible graph list exposes stored relationships and selects a linked finding', async () => {
@@ -342,6 +361,9 @@ it('provides zoom in, zoom out, fit to view and reset controls on the evidence g
 
   fireEvent.click(resetBtn);
   expect(mockFitView).toHaveBeenCalledTimes(2);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Download graph' }));
+  await waitFor(() => expect(downloadReport).toHaveBeenCalledWith(id, 'graph-svg'));
 });
 
 it('renders unsupported claims as separate warning nodes in visual graph and accessible list (FR-106)', async () => {

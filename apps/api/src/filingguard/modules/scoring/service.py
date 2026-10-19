@@ -46,10 +46,16 @@ def score_review(stages, findings, *, status):
         ("quote", "quotes"),
         ("privacy", "privacy"),
         ("court_rule", "court_rules"),
+        ("table_of_authorities", "table_of_authorities"),
     ):
         stage = stage_by_name.get(stage_name)
         eligible = stage.coverage.eligible if stage else 0
         evaluated = stage.coverage.evaluated if stage else 0
+        if category == "citation":
+            statutes = stage_by_name.get("statutes")
+            if statutes is not None:
+                eligible += statutes.coverage.eligible
+                evaluated += statutes.coverage.evaluated
         points = sum(d["points"] for d in deductions if d["type"] == category)
         categories.append(
             {

@@ -1,6 +1,6 @@
 # quotes
 
-Priority: P0. Tasks: T042-T044 in the root TODO.md.
+Priority: P0/P2. Tasks: T042-T044, T107 (FR-127), T204 (FR-128) in the root TODO.md.
 
 Associate quotations with authorities; exact, normalized, then fuzzy comparison.
 
@@ -25,6 +25,11 @@ similarity only. Meaning alterations (FR-127) are explicitly inspected in `check
 negations added or omitted, modal obligation shifts (e.g. shall/must versus may),
 omitted qualifying clauses preceding ellipses, and contradictory antonyms escalate
 finding severity to `critical` or `high` with structured `meaning_alteration` metadata.
+When exact or normalized matching fails, or a fuzzy match is only close, a separate
+local `semantic_similarity` object (FR-128) records negation-aware token overlap:
+`score`, `method`, `limitation`, and flags for negation, omission, and material
+change. That signal is uncalibrated, embedding-free, and never promoted to an exact
+or normalized quotation status. String similarity is not meaning-preservation.
 Semantic equivalence and legal support are never inferred. Short unmatched quotations
 do not receive unreliable fuzzy scores. Missing/invalid provenance or bounded-resource
 failures remain source unavailable, distinct from a searched source with no match.
@@ -45,8 +50,9 @@ formats are heuristic, so absence of detected quotes is skipped, not a document-
 certification. IPC/persistence/API integration is owned by the analysis orchestrator.
 
 Verification: `tests/unit/test_quotes.py` covers original Unicode spans, smart quotes,
-block controls, exact/normalized/altered/ellipses outcomes, missing source/provenance,
-distinct authority ambiguity, unrelated sentences, source offsets and bounded coverage.
+block controls, exact/normalized/altered/ellipses outcomes, FR-128 semantic similarity
+as a separate uncalibrated signal, missing source/provenance, distinct authority
+ambiguity, unrelated sentences, source offsets and bounded coverage.
 Integration/hosted/provider checks are separate acceptance evidence in [[TODO]].
 
 Related: [[FilingGuard_AI_SRS#9.7 Quote Forensics]],

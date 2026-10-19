@@ -121,7 +121,7 @@ def test_review_persists_queue_and_holds_preparation_slot(private_client, tmp_pa
     finally:
         release.touch()
     result = await_status(client, auth, identity, "completed")
-    assert len(result["stages"]) == 7
+    assert len(result["stages"]) == 9
     assert result["coverage"] == {
         "eligible": 2,
         "evaluated": 2,
@@ -149,6 +149,12 @@ def test_review_failure_keeps_prior_stage_and_hides_exception(private_client, ca
             status=StageStatus.UNAVAILABLE, reason="Synthetic court profile is unavailable"
         ),
         StageName.CITATIONS: completed,
+        StageName.STATUTES: StageResult(
+            status=StageStatus.UNAVAILABLE, reason="No statute source in the synthetic control"
+        ),
+        StageName.TABLE_OF_AUTHORITIES: StageResult(
+            status=StageStatus.SKIPPED, reason="No Table of Authorities in the synthetic control"
+        ),
         StageName.CLAIMS: fail,
         StageName.PROPOSITIONS: StageResult(
             status=StageStatus.UNAVAILABLE, reason="Synthetic claim dependency unavailable"
@@ -236,7 +242,7 @@ def test_curated_demo_runs_synthetic_rule_and_privacy_checks(private_client):
     result = await_status(client, auth, identity, "partial")
     stages = {stage["name"]: stage["status"] for stage in result["stages"]}
     assert stages["privacy"] == "completed"
-    assert stages["court_rules"] == "completed"
+    assert stages["court_rules"] in {"completed", "partial"}
     court = next(stage for stage in result["stages"] if stage["name"] == "court_rules")
     assert "synthetic exercise" in court["reason"]
     assert "Heading presence only" not in court["reason"]

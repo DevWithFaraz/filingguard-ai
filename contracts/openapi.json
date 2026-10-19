@@ -110,6 +110,100 @@
         }
       }
     },
+    "/api/v1/identities": {
+      "post": {
+        "summary": "Claim Identity",
+        "operationId": "claim_identity_api_v1_identities_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityClaimRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityClaimed"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/identities/login": {
+      "post": {
+        "summary": "Login Identity",
+        "operationId": "login_identity_api_v1_identities_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentitySessionIssued"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/identities/me": {
+      "get": {
+        "summary": "Identity Me",
+        "operationId": "identity_me_api_v1_identities_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityClaimed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/capabilities": {
       "get": {
         "summary": "Capabilities",
@@ -536,6 +630,66 @@
         }
       }
     },
+    "/api/v1/analyses/{analysis_id}/claims/{claim_id}/corrections": {
+      "post": {
+        "summary": "Correct Claim",
+        "operationId": "correct_claim_api_v1_analyses__analysis_id__claims__claim_id__corrections_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Claim Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimCorrectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimCorrectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analyses/{analysis_id}/results": {
       "get": {
         "summary": "Review Results",
@@ -797,7 +951,9 @@
               "enum": [
                 "markdown",
                 "html",
-                "pdf"
+                "pdf",
+                "graph-svg",
+                "graph-png"
               ],
               "type": "string",
               "default": "markdown",
@@ -1321,6 +1477,109 @@
           "retrieved_at"
         ],
         "title": "CitationVerificationMetadata",
+        "type": "object"
+      },
+      "ClaimCorrectionEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "corrected_text": {
+            "title": "Corrected Text",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "corrected_text",
+          "created_at"
+        ],
+        "title": "ClaimCorrectionEntry",
+        "type": "object"
+      },
+      "ClaimCorrectionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "corrected_text": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Corrected Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "corrected_text"
+        ],
+        "title": "ClaimCorrectionRequest",
+        "type": "object"
+      },
+      "ClaimCorrectionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "format": "uuid",
+            "title": "Analysis Id",
+            "type": "string"
+          },
+          "claim_id": {
+            "format": "uuid",
+            "title": "Claim Id",
+            "type": "string"
+          },
+          "original_text": {
+            "title": "Original Text",
+            "type": "string"
+          },
+          "corrected_text": {
+            "title": "Corrected Text",
+            "type": "string"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimCorrectionEntry"
+            },
+            "maxItems": 20,
+            "title": "History",
+            "type": "array"
+          },
+          "propositions_stale": {
+            "const": true,
+            "default": true,
+            "title": "Propositions Stale",
+            "type": "boolean"
+          },
+          "affected_link_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Affected Link Ids",
+            "type": "array"
+          },
+          "limitation": {
+            "default": "User corrections are stored separately from the original extraction and do not rewrite document offsets. Proposition support for the corrected claim is marked stale. POST /analyses/{analysis_id}/rerun clones a new analysis and re-extracts claims without this correction; in-place proposition-only re-run is not available. Existing proposition findings from the original extraction are not deleted.",
+            "title": "Limitation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis_id",
+          "claim_id",
+          "original_text",
+          "corrected_text",
+          "history",
+          "affected_link_ids"
+        ],
+        "title": "ClaimCorrectionResponse",
         "type": "object"
       },
       "CourtProfileSummary": {
@@ -2103,6 +2362,98 @@
         "type": "object",
         "title": "HealthResponse"
       },
+      "IdentityClaimRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^[a-z][a-z0-9_]{2,31}$",
+            "title": "Username",
+            "type": "string"
+          },
+          "secret": {
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "Secret",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "secret"
+        ],
+        "title": "IdentityClaimRequest",
+        "type": "object"
+      },
+      "IdentityClaimed": {
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "bound": {
+            "default": true,
+            "title": "Bound",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "title": "IdentityClaimed",
+        "type": "object"
+      },
+      "IdentityLoginRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^[a-z][a-z0-9_]{2,31}$",
+            "title": "Username",
+            "type": "string"
+          },
+          "secret": {
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "Secret",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "secret"
+        ],
+        "title": "IdentityLoginRequest",
+        "type": "object"
+      },
+      "IdentitySessionIssued": {
+        "additionalProperties": false,
+        "properties": {
+          "token": {
+            "title": "Token",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "expires_at",
+          "username"
+        ],
+        "title": "IdentitySessionIssued",
+        "type": "object"
+      },
       "PageSpan": {
         "properties": {
           "page_number": {
@@ -2549,7 +2900,7 @@
             "items": {
               "$ref": "#/components/schemas/ScoreCategory"
             },
-            "maxItems": 5,
+            "maxItems": 6,
             "title": "Categories",
             "type": "array"
           },
@@ -2912,6 +3263,31 @@
             "maxItems": 200,
             "title": "Links",
             "type": "array"
+          },
+          "corrected_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Corrected Text"
+          },
+          "correction_history": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimCorrectionEntry"
+            },
+            "maxItems": 20,
+            "title": "Correction History",
+            "type": "array"
+          },
+          "propositions_stale": {
+            "default": false,
+            "title": "Propositions Stale",
+            "type": "boolean"
           }
         },
         "required": [
@@ -3001,6 +3377,7 @@
               "citation",
               "claim_support",
               "quote",
+              "table_of_authorities",
               "system"
             ],
             "title": "Type",
@@ -3493,7 +3870,8 @@
               "claim_support",
               "quote",
               "privacy",
-              "court_rule"
+              "court_rule",
+              "table_of_authorities"
             ],
             "title": "Type",
             "type": "string"
@@ -3596,7 +3974,9 @@
           "propositions",
           "quotes",
           "privacy",
-          "court_rules"
+          "court_rules",
+          "table_of_authorities",
+          "statutes"
         ],
         "title": "StageName",
         "type": "string"
@@ -4268,6 +4648,7 @@
           "quote",
           "privacy",
           "court_rule",
+          "table_of_authorities",
           "system"
         ],
         "title": "FindingType",
@@ -4573,7 +4954,10 @@
           "format": {
             "enum": [
               "markdown",
-              "html"
+              "html",
+              "pdf",
+              "graph-svg",
+              "graph-png"
             ],
             "title": "Format",
             "type": "string"

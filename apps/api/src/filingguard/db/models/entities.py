@@ -100,6 +100,46 @@ class AnonymousSession(Base):
     expires_at: Mapped[datetime] = mapped_column(UTCDateTime, index=True)
 
 
+class LocalIdentity(Base):
+    """Optional local username bound to one anonymous owner_hash. Not production auth."""
+
+    __tablename__ = "local_identities"
+    __table_args__ = (
+        CheckConstraint("length(owner_hash) = 64", name="owner_hash_valid"),
+        CheckConstraint("length(username) >= 3 AND length(username) <= 32", name="username_valid"),
+        CheckConstraint("length(secret_hash) >= 32", name="secret_hash_valid"),
+        UniqueConstraint("username"),
+        UniqueConstraint("owner_hash"),
+    )
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    username: Mapped[str] = mapped_column(String(32))
+    secret_hash: Mapped[str] = mapped_column(String(255))
+    owner_hash: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+    )
+
+
+class IdentitySession(Base):
+    """Bearer whose SHA-256 is not the owner_hash; lookup recovers the claimed owner."""
+
+    __tablename__ = "identity_sessions"
+    __table_args__ = (
+        CheckConstraint("length(token_hash) = 64", name="token_hash_valid"),
+        CheckConstraint("length(owner_hash) = 64", name="owner_hash_valid"),
+        ForeignKeyConstraint(
+            ["owner_hash"],
+            ["local_identities.owner_hash"],
+            ondelete="CASCADE",
+        ),
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    owner_hash: Mapped[str] = mapped_column(String(64), index=True)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime, index=True)
+
+
 class DocumentLocation:
     page_number: Mapped[int | None] = mapped_column(Integer)
     start_offset: Mapped[int | None] = mapped_column(Integer)
@@ -278,6 +318,9 @@ class Claim(AnalysisOwned, DocumentLocation, Base):
     confidence: Mapped[float | None] = mapped_column(Float)
     model_version: Mapped[str | None] = mapped_column(String(255))
     prompt_version: Mapped[str | None] = mapped_column(String(255))
+    correction_history: Mapped[list] = mapped_column(
+        JSON_VALUE, default=list, server_default="[]"
+    )
 
 
 class ClaimAuthorityLink(AnalysisOwned, Base):

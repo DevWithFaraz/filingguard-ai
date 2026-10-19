@@ -10,6 +10,10 @@ from filingguard.integrations.llm.adapter import MODEL, GroqPropositionAdapter
 from filingguard.integrations.providers.runtime import ProviderUnavailable
 from filingguard.modules.analyses.execution import StageResult
 from filingguard.modules.analyses.schemas import Coverage, StageStatus
+from filingguard.modules.claim_corrections.text import proposition_text, uses_user_correction
+from filingguard.modules.propositions.facts import LIMITATION as FACT_LIMITATION
+from filingguard.modules.propositions.facts import METHOD_VERSION as FACT_METHOD_VERSION
+from filingguard.modules.propositions.facts import compare_facts
 from filingguard.modules.propositions.passages import METHOD_VERSION, select_passages
 
 MAX_LINKS = 25
@@ -78,6 +82,8 @@ def review_propositions(analysis, *, adapter):
         start, end = claim.start_offset, claim.end_offset
         if not 0 <= start < end <= len(filing) or filing[start:end] != claim.text:
             raise ValueError("Claim does not match original filing")
+        reviewed = proposition_text(claim)
+        corrected = uses_user_correction(claim)
         status = "insufficient_source"
         explanation = "Source text unavailable. Review the cited authority manually."
         source = authority.opinion_text if authority is not None else None
@@ -97,7 +103,7 @@ def review_propositions(analysis, *, adapter):
             and hashlib.sha256(source.encode()).hexdigest() == authority.source_sha256
         )
         if valid_source:
-            passages = select_passages(source, claim.text)
+            passages = select_passages(source, reviewed)
             clipped |= end - start > 8000 or any(p.truncated for p in passages)
             source_bytes = len(json.dumps(source, ensure_ascii=False).encode())
             oversized = snapshot_bytes + filing_bytes + source_bytes * 3 > MAX_SNAPSHOT_BYTES
@@ -120,12 +126,14 @@ def review_propositions(analysis, *, adapter):
                             peer_claim = claims.get(peer.claim_id)
                             peer_citation = citations.get(peer.citation_id)
                             if (
-                                peer.id == link.id
+                                corrected
+                                or peer.id == link.id
                                 or peer.id in batch_cache
                                 or peer.claim_id == link.claim_id
                                 or peer.authority_id != authority.id
                                 or peer_claim is None
                                 or peer_citation is None
+                                or uses_user_correction(peer_claim)
                                 or any(
                                     r.analysis_id != analysis.id
                                     for r in (peer, peer_claim, peer_citation)
@@ -142,7 +150,7 @@ def review_propositions(analysis, *, adapter):
                                 > MAX_SNAPSHOT_BYTES
                             ):
                                 continue
-                            peer_passages = select_passages(source, peer_claim.text)
+                            peer_passages = select_passages(source, proposition_text(peer_claim))
                             if not peer_passages:
                                 continue
                             try:
@@ -167,9 +175,16 @@ def review_propositions(analysis, *, adapter):
                         result = cached
                         passages = result.source_passages or passages
                     else:
-                        result = adapter.review(filing, start, end, passages, source=source)
+                        if corrected:
+                            result = adapter.review(
+                                reviewed, 0, len(reviewed), passages, source=source
+                            )
+                        else:
+                            result = adapter.review(filing, start, end, passages, source=source)
                     status = result.verdict.status
                     explanation = result.verdict.explanation
+                    if corrected:
+                        explanation = "Reviewed user-corrected extraction. " + explanation
                     evaluated += status != "insufficient_source"
                     clipped |= result.filing_truncated or any(p.truncated for p in passages)
                 except ProviderUnavailable as error:
@@ -233,6 +248,7 @@ def review_propositions(analysis, *, adapter):
                 for p in passages
             ],
             "limitation": "Selected passages may omit relevant context; human review required.",
+            "used_user_correction": corrected,
         }
         if result:
             meta.update(
@@ -278,6 +294,22 @@ def review_propositions(analysis, *, adapter):
             )
         )
         snapshot_bytes += filing_bytes
+        fact_rows = _fact_comparison_records(
+            analysis=analysis,
+            claim=claim,
+            citation=citation,
+            authority=authority,
+            link=link,
+            filing=filing,
+            start=start,
+            end=end,
+            reviewed=reviewed,
+            corrected=corrected,
+            source=source if valid_source else None,
+            passages=passages,
+            valid_source=valid_source,
+        )
+        records.extend(fact_rows)
         if result:
             for evidence in result.verdict.evidence:
                 snapshot_bytes += source_bytes
@@ -325,3 +357,194 @@ def review_propositions(analysis, *, adapter):
         records=tuple(records),
         updates=tuple(updates),
     )
+
+
+_FACT_TITLES = {
+    "mismatch": "Filing fact may not match source fact",
+    "insufficient_source": "Insufficient source text for fact comparison",
+    "unavailable": "Filing-versus-case fact comparison unavailable",
+}
+
+
+def _fact_comparison_records(
+    *,
+    analysis,
+    claim,
+    citation,
+    authority,
+    link,
+    filing,
+    start,
+    end,
+    reviewed,
+    corrected,
+    source,
+    passages,
+    valid_source,
+):
+    comparison = compare_facts(reviewed, passages, source_available=valid_source)
+    if comparison.status in {"match", "not_applicable"}:
+        return ()
+    passage_ids = [p.id for p in passages]
+    meta = {
+        "provenance": "live" if analysis.mode == "live" else "synthetic",
+        "offset_unit": "unicode_code_points",
+        "check_kind": "fact_comparison",
+        "fact_comparison_status": comparison.status,
+        "confidence_level": "unknown",
+        "confidence_calibrated": False,
+        "retrieval_method": METHOD_VERSION,
+        "selected_passages": [
+            {"id": p.id, "start": p.start, "end": p.end, "truncated": p.truncated}
+            for p in passages
+        ],
+        "passage_ids": passage_ids,
+        "used_user_correction": corrected,
+        "filing_facts": [
+            {
+                "kind": f.kind,
+                "text": f.text,
+                "normalized": f.normalized,
+                "start": f.start,
+                "end": f.end,
+            }
+            for f in comparison.filing_facts
+        ],
+        "source_facts": [
+            {
+                "kind": f.kind,
+                "text": f.text,
+                "normalized": f.normalized,
+                "start": f.start,
+                "end": f.end,
+                "passage_id": f.passage_id,
+            }
+            for f in comparison.source_facts
+        ],
+        "limitation": FACT_LIMITATION,
+    }
+    finding = Finding(
+        id=uuid4(),
+        analysis_id=analysis.id,
+        type="claim_support",
+        severity="medium" if comparison.status == "mismatch" else "low",
+        title=_FACT_TITLES[comparison.status],
+        description=comparison.explanation,
+        status="open",
+        stage="propositions",
+        segment_id=claim.segment_id,
+        citation_id=citation.id,
+        authority_id=link.authority_id,
+        claim_id=claim.id,
+        page_number=claim.page_number,
+        start_offset=start,
+        end_offset=end,
+        document_excerpt=claim.text,
+        confidence=None,
+        ai_assisted=False,
+    )
+    common = {
+        "analysis_id": analysis.id,
+        "finding_id": finding.id,
+        "segment_id": claim.segment_id,
+        "citation_id": citation.id,
+        "authority_id": link.authority_id,
+        "claim_id": claim.id,
+        "page_number": claim.page_number,
+        "method": "heuristic_fact_comparison",
+        "method_version": FACT_METHOD_VERSION,
+        "model_version": None,
+        "prompt_version": None,
+        "source_metadata": meta,
+    }
+    rows = [finding]
+    fact_start, fact_end = start, end
+    if not corrected and (comparison.conflicts or comparison.unmatched_filing):
+        focus = (comparison.conflicts or comparison.unmatched_filing)[0]
+        fact_start, fact_end = start + focus.start, start + focus.end
+        if not 0 <= fact_start < fact_end <= len(filing):
+            fact_start, fact_end = start, end
+    rows.append(
+        EvidenceRecord(
+            id=uuid4(),
+            source_type="document",
+            source_label="Filing fact excerpt",
+            excerpt=filing[fact_start:fact_end],
+            snapshot_text=filing,
+            source_url=None,
+            source_sha256=hashlib.sha256(filing.encode()).hexdigest(),
+            retrieved_at=datetime.now(UTC),
+            source_start_offset=fact_start,
+            source_end_offset=fact_end,
+            start_offset=fact_start,
+            end_offset=fact_end,
+            **common,
+        )
+    )
+    peer = next(
+        (
+            item
+            for item in comparison.source_facts
+            if item.kind
+            in {f.kind for f in (*comparison.conflicts, *comparison.unmatched_filing)}
+        ),
+        comparison.source_facts[0] if comparison.source_facts else None,
+    )
+    if peer is not None and source and authority is not None:
+        rows.append(
+            EvidenceRecord(
+                id=uuid4(),
+                source_type="opinion_text",
+                source_label="Cited authority fact passage",
+                excerpt=source[peer.start : peer.end],
+                snapshot_text=source,
+                source_url=authority.source_url,
+                source_sha256=authority.source_sha256,
+                retrieved_at=authority.retrieved_at,
+                source_start_offset=peer.start,
+                source_end_offset=peer.end,
+                **(
+                    common
+                    | {
+                        "source_metadata": meta
+                        | {
+                            "evidence_passage_id": peer.passage_id,
+                            "provenance": (authority.source_metadata or {}).get("provenance")
+                            if (authority.source_metadata or {}).get("provenance")
+                            in {"cached_public", "synthetic", "live"}
+                            else "live",
+                        }
+                    }
+                ),
+            )
+        )
+    elif passages and source and authority is not None:
+        passage = passages[0]
+        rows.append(
+            EvidenceRecord(
+                id=uuid4(),
+                source_type="opinion_text",
+                source_label="Cited authority selected passage",
+                excerpt=passage.text,
+                snapshot_text=source,
+                source_url=authority.source_url,
+                source_sha256=authority.source_sha256,
+                retrieved_at=authority.retrieved_at,
+                source_start_offset=passage.start,
+                source_end_offset=passage.end,
+                **(
+                    common
+                    | {
+                        "source_metadata": meta
+                        | {
+                            "evidence_passage_id": passage.id,
+                            "provenance": (authority.source_metadata or {}).get("provenance")
+                            if (authority.source_metadata or {}).get("provenance")
+                            in {"cached_public", "synthetic", "live"}
+                            else "live",
+                        }
+                    }
+                ),
+            )
+        )
+    return tuple(rows)

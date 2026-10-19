@@ -166,6 +166,11 @@ def quotes_stage(analysis: Analysis, budget: ProviderBudget) -> StageResult:
                             metadata={
                                 "match_status": comparison.status.value,
                                 "similarity": comparison.similarity,
+                                "semantic_similarity": (
+                                    comparison.semantic_similarity.as_metadata()
+                                    if comparison.semantic_similarity is not None
+                                    else None
+                                ),
                             },
                         )
                     except (ValidationError, ValueError):
@@ -232,6 +237,28 @@ def quotes_stage(analysis: Analysis, budget: ProviderBudget) -> StageResult:
                 f"{int(round(comparison.similarity * 100)) if comparison.similarity else 0}%. "
                 f"{LIMITATION}"
             )
+        if comparison.semantic_similarity is not None:
+            finding.description = (
+                f"{finding.description} {comparison.semantic_similarity.limitation}"
+            )
+            if comparison.meaning_alteration is None:
+                notes = []
+                if comparison.semantic_similarity.negation:
+                    notes.append("possible negation mismatch")
+                if comparison.semantic_similarity.omission:
+                    notes.append("possible omission")
+                if comparison.semantic_similarity.material_change:
+                    notes.append("possible material meaning change")
+                if notes:
+                    finding.description = (
+                        f"{finding.description} Local semantic review also notes "
+                        f"{', '.join(notes)}."
+                    )
+        semantic_meta = (
+            comparison.semantic_similarity.as_metadata()
+            if comparison.semantic_similarity is not None
+            else None
+        )
         metadata = {
             "quote_kind": occurrence.kind,
             "association_candidates": [str(value) for value in association.candidates],
@@ -247,6 +274,7 @@ def quotes_stage(analysis: Analysis, budget: ProviderBudget) -> StageResult:
                 if comparison.meaning_alteration
                 else None
             ),
+            "semantic_similarity": semantic_meta,
         }
         records.extend(
             (

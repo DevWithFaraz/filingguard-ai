@@ -351,6 +351,12 @@ def _generate_grounded_answer(
                 f"This finding was flagged for court rule non-compliance under profile rule "
                 f"'{finding.rule_id or 'court_rule'}'. {finding.description}"
             )
+        elif f_type == "table_of_authorities":
+            answer = (
+                f"This finding was flagged as '{finding.title}' because the Table of Authorities "
+                f"audit compared comparable reporter identities in the table and body. "
+                f"{finding.description}"
+            )
         else:
             answer = (
                 f"Finding '{finding.title}' was flagged with severity {finding.severity}. "

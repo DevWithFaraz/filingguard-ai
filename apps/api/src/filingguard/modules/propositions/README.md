@@ -9,9 +9,18 @@ batch identity/evidence or refusal rejects its members without retry; unrelated
 stages remain available. See
 [[docs/decisions/ADR-013 - Shared authority model requests and bounded quota admission]].
 
-Priority: P0. Tasks: T038-T041 in the root TODO.md.
+Priority: P0/P2. Tasks: T038-T041 and T203 (FR-088) in the root TODO.md.
 
 Compare claims to bounded retrieved passages and validate structured model results.
+T203 adds a separate heuristic filing-versus-source fact comparison on those same
+retrieved passages (dates, named parties, numeric holdings). It does not invent
+legal analogies or change proposition support classification. Matching facts emit
+no extra finding. Contradictory facts emit a `claim_support` finding titled
+"Filing fact may not match source fact". Missing source or missing source facts
+are insufficient or unavailable, never a pass. Semantic review remains opt-in;
+when it is disabled the propositions stage, including fact comparison, is
+unavailable with an explicit reason. The check is a labeled heuristic review
+signal and requires human review.
 
 Claims/evidence in; support status, explanation, evidence references and uncertainty out.
 
@@ -21,6 +30,9 @@ and includes surrounding context qualifications. For long opinions (>15,000 char
 structural candidate diversity across early, middle, and late sections ensures
 representative opinion coverage (`METHOD_VERSION = "lexical-qualified-multi-passage-v3"`).
 Clipped windows are disclosed and cannot establish a supported or misrepresented verdict.
+
+User-corrected claim text (T206) is used for passage selection and model review
+when present; original `Claim.text` still has to match the filing offsets.
 
 The registered `propositions_stage` consumes detached, analysis-owned prior claims,
 citations, claim-authority links and authorities. It emits new findings/evidence and

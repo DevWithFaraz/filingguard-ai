@@ -43,7 +43,7 @@ def test_readiness_requires_current_migrations_and_healthy_cleanup(tmp_path, mon
         assert client.get("/api/v1/ready").status_code == 503
         with engine.begin() as connection:
             connection.execute(
-                text("UPDATE alembic_version SET version_num='0004_citation_extraction'")
+                text("UPDATE alembic_version SET version_num='0007_local_identities'")
             )
         runtime.cleanup_failed = True
         assert not client.get("/api/v1/ready").json()["checks"]["cleanup"]

@@ -23,6 +23,8 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from filingguard.modules.reports.graph_export import graph_pdf_flowables
+
 # Brand Color Palette
 _COLOR_PRIMARY = colors.HexColor("#2b1f3d")
 _COLOR_SECONDARY = colors.HexColor("#5d2f96")
@@ -332,6 +334,7 @@ def generate_pdf_report(results: dict[str, Any]) -> bytes:
     )
     story.append(score_table)
     story.append(Spacer(1, 14))
+    story.extend(graph_pdf_flowables(results, styles))
 
     # Stage Coverage Breakdown Table
     story.append(Paragraph("Verification Stage Coverage", styles["Heading1"]))

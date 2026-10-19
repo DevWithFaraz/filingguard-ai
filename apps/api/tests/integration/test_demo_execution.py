@@ -41,7 +41,7 @@ def test_curated_demo_executes_sources_quotes_and_exports_without_model(private_
     assert any(c["verification_status"] != "verified" for c in result["citations"])
     assert {q["match_status"] for q in result["quotes"]} >= {"exact", "close"}, result["quotes"]
     assert {f["type"] for f in result["findings"]} >= {"quote", "court_rule", "privacy"}
-    assert len(result["score"]["categories"]) == 5
+    assert len(result["score"]["categories"]) == 6
     assert result["score"]["value"] is not None
     assert all(
         link["support_status"] == "not_run" for claim in result["claims"] for link in claim["links"]

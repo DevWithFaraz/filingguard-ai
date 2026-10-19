@@ -142,6 +142,111 @@ def test_citation_extraction_migration_preserves_populated_rows():
         engine.dispose()
 
 
+def test_claim_correction_history_migration_preserves_original_text():
+    engine = create_db_engine("sqlite+pysqlite:///:memory:")
+    try:
+        with engine.begin() as connection:
+            config = alembic_config()
+            config.attributes["connection"] = connection
+            command.upgrade(config, "0005_table_of_authorities")
+            identity, segment_id, claim_id = (uuid4().hex for _ in range(3))
+            now = datetime.now(UTC)
+            connection.execute(
+                text(
+                    "INSERT INTO analyses (id, owner_hash, document_name, document_sha256, "
+                    "created_at, updated_at, expires_at) VALUES "
+                    "(:id, :owner, 'Synthetic', :hash, :now, :now, :expiry)"
+                ),
+                {
+                    "id": identity,
+                    "owner": OWNER,
+                    "hash": DOCUMENT_HASH,
+                    "now": now,
+                    "expiry": now + timedelta(hours=1),
+                },
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO document_segments (id, analysis_id, paragraph_index, text) "
+                    "VALUES (:id, :analysis, 0, 'Original extraction.')"
+                ),
+                {"id": segment_id, "analysis": identity},
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO claims (id, analysis_id, segment_id, text, extraction_method, "
+                    "start_offset, end_offset) VALUES "
+                    "(:id, :analysis, :segment, 'Original extraction.', 'heuristic', 0, 21)"
+                ),
+                {"id": claim_id, "analysis": identity, "segment": segment_id},
+            )
+            command.upgrade(config, "head")
+            assert connection.scalar(text("SELECT text FROM claims")) == "Original extraction."
+            history = connection.scalar(text("SELECT correction_history FROM claims"))
+            assert history in ("[]", [])
+            assert connection.execute(text("PRAGMA foreign_key_check")).all() == []
+            command.downgrade(config, "0005_table_of_authorities")
+            assert "correction_history" not in {
+                column["name"] for column in inspect(connection).get_columns("claims")
+            }
+            assert connection.scalar(text("SELECT text FROM claims")) == "Original extraction."
+            assert connection.execute(text("PRAGMA foreign_key_check")).all() == []
+    finally:
+        engine.dispose()
+
+
+def test_local_identity_migration_preserves_claim_history():
+    engine = create_db_engine("sqlite+pysqlite:///:memory:")
+    try:
+        with engine.begin() as connection:
+            config = alembic_config()
+            config.attributes["connection"] = connection
+            command.upgrade(config, "0006_claim_corrections")
+            identity, segment_id, claim_id = (uuid4().hex for _ in range(3))
+            now = datetime.now(UTC)
+            connection.execute(
+                text(
+                    "INSERT INTO analyses (id, owner_hash, document_name, document_sha256, "
+                    "created_at, updated_at, expires_at) VALUES "
+                    "(:id, :owner, 'Synthetic', :hash, :now, :now, :expiry)"
+                ),
+                {
+                    "id": identity,
+                    "owner": OWNER,
+                    "hash": DOCUMENT_HASH,
+                    "now": now,
+                    "expiry": now + timedelta(hours=1),
+                },
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO document_segments (id, analysis_id, paragraph_index, text) "
+                    "VALUES (:id, :analysis, 0, 'Original extraction.')"
+                ),
+                {"id": segment_id, "analysis": identity},
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO claims (id, analysis_id, segment_id, text, extraction_method, "
+                    "start_offset, end_offset, correction_history) VALUES "
+                    "(:id, :analysis, :segment, 'Original extraction.', 'heuristic', 0, 21, '[]')"
+                ),
+                {"id": claim_id, "analysis": identity, "segment": segment_id},
+            )
+            command.upgrade(config, "head")
+            assert "local_identities" in inspect(connection).get_table_names()
+            assert "identity_sessions" in inspect(connection).get_table_names()
+            assert connection.scalar(text("SELECT text FROM claims")) == "Original extraction."
+            assert connection.execute(text("PRAGMA foreign_key_check")).all() == []
+            command.downgrade(config, "0006_claim_corrections")
+            tables = inspect(connection).get_table_names()
+            assert "local_identities" not in tables
+            assert "identity_sessions" not in tables
+            assert connection.scalar(text("SELECT text FROM claims")) == "Original extraction."
+    finally:
+        engine.dispose()
+
+
 def seed_graph(repository, analysis):
     ids = {model: uuid4() for model in RECORD_TYPES}
     standalone_id = uuid4()
@@ -305,7 +410,7 @@ def test_offline_migration_never_connects_or_discloses_url(monkeypatch, url):
             raw = engine.raw_connection()
             try:
                 raw.driver_connection.executescript(script)
-                assert len(inspect(engine).get_table_names()) == 11
+                assert len(inspect(engine).get_table_names()) == 13
             finally:
                 raw.close()
         finally:

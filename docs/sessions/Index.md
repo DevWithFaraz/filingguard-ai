@@ -4,6 +4,24 @@ tags: [sessions]
 ---
 # Session handoffs
 
+- [[docs/sessions/2026-10-19 - P2 integration verification and stage validation fix]]
+
+- [[docs/sessions/2026-10-19 - Optional local identity claim]]
+
+- [[docs/sessions/2026-10-19 - Semantic quote similarity]]
+
+- [[docs/sessions/2026-10-19 - Filing versus case fact comparison]]
+
+- [[docs/sessions/2026-10-19 - Manual claim corrections]]
+
+- [[docs/sessions/2026-10-19 - Graph image export]]
+
+- [[docs/sessions/2026-10-19 - Statute and regulation verification]]
+
+- [[docs/sessions/2026-10-19 - Advanced formatting and jurisdictional privacy]]
+
+- [[docs/sessions/2026-10-19 - Table of Authorities audit]]
+
 - [[docs/sessions/2026-10-18 - End-to-end interactive browser verification]]
 
 - [[docs/sessions/2026-10-18 - Additional verified real court profiles]]

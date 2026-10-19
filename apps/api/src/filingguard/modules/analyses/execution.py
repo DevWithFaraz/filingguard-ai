@@ -185,6 +185,9 @@ class StageResult:
             StageName.CLAIMS: {Claim, ClaimAuthorityLink, EvidenceRecord},
             StageName.PROPOSITIONS: {Finding, EvidenceRecord},
             StageName.QUOTES: {Quote, Finding, EvidenceRecord},
+            StageName.STATUTES: {Finding, EvidenceRecord},
+            StageName.COURT_RULES: {Finding, EvidenceRecord},
+            StageName.TABLE_OF_AUTHORITIES: {Finding, EvidenceRecord},
         }.get(stage)
         if allowed is not None and any(type(row) not in allowed for row in self.records):
             raise ValueError("Unexpected record in stage partial-result path")
@@ -202,7 +205,14 @@ class StageResult:
                 ):
                     raise ValueError("Authority source verdicts require retrieval provenance")
         if self.status != StageStatus.COMPLETED and self.records:
-            if stage in {StageName.CLAIMS, StageName.PROPOSITIONS, StageName.QUOTES}:
+            if stage in {
+                StageName.CLAIMS,
+                StageName.PROPOSITIONS,
+                StageName.QUOTES,
+                StageName.STATUTES,
+                StageName.COURT_RULES,
+                StageName.TABLE_OF_AUTHORITIES,
+            }:
                 if self.status != StageStatus.PARTIAL:
                     raise ValueError("Only terminal partial stages may preserve results")
             elif stage == StageName.CITATIONS and any(
@@ -221,7 +231,15 @@ class StageResult:
         limit = (
             MAX_REVIEW_RECORDS
             if stage
-            in {StageName.CITATIONS, StageName.CLAIMS, StageName.PROPOSITIONS, StageName.QUOTES}
+            in {
+                StageName.CITATIONS,
+                StageName.CLAIMS,
+                StageName.PROPOSITIONS,
+                StageName.QUOTES,
+                StageName.STATUTES,
+                StageName.COURT_RULES,
+                StageName.TABLE_OF_AUTHORITIES,
+            }
             else MAX_RECORDS
         )
         if len(self.records) > limit:

@@ -4,6 +4,8 @@ tags: [research]
 ---
 # Research and external sources
 
+- [[docs/research/N.D. Tex. formatting and FRCP 5.2 privacy bindings - 2026-10-19]]
+
 - [[docs/research/Court rules and EU AI Act product direction - 2026-10-14]]
 
 - [[docs/research/Grounded proposition live acceptance - 2026-10-10]]

@@ -18,6 +18,8 @@ from filingguard.db.models import (
     DocumentSegment,
     EvidenceRecord,
     Finding,
+    IdentitySession,
+    LocalIdentity,
     Quote,
 )
 from filingguard.db.models.entities import ANALYSIS_STATUSES, AnalysisOwned
@@ -135,10 +137,69 @@ class AnalysisRepository:
                 raise AnalysisNotFound("Session unavailable")
             return expiry
 
+    def resolve_session(self, token_hash: str) -> tuple[str, datetime]:
+        """Map bearer SHA-256 to owner_hash. Identity sessions store a different hash."""
+        with self._factory() as session:
+            now = datetime.now(UTC)
+            anonymous = session.scalar(
+                select(AnonymousSession).where(
+                    AnonymousSession.owner_hash == token_hash,
+                    AnonymousSession.expires_at > now,
+                )
+            )
+            if anonymous is not None:
+                return anonymous.owner_hash, anonymous.expires_at
+            identity = session.scalar(
+                select(IdentitySession).where(
+                    IdentitySession.token_hash == token_hash,
+                    IdentitySession.expires_at > now,
+                )
+            )
+            if identity is not None:
+                return identity.owner_hash, identity.expires_at
+            raise AnalysisNotFound("Session unavailable")
+
+    def get_local_identity_by_owner(self, owner_hash: str) -> LocalIdentity | None:
+        with self._factory() as session:
+            return session.scalar(
+                select(LocalIdentity).where(LocalIdentity.owner_hash == owner_hash)
+            )
+
+    def get_local_identity_by_username(self, username: str) -> LocalIdentity | None:
+        with self._factory() as session:
+            return session.scalar(select(LocalIdentity).where(LocalIdentity.username == username))
+
+    def add_local_identity(self, owner_hash: str, username: str, secret_hash: str) -> LocalIdentity:
+        with transaction(self._factory) as session:
+            if session.scalar(select(LocalIdentity).where(LocalIdentity.owner_hash == owner_hash)):
+                raise ValueError("owner_claimed")
+            if session.scalar(select(LocalIdentity).where(LocalIdentity.username == username)):
+                raise ValueError("username_taken")
+            row = LocalIdentity(owner_hash=owner_hash, username=username, secret_hash=secret_hash)
+            session.add(row)
+            session.flush()
+            return row
+
+    def issue_identity_session(
+        self, token_hash: str, owner_hash: str, expires_at: datetime
+    ) -> None:
+        with transaction(self._factory) as session:
+            session.execute(
+                delete(IdentitySession).where(IdentitySession.expires_at <= datetime.now(UTC))
+            )
+            if session.scalar(select(func.count()).select_from(IdentitySession)) >= 256:
+                raise OverflowError("Session capacity reached")
+            session.add(
+                IdentitySession(token_hash=token_hash, owner_hash=owner_hash, expires_at=expires_at)
+            )
+
     def prune_sessions(self) -> None:
         with transaction(self._factory) as session:
             session.execute(
                 delete(AnonymousSession).where(AnonymousSession.expires_at <= datetime.now(UTC))
+            )
+            session.execute(
+                delete(IdentitySession).where(IdentitySession.expires_at <= datetime.now(UTC))
             )
 
     def list_analyses(self, owner_hash: str) -> list[Analysis]:
@@ -368,6 +429,64 @@ class AnalysisRepository:
             }
             if analysis_status is not None:
                 analysis.status = analysis_status
+
+    def save_claim_correction(
+        self,
+        owner_hash: str,
+        analysis_id: UUID,
+        claim_id: UUID,
+        corrected_text: str,
+    ) -> tuple[str, list[dict], list[UUID]]:
+        """Append correction history; never rewrite original Claim.text."""
+        from filingguard.modules.claim_corrections.schemas import MAX_HISTORY
+        from filingguard.modules.claim_corrections.text import history_entries
+
+        stale = (
+            "Proposition support is stale after a user correction of the extracted claim. "
+            "In-place proposition re-run is not available. POST /analyses/{id}/rerun clones "
+            "a new analysis and re-extracts claims without this correction. "
+            "Review flag, not a legal determination."
+        )
+        with transaction(self._factory) as session:
+            analysis = _owned_analysis(session, owner_hash, analysis_id, lock=True)
+            if analysis.status in {"queued", "running"}:
+                raise AnalysisNotReady("An active review cannot be corrected")
+            claim = session.scalar(
+                select(Claim).where(Claim.analysis_id == analysis_id, Claim.id == claim_id)
+            )
+            if claim is None:
+                raise LookupError("Claim not found")
+            if claim.text == corrected_text and not history_entries(claim):
+                raise ValueError("Invalid claim correction")
+            history = history_entries(claim)
+            if history and history[-1].get("corrected_text") == corrected_text:
+                raise ValueError("Invalid claim correction")
+            entry = {
+                "id": str(uuid4()),
+                "corrected_text": corrected_text,
+                "created_at": datetime.now(UTC).isoformat(),
+            }
+            history = [*history, entry][-MAX_HISTORY:]
+            claim.correction_history = history
+            link_ids = []
+            for link in session.scalars(
+                select(ClaimAuthorityLink).where(
+                    ClaimAuthorityLink.analysis_id == analysis_id,
+                    ClaimAuthorityLink.claim_id == claim_id,
+                )
+            ):
+                link.support_status = "not_run"
+                link.confidence = None
+                link.explanation = stale
+                link_ids.append(link.id)
+            states = dict(analysis.stage_states or {})
+            current = dict(states.get("propositions") or {})
+            if current:
+                current["reason"] = stale
+                states["propositions"] = current
+            analysis.stage_states = states
+            session.flush()
+            return claim.text, history, link_ids
 
     def delete_analysis(
         self,

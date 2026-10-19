@@ -248,7 +248,10 @@ def test_orchestrator_logs_correlation_id_and_timing_without_leaking_content(
         deadline = time.monotonic() + 15
         while time.monotonic() < deadline:
             refreshed = repo.get_analysis(OWNER, analysis.id)
-            if refreshed.status == "completed":
+            if (
+                refreshed.status == "completed"
+                and f"review.job.finish analysis_id={analysis.id}" in caplog.text
+            ):
                 break
             time.sleep(0.05)
 
@@ -261,7 +264,7 @@ def test_orchestrator_logs_correlation_id_and_timing_without_leaking_content(
     ) in caplog.text
     assert (
         f"review.job.finish analysis_id={aid} correlation_id={aid} "
-        "status=completed completed_stages=6 duration_ms="
+        "status=completed completed_stages=8 duration_ms="
     ) in caplog.text
 
     # LOG-003 & NFR-023: zero filing content leaked in logs

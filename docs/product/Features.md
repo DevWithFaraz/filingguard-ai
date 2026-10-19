@@ -18,11 +18,11 @@ or bugs; link back here from those notes when useful.
   and [[apps/web/src/features/analyses/README|Progress and dashboard]].
 - Citations (FR-040-046): [[apps/api/src/filingguard/modules/citations/README|Citation engine]]
   and [[apps/api/src/filingguard/integrations/courtlistener/README|CourtListener adapter]].
-- Claims/propositions (FR-060-086): [[apps/api/src/filingguard/modules/claims/README|Claims]],
+- Claims/propositions (FR-060-086, FR-088): [[apps/api/src/filingguard/modules/claims/README|Claims]],
   [[apps/api/src/filingguard/modules/propositions/README|Proposition review]],
   [[apps/api/src/filingguard/integrations/llm/README|LLM adapter]] and
   [[apps/api/src/filingguard/resources/prompts/README|Prompt resources]].
-- Quotes (FR-120-126): [[apps/api/src/filingguard/modules/quotes/README|Quote forensics]].
+- Quotes (FR-120-128): [[apps/api/src/filingguard/modules/quotes/README|Quote forensics]].
 - Court checks (FR-140-145): [[apps/api/src/filingguard/modules/court_rules/README|Rule engine]]
   and [[apps/api/src/filingguard/resources/courts/README|Court profiles]].
 - Privacy (FR-160-166): [[apps/api/src/filingguard/modules/privacy/README|Privacy detection]]
@@ -48,6 +48,11 @@ order and priority reconciliation.
 - P1 grounded Q&A: [[apps/api/src/filingguard/modules/grounded_qa/README|Backend]]
   and [[apps/web/src/features/grounded-qa/README|UI]].
 - P2 [[apps/api/src/filingguard/modules/table_of_authorities/README|Table of Authorities]].
+- P2 [[apps/api/src/filingguard/modules/statutes/README|Statute and regulation verification]].
+- P2 claim corrections (FR-065): [[apps/api/src/filingguard/modules/claim_corrections/README|Backend]]
+  and [[apps/web/src/features/findings/README|Findings UI]].
+- P2 optional local identity claim (bounded T208):
+  [[apps/api/src/filingguard/modules/identity/README|Identity]].
 
 ## Platform and tests
 

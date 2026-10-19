@@ -194,7 +194,12 @@ def verify_citations_for_analysis(
 
         extraction = citation.extraction_metadata or {}
         support = extraction.get("support")
-        if support in {"unresolved_reference", "unsupported", "ambiguous"}:
+        kind = extraction.get("kind")
+        if kind in {"law", "journal", "unknown", "reporter_candidate"} or support in {
+            "unresolved_reference",
+            "unsupported",
+            "ambiguous",
+        }:
             citation.verification_status = CitationStatus.NOT_RUN.value
             citation.authority_id = None
             continue

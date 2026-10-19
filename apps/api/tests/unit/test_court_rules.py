@@ -8,8 +8,13 @@ import pytest
 from filingguard.db.models import Analysis, Finding
 from filingguard.integrations.providers.runtime import ProviderBudget
 from filingguard.modules.analyses.runners import court_stage
+from filingguard.modules.analyses.schemas import StageName
 from filingguard.modules.court_rules.service import (
+    CourtProfile,
     evaluate_disclosure,
+    evaluate_format_rules,
+    evaluate_page_limit,
+    evaluate_required_headings,
     load_profile,
 )
 
@@ -269,3 +274,125 @@ def test_court_stage_txnd_compliant_has_no_findings():
     findings = [r for r in result.records if isinstance(r, Finding) and r.type == "court_rule"]
     assert findings == []
     assert "Heading presence only" in result.reason
+
+
+def _demo_profile_with(*, max_pages: int | None = None, heading: str | None = None):
+    data = load_profile("synthetic-demo-v1").model_dump(mode="json")
+    if max_pages is not None:
+        data["page_limit"]["max_pages"] = max_pages
+    if heading is None:
+        data["required_headings"] = []
+    else:
+        data["required_headings"] = [
+            {
+                "rule_id": "demo-test-heading",
+                "heading": heading,
+                "placement": "anywhere",
+                "requirement": "Synthetic heading check for tests.",
+            }
+        ]
+    return CourtProfile.model_validate(data)
+
+
+def test_page_limit_exceeded_is_finding_not_a_pass():
+    profile = _demo_profile_with(max_pages=2, heading=None)
+    pages = ["page one", "page two", "page three"]
+    result = evaluate_page_limit(profile, pages)
+    assert result is not None
+    assert result.status == "exceeded"
+    assert result.rule_id == "demo-page-limit"
+    assert "exceeds the versioned limit of 2" in (result.reason or "")
+
+
+def test_required_heading_missing_and_present():
+    profile = _demo_profile_with(heading="STATEMENT OF ISSUES")
+    missing = evaluate_required_headings(profile, "Argument without the heading.", pages=None)
+    assert len(missing) == 1
+    assert missing[0].status == "missing"
+    assert missing[0].rule_id == "demo-test-heading"
+
+    present = evaluate_required_headings(
+        profile, "STATEMENT OF ISSUES\nArgument follows.", pages=None
+    )
+    assert present[0].status == "present"
+    assert "Heading presence only" in (present[0].reason or "")
+
+
+def test_format_rules_unpaginated_page_limit_is_unavailable():
+    profile = load_profile("synthetic-demo-v1")
+    results = evaluate_format_rules(profile, "STATEMENT OF ISSUES\nBody", pages=None)
+    page_limit = next(item for item in results if item.check == "page_limit")
+    heading = next(item for item in results if item.check == "heading")
+    assert page_limit.status == "unavailable"
+    assert "not a pass" in (page_limit.reason or "")
+    assert heading.status == "present"
+
+
+def test_demo_live_mode_mismatch_unchanged_with_format_fields():
+    profile = load_profile("synthetic-demo-v1")
+    assert profile.page_limit is not None
+    assert profile.required_headings
+    res_demo_on_real = evaluate_disclosure(
+        "us-txnd-lr7-2f-v1", "Text", ai_used=True, demo=True
+    )
+    assert res_demo_on_real.status == "unavailable"
+    assert res_demo_on_real.reason == "Court profile scope does not match review mode"
+    res_live_on_demo = evaluate_disclosure(
+        "synthetic-demo-v1", "Text", ai_used=True, demo=False
+    )
+    assert res_live_on_demo.status == "unavailable"
+    assert res_live_on_demo.reason == "Court profile scope does not match review mode"
+
+
+def test_court_stage_demo_heading_and_page_limit():
+    pages = [f"page {index}" for index in range(21)]
+    text = "\n\n".join(pages)
+    analysis = Analysis(
+        id=uuid4(),
+        mode="demo",
+        court_profile_id="synthetic-demo-v1",
+        ai_used=False,
+        document_name="Long.pdf",
+        document_sha256="0" * 64,
+        demo_fixture_id="curated-v1",
+    )
+    cursor = 0
+    page_spans = []
+    for page in pages:
+        page_spans.append(
+            {
+                "page_number": len(page_spans) + 1,
+                "start": cursor,
+                "end": cursor + len(page),
+            }
+        )
+        cursor += len(page) + 2
+    analysis.document_snapshot = {"text": text, "pages": page_spans}
+    result = court_stage(analysis, ProviderBudget(0))
+    result.validate(StageName.COURT_RULES)
+    assert result.status.value == "completed"
+    assert result.coverage.eligible == result.coverage.evaluated == 3
+    findings = [r for r in result.records if isinstance(r, Finding) and r.type == "court_rule"]
+    titles = {f.title for f in findings}
+    assert "Synthetic page limit exceeded" in titles
+    assert "Synthetic required heading missing" in titles
+    assert all(f.title != "Synthetic AI-use disclosure missing" for f in findings)
+
+
+def test_court_stage_unpaginated_page_limit_is_partial_not_a_pass():
+    analysis = Analysis(
+        id=uuid4(),
+        mode="demo",
+        court_profile_id="synthetic-demo-v1",
+        ai_used=False,
+        document_name="Brief.txt",
+        document_sha256="0" * 64,
+        demo_fixture_id="curated-v1",
+    )
+    analysis.document_snapshot = {"text": "STATEMENT OF ISSUES\nArgument.", "pages": []}
+    result = court_stage(analysis, ProviderBudget(0))
+    result.validate(StageName.COURT_RULES)
+    assert result.status.value == "partial"
+    assert result.coverage.unavailable == 1
+    assert result.coverage.evaluated == 2
+    assert "not a pass" in (result.coverage.limitation or "").lower()

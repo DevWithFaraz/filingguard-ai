@@ -12,7 +12,8 @@ The value is clamped at zero; deductions include stable finding IDs. This is a
 review-priority heuristic, not a calibrated legal-risk probability. Warnings about
 uncertainty can deduct; coverage still shows missing checks separately.
 Category values use the same versioned deductions and each stage's eligible/
-evaluated counts. An unevaluated category is unknown, even when the overall score
+evaluated counts. Statute-stage coverage is added to the citation category;
+statute findings still use type `citation`. An unevaluated category is unknown, even when the overall score
 exists; category scores remain provisional review signals.
 
 No score is issued before a terminal analysis and at least one evaluated

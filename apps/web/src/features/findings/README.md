@@ -8,3 +8,7 @@ saved findings/evidence, shows masked excerpts, source links/hash/time and actua
 method/model/prompt metadata, and communicates uncertainty and human review.
 Use shared API types/client from src/lib/api. Display backend statuses faithfully;
 do not duplicate legal analysis or scoring logic in the browser.
+
+Manual claim corrections (T206 / FR-065) use `ClaimCorrectionForm` on the results
+claims list. Original extraction and user-corrected extraction are labeled
+separately. Proposition re-run is not performed in place.
