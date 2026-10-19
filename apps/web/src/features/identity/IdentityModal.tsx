@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogIn, LogOut, ShieldCheck, UserCheck, X } from 'lucide-react';
 import {
@@ -22,6 +23,15 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
   const [username, setUsername] = useState('');
   const [secret, setSecret] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const identityQuery = useQuery({
     queryKey: ['current-identity'],
@@ -68,18 +78,26 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
     },
   });
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const current = identityQuery.data;
 
-  return (
-    <div className="identity-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="identity-modal-title">
-      <div className="identity-modal-card">
+  return createPortal(
+    <div
+      className="identity-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="identity-modal-title"
+      onClick={e => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="identity-modal-card" onClick={e => e.stopPropagation()}>
         <div className="identity-modal-header">
           <div className="identity-modal-title-row">
             <UserCheck size={20} className="identity-icon" />
             <h2 id="identity-modal-title">
-              {current?.bound ? `Account: ${current.username}` : 'Reviewer Identity'}
+              {current?.bound ? `Account: ${current.username}` : 'Reviewer Identity (Optional)'}
             </h2>
           </div>
           <button
@@ -96,7 +114,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
           <div className="identity-signed-in-view">
             <p className="identity-status-note">
               <ShieldCheck size={16} />
-              You are signed in as <strong>{current.username}</strong>. Your matters and review history are saved to this identity.
+              You are signed in as <strong>{current.username}</strong>. Your legal matters and review history are saved to this identity.
             </p>
             <div className="identity-actions">
               <button
@@ -145,7 +163,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
 
             <p className="identity-description">
               {mode === 'claim'
-                ? 'Save your active guest session to a persistent reviewer account. Choose a username and passphrase.'
+                ? 'Accounts are completely optional. FilingGuard works 100% as an anonymous guest. If you want to save and access your matters across sessions and devices, choose a username and passphrase.'
                 : 'Sign in to access your previously saved legal matters, filings, and reviewer history.'}
             </p>
 
@@ -207,6 +225,7 @@ export function IdentityModal({ isOpen, onClose }: IdentityModalProps) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
