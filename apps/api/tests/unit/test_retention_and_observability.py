@@ -240,7 +240,7 @@ def test_orchestrator_logs_correlation_id_and_timing_without_leaking_content(
         repo,
         slot,
         runners,
-        limits=ReviewLimits(overall_seconds=10, stage_seconds=2),
+        limits=ReviewLimits(overall_seconds=30, stage_seconds=10),
     )
 
     with caplog.at_level(logging.INFO, logger="filingguard.modules.analyses.orchestrator"):

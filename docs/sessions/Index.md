@@ -4,6 +4,8 @@ tags: [sessions]
 ---
 # Session handoffs
 
+- [[docs/sessions/2026-10-19 - P2 completion and release gate implementation]]
+
 - [[docs/sessions/2026-10-19 - P2 integration verification and stage validation fix]]
 
 - [[docs/sessions/2026-10-19 - Optional local identity claim]]

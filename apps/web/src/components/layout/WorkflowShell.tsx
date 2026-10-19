@@ -5,6 +5,8 @@ import logo from '../../assets/filingguard-logo.png';
 import '../../features/intake/prepared.css';
 import './workflow.css';
 
+import { IdentityBadge } from '../../features/identity/IdentityBadge';
+
 export function WorkflowShell({ children, connection }: { children: ReactNode; connection?: ReactNode }) {
   const { pathname } = useLocation();
   const main = useRef<HTMLElement>(null);
@@ -22,7 +24,7 @@ export function WorkflowShell({ children, connection }: { children: ReactNode; c
       <nav aria-label="Main navigation"><NavLink to="/" end><Home size={16} />Home</NavLink>
         <NavLink to="/demo"><Sparkles size={16} />Sample</NavLink><NavLink to="/activity"><Activity size={16} />Activity</NavLink>
         <NavLink to="/settings"><Settings size={16} />Settings</NavLink></nav>
-      <Link className="workflow-new-document" to="/"><FilePlus2 size={16} />New document</Link></header>
+      <div className="workflow-header-actions"><IdentityBadge /><Link className="workflow-new-document" to="/"><FilePlus2 size={16} />New document</Link></div></header>
     <main ref={main} id="main" tabIndex={-1}><div key={pathname} className="workflow-route">{children}</div></main>
     <footer className="document-footer"><div><span>FILINGGUARD AI · PRE-FILING REVIEW</span><p>Human review required. Not legal advice.</p></div>
       <div className="workflow-footer-links"><Link to="/privacy"><LockKeyhole size={14} />Privacy & limits</Link>{connection}</div></footer>

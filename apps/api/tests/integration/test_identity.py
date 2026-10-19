@@ -164,3 +164,33 @@ def test_duplicate_claim_conflicts_without_leaking_secret(private_client):
     assert "local-secret" not in taken.text
     same = claim(client, first)
     assert same.status_code == 201
+
+
+def test_migrate_anonymous_analyses_to_claimed_identity(private_client):
+    client, _ = private_client
+    primary_session = headers(client)
+    claim_res = claim(client, primary_session, username="registered_user", secret=SECRET)
+    assert claim_res.status_code == 201
+
+    guest_session = headers(client)
+    guest_created = submit(client, guest_session, text="Guest analysis content.")
+    guest_analysis_id = guest_created.json()["analysis_id"]
+
+    migrate_res = client.post(
+        "/api/v1/identities/migrate",
+        headers=guest_session,
+        json={"username": "registered_user", "secret": SECRET},
+    )
+    assert migrate_res.status_code == 200, migrate_res.text
+    data = migrate_res.json()
+    assert data["migrated_count"] == 1
+    new_token = data["session"]["token"]
+    user_auth = {"Authorization": f"Bearer {new_token}", "Origin": ORIGIN}
+
+    recovered = client.get(f"/api/v1/analyses/{guest_analysis_id}", headers=user_auth)
+    assert recovered.status_code == 200
+    assert recovered.json()["analysis_id"] == guest_analysis_id
+
+    old_guest_check = client.get(f"/api/v1/analyses/{guest_analysis_id}", headers=guest_session)
+    assert old_guest_check.status_code == 404
+

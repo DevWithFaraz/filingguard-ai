@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+  xsi:type="TaskPaneApp">
+
+  <Id>b78f4a12-9c32-4d8b-91ae-68e1a539209a</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>FilingGuard AI</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="FilingGuard Pre-Filing Review" />
+  <Description DefaultValue="Verify citations, quotes, court rules, and integrity before court filing." />
+  <IconUrl DefaultValue="https://filingguard.ai/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://filingguard.ai/assets/icon-64.png" />
+  <SupportUrl DefaultValue="https://filingguard.ai/privacy" />
+
+  <AppDomains>
+    <AppDomain>https://filingguard.ai</AppDomain>
+    <AppDomain>http://localhost:5173</AppDomain>
+    <AppDomain>http://127.0.0.1:5173</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Document" />
+  </Hosts>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://filingguard.ai/integrations/office-addin/taskpane.html" />
+  </DefaultSettings>
+
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
+          </GetStarted>
+          <FunctionFile resid="Commands.Url" />
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <CustomTab id="FilingGuardTab">
+              <Group id="FilingGuardGroup">
+                <Label resid="GroupLabel" />
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16" />
+                  <bt:Image size="32" resid="Icon.32" />
+                  <bt:Image size="80" resid="Icon.80" />
+                </Icon>
+                <Control xsi:type="Button" id="TaskpaneButton">
+                  <Label resid="TaskpaneButton.Label" />
+                  <Supertip>
+                    <Title resid="TaskpaneButton.Label" />
+                    <Description resid="TaskpaneButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>FilingGuardTaskpane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+              <Label resid="TabLabel" />
+            </CustomTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://filingguard.ai/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="https://filingguard.ai/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="https://filingguard.ai/assets/icon-80.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://filingguard.ai" />
+        <bt:Url id="Commands.Url" DefaultValue="https://filingguard.ai/integrations/office-addin/taskpane.html" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://filingguard.ai/integrations/office-addin/taskpane.html" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="Welcome to FilingGuard AI" />
+        <bt:String id="GroupLabel" DefaultValue="Compliance" />
+        <bt:String id="TabLabel" DefaultValue="FilingGuard" />
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Audit Filing" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Analyze your brief for citation integrity and quotation accuracy before filing." />
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open FilingGuard AI taskpane to verify legal citations and quotations." />
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

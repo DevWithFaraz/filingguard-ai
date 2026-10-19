@@ -44,3 +44,8 @@ class IdentitySessionIssued(Contract):
     token: str
     expires_at: datetime
     username: str
+
+
+class IdentityMigrationResponse(Contract):
+    migrated_count: int
+    session: IdentitySessionIssued

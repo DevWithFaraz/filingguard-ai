@@ -11,6 +11,7 @@ export interface ResultFinding {
   evidence_count: number; ai_assisted: boolean;
   claim_id?: string | null; authority_id?: string | null; citation_id?: string | null;
   quote_id?: string | null; segment_id?: string | null;
+  status?: string; disposition_metadata?: Record<string, unknown>;
 }
 export interface ClaimCorrectionEntry {
   id: string;

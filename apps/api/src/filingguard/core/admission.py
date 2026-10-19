@@ -64,10 +64,12 @@ class IntakeGuard:
             return await self.app(scope, receive, send)
         path, method = scope["path"], scope["method"]
         analyses = path == "/api/v1/analyses" or path.startswith("/api/v1/analyses/")
+        matters = path == "/api/v1/matters" or path.startswith("/api/v1/matters/")
+        batches = path == "/api/v1/batches" or path.startswith("/api/v1/batches/")
         identity_login = path == "/api/v1/identities/login"
         identity_protected = path.startswith("/api/v1/identities") and not identity_login
         session = (path == "/api/v1/sessions" or identity_login) and method == "POST"
-        private = analyses or identity_protected
+        private = analyses or matters or batches or identity_protected
         if not (private or session) or method == "OPTIONS":
             return await self.app(scope, receive, send)
         from filingguard.api.errors import _response

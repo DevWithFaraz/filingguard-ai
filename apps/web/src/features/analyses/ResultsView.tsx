@@ -26,6 +26,7 @@ import './results.css';
 import { WorkflowHero } from '../../components/layout/WorkflowShell';
 import { RedTeamPanel } from '../red-team/RedTeamPanel';
 import { FindingQA } from './FindingQA';
+import { FindingCollaboration } from '../collaboration/FindingCollaboration';
 
 const severityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
 function label(value: string) { return value.replaceAll('_', ' '); }
@@ -242,6 +243,7 @@ function EvidenceDetail({ analysisId, finding }: { analysisId: string; finding: 
           {item.prompt_version && <><dt>Prompt</dt><dd>{item.prompt_version}</dd></>}</dl>
       </article>)}</>}
 
+    <FindingCollaboration analysisId={analysisId} finding={finding} />
     <FindingQA analysisId={analysisId} finding={finding} />
 
     <p className="result-next-action">Next review action: compare the filing and stored source, inspect any missing coverage, and resolve the issue with a qualified reviewer before filing.</p>

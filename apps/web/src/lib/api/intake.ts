@@ -144,8 +144,9 @@ export async function prepareDemo(aiUsed = true, court = 'synthetic-demo-v1') {
 export async function getPrepared(id: string, signal?: AbortSignal) {
   return validatePrepared(await authorized(`/analyses/${encodeURIComponent(id)}`, { signal }));
 }
-export async function getActivity(signal?: AbortSignal) {
-  const value = await authorized('/analyses', { signal });
+export async function getActivity(signal?: AbortSignal, matterId?: string) {
+  const path = matterId ? `/analyses?matter_id=${encodeURIComponent(matterId)}` : '/analyses';
+  const value = await authorized(path, { signal });
   if (!Array.isArray(value)) throw new Error('Unexpected activity response');
   return value.map(validateSummary).filter(item => Date.parse(item.expires_at) > Date.now());
 }
@@ -182,3 +183,165 @@ export async function runLocalReview(id: string) {
 export async function prepareRerun(id: string): Promise<PreparedDocument> {
   return validatePrepared(await authorized(`/analyses/${encodeURIComponent(id)}/rerun`, { method: 'POST' }));
 }
+
+export type CurrentIdentity = { username: string; bound: boolean } | null;
+export type MatterSummary = components['schemas']['MatterSummary'];
+export type MatterDetail = components['schemas']['MatterDetail'];
+export type FindingComment = components['schemas']['FindingCommentResponse'];
+export type FindingDisposition = components['schemas']['FindingDispositionResponse'];
+export type BatchSummary = components['schemas']['BatchSummary'];
+export type BatchDetail = components['schemas']['BatchDetail'];
+
+export function getSavedSessionToken(): string | null {
+  try {
+    const saved: unknown = JSON.parse(sessionStorage.getItem(sessionKey) ?? 'null');
+    if (session(saved)) return saved.token;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+export async function getCurrentIdentity(signal?: AbortSignal): Promise<CurrentIdentity> {
+  try {
+    const value = await authorized('/identities/me', { signal });
+    if (record(value) && typeof value.username === 'string') {
+      return value as { username: string; bound: boolean };
+    }
+    return null;
+  } catch (err) {
+    if (err instanceof IntakeError && err.status === 404) return null;
+    return null;
+  }
+}
+
+export async function claimIdentity(username: string, secret: string): Promise<{ username: string; bound: boolean }> {
+  const value = await authorized('/identities', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, secret }),
+  });
+  return value as { username: string; bound: boolean };
+}
+
+export async function loginIdentity(username: string, secret: string): Promise<Session> {
+  const value = await request('/identities/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, secret }),
+  });
+  if (!session(value)) throw new Error('Unexpected identity login response');
+  sessionStorage.setItem(sessionKey, JSON.stringify(value));
+  return value;
+}
+
+export function logoutIdentity(): void {
+  sessionStorage.removeItem(sessionKey);
+}
+
+export async function migrateAnalyses(sourceToken: string): Promise<{ migrated_count: number }> {
+  const value = await authorized('/identities/migrate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source_session_token: sourceToken }),
+  });
+  return value as { migrated_count: number };
+}
+
+export async function listMatters(signal?: AbortSignal): Promise<MatterSummary[]> {
+  const value = await authorized('/matters', { signal });
+  if (!Array.isArray(value)) throw new Error('Unexpected matters response');
+  return value as MatterSummary[];
+}
+
+export async function createMatter(
+  name: string,
+  caseNumber?: string,
+  clientId?: string,
+  description?: string,
+): Promise<MatterSummary> {
+  const value = await authorized('/matters', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      case_number: caseNumber || null,
+      client_id: clientId || null,
+      description: description || null,
+    }),
+  });
+  return value as MatterSummary;
+}
+
+export async function getMatter(id: string, signal?: AbortSignal): Promise<MatterDetail> {
+  const value = await authorized(`/matters/${encodeURIComponent(id)}`, { signal });
+  return value as MatterDetail;
+}
+
+export async function assignMatter(matterId: string, analysisId: string): Promise<void> {
+  await authorized(`/matters/${encodeURIComponent(matterId)}/analyses/${encodeURIComponent(analysisId)}`, {
+    method: 'POST',
+  });
+}
+
+export async function unassignMatter(matterId: string, analysisId: string): Promise<void> {
+  await authorized(`/matters/${encodeURIComponent(matterId)}/analyses/${encodeURIComponent(analysisId)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function listFindingComments(
+  analysisId: string,
+  findingId: string,
+  signal?: AbortSignal,
+): Promise<FindingComment[]> {
+  const value = await authorized(
+    `/analyses/${encodeURIComponent(analysisId)}/findings/${encodeURIComponent(findingId)}/comments`,
+    { signal },
+  );
+  if (!Array.isArray(value)) throw new Error('Unexpected comments response');
+  return value as FindingComment[];
+}
+
+export async function addFindingComment(
+  analysisId: string,
+  findingId: string,
+  authorName: string,
+  authorRole: string,
+  content: string,
+): Promise<FindingComment> {
+  const value = await authorized(
+    `/analyses/${encodeURIComponent(analysisId)}/findings/${encodeURIComponent(findingId)}/comments`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ author_name: authorName, author_role: authorRole, content }),
+    },
+  );
+  return value as FindingComment;
+}
+
+export async function setFindingDisposition(
+  analysisId: string,
+  findingId: string,
+  status: 'open' | 'accepted' | 'dismissed' | 'needs_review',
+  rationale: string,
+  reviewerName: string,
+  reviewerRole: string,
+): Promise<FindingDisposition> {
+  const value = await authorized(
+    `/analyses/${encodeURIComponent(analysisId)}/findings/${encodeURIComponent(findingId)}/disposition`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status,
+        rationale,
+        reviewer_name: reviewerName,
+        reviewer_role: reviewerRole,
+      }),
+    },
+  );
+  return value as FindingDisposition;
+}
+

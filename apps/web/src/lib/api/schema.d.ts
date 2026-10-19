@@ -95,6 +95,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/identities/migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Migrate Identity */
+        post: operations["migrate_identity_api_v1_identities_migrate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/identities/me": {
         parameters: {
             query?: never;
@@ -106,6 +123,147 @@ export interface paths {
         get: operations["identity_me_api_v1_identities_me_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/matters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Matters Route */
+        get: operations["list_matters_route_api_v1_matters_get"];
+        put?: never;
+        /** Create Matter Route */
+        post: operations["create_matter_route_api_v1_matters_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/matters/{matter_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Matter Route */
+        get: operations["get_matter_route_api_v1_matters__matter_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Matter Route */
+        delete: operations["delete_matter_route_api_v1_matters__matter_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/matters/{matter_id}/analyses/{analysis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Assign Matter Route */
+        post: operations["assign_matter_route_api_v1_matters__matter_id__analyses__analysis_id__post"];
+        /** Unassign Matter Route */
+        delete: operations["unassign_matter_route_api_v1_matters__matter_id__analyses__analysis_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Finding Comments Route */
+        get: operations["list_finding_comments_route_api_v1_analyses__analysis_id__findings__finding_id__comments_get"];
+        put?: never;
+        /** Add Finding Comment Route */
+        post: operations["add_finding_comment_route_api_v1_analyses__analysis_id__findings__finding_id__comments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/disposition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set Finding Disposition Route */
+        post: operations["set_finding_disposition_route_api_v1_analyses__analysis_id__findings__finding_id__disposition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Batches Route */
+        get: operations["list_batches_route_api_v1_batches_get"];
+        put?: never;
+        /** Create Batch Route */
+        post: operations["create_batch_route_api_v1_batches_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{batch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Batch Route */
+        get: operations["get_batch_route_api_v1_batches__batch_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{batch_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Batch Route */
+        post: operations["cancel_batch_route_api_v1_batches__batch_id__cancel_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -521,6 +679,110 @@ export interface components {
              */
             score_is_provisional: boolean;
         };
+        /** BatchCreate */
+        BatchCreate: {
+            /** Name */
+            name: string;
+            /** Documents */
+            documents: components["schemas"]["BatchDocumentItem"][];
+        };
+        /** BatchDetail */
+        BatchDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Status */
+            status: string;
+            /** Total Count */
+            total_count: number;
+            /** Completed Count */
+            completed_count: number;
+            /** Failed Count */
+            failed_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Items */
+            items?: components["schemas"]["BatchItemSummary"][];
+        };
+        /** BatchDocumentItem */
+        BatchDocumentItem: {
+            /** Document Name */
+            document_name: string;
+            /** Text */
+            text: string;
+            /**
+             * Court Profile Id
+             * @default unverified
+             */
+            court_profile_id: string;
+            /**
+             * Ai Used
+             * @default false
+             */
+            ai_used: boolean;
+        };
+        /** BatchItemSummary */
+        BatchItemSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Document Name */
+            document_name: string;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** BatchSummary */
+        BatchSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Status */
+            status: string;
+            /** Total Count */
+            total_count: number;
+            /** Completed Count */
+            completed_count: number;
+            /** Failed Count */
+            failed_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** Capabilities */
         Capabilities: {
             /** Intake Enabled */
@@ -932,6 +1194,72 @@ export interface components {
             /** Diagnostics */
             diagnostics?: string[];
         };
+        /** FindingCommentCreate */
+        FindingCommentCreate: {
+            /** Author Name */
+            author_name: string;
+            /** Author Role */
+            author_role: string;
+            /** Content */
+            content: string;
+        };
+        /** FindingCommentResponse */
+        FindingCommentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Finding Id
+             * Format: uuid
+             */
+            finding_id: string;
+            /** Author Name */
+            author_name: string;
+            /** Author Role */
+            author_role: string;
+            /** Content */
+            content: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** FindingDispositionRequest */
+        FindingDispositionRequest: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "accepted" | "dismissed" | "needs_review";
+            /** Rationale */
+            rationale: string;
+            /** Reviewer Name */
+            reviewer_name: string;
+            /** Reviewer Role */
+            reviewer_role: string;
+        };
+        /** FindingDispositionResponse */
+        FindingDispositionResponse: {
+            /**
+             * Finding Id
+             * Format: uuid
+             */
+            finding_id: string;
+            /** Status */
+            status: string;
+            /** Disposition Metadata */
+            disposition_metadata: {
+                [key: string]: unknown;
+            };
+        };
         /** GroundedAnswerResponse */
         GroundedAnswerResponse: {
             /**
@@ -1045,6 +1373,12 @@ export interface components {
             /** Secret */
             secret: string;
         };
+        /** IdentityMigrationResponse */
+        IdentityMigrationResponse: {
+            /** Migrated Count */
+            migrated_count: number;
+            session: components["schemas"]["IdentitySessionIssued"];
+        };
         /** IdentitySessionIssued */
         IdentitySessionIssued: {
             /** Token */
@@ -1056,6 +1390,90 @@ export interface components {
             expires_at: string;
             /** Username */
             username: string;
+        };
+        /** MatterAnalysisItem */
+        MatterAnalysisItem: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Document Name */
+            document_name: string;
+            /** Mode */
+            mode: string;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** MatterCreate */
+        MatterCreate: {
+            /** Name */
+            name: string;
+            /** Case Number */
+            case_number?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+            /** Description */
+            description?: string | null;
+        };
+        /** MatterDetail */
+        MatterDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Case Number */
+            case_number?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+            /** Description */
+            description?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Analyses */
+            analyses?: components["schemas"]["MatterAnalysisItem"][];
+        };
+        /** MatterSummary */
+        MatterSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Case Number */
+            case_number?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+            /** Description */
+            description?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** PageSpan */
         PageSpan: {
@@ -2265,6 +2683,39 @@ export interface operations {
             };
         };
     };
+    migrate_identity_api_v1_identities_migrate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdentityLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdentityMigrationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     identity_me_api_v1_identities_me_get: {
         parameters: {
             query?: never;
@@ -2281,6 +2732,404 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IdentityClaimed"];
+                };
+            };
+        };
+    };
+    list_matters_route_api_v1_matters_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatterSummary"][];
+                };
+            };
+        };
+    };
+    create_matter_route_api_v1_matters_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatterCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatterSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_matter_route_api_v1_matters__matter_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                matter_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatterDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_matter_route_api_v1_matters__matter_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                matter_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_matter_route_api_v1_matters__matter_id__analyses__analysis_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                matter_id: string;
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unassign_matter_route_api_v1_matters__matter_id__analyses__analysis_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                matter_id: string;
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_finding_comments_route_api_v1_analyses__analysis_id__findings__finding_id__comments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FindingCommentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_finding_comment_route_api_v1_analyses__analysis_id__findings__finding_id__comments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FindingCommentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FindingCommentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_finding_disposition_route_api_v1_analyses__analysis_id__findings__finding_id__disposition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FindingDispositionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FindingDispositionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_batches_route_api_v1_batches_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchSummary"][];
+                };
+            };
+        };
+    };
+    create_batch_route_api_v1_batches_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_batch_route_api_v1_batches__batch_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_batch_route_api_v1_batches__batch_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2451,7 +3300,9 @@ export interface operations {
     };
     activity_api_v1_analyses_get: {
         parameters: {
-            query?: never;
+            query?: {
+                matter_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2465,6 +3316,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DocumentSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

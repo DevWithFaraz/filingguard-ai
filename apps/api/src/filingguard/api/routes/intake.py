@@ -224,7 +224,7 @@ def submit_demo(request: Request, body: DemoSubmission):
 
 
 @router.get("/analyses", response_model=list[DocumentSummary])
-def activity(request: Request):
+def activity(request: Request, matter_id: UUID | None = None):
     try:
         service = lifecycle(request)
         return [
@@ -238,7 +238,9 @@ def activity(request: Request):
                 expires_at=row.expires_at,
                 paragraph_count=len(row.document_snapshot["paragraphs"]),
             )
-            for row in service.repository.list_analyses(request.state.owner_hash)
+            for row in service.repository.list_analyses(
+                request.state.owner_hash, matter_id=matter_id
+            )
             if row.document_snapshot is not None
         ]
     except (SQLAlchemyError, StorageError):

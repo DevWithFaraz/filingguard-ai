@@ -3,6 +3,7 @@
 .document-workspace .document-header nav { gap: 3px; }
 .document-workspace .document-header nav a { padding-inline: 13px; }
 .document-workspace .document-header nav a.active { color: #3e0f8d; background: #ffffffa6; box-shadow: inset 0 0 0 1px #3e0f8d13; }
+.workflow-header-actions { display: flex; align-items: center; gap: 10px; }
 .workflow-new-document { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border-radius: 12px; background: #3e0f8d; color: #fff !important; font-size: 12px; font-weight: 600; }
 .workflow-route { animation: workflow-reveal 420ms cubic-bezier(.16,1,.3,1); }
 @keyframes workflow-reveal { from { opacity: .75; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

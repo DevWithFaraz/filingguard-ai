@@ -6,6 +6,7 @@ from filingguard.modules.identity.schemas import (
     IdentityClaimed,
     IdentityClaimRequest,
     IdentityLoginRequest,
+    IdentityMigrationResponse,
     IdentitySessionIssued,
 )
 from filingguard.modules.identity.service import (
@@ -14,6 +15,7 @@ from filingguard.modules.identity.service import (
     claim_owner,
     current_identity,
     login_owner,
+    migrate_owner_analyses,
 )
 
 router = APIRouter()
@@ -39,6 +41,27 @@ async def login_identity(request: Request, body: IdentityLoginRequest):
         return await run_in_threadpool(
             login_owner, lifecycle(request).repository, body.username, body.secret
         )
+    except IdentityLoginFailed:
+        raise HTTPException(401) from None
+    except OverflowError:
+        raise HTTPException(429, headers={"Retry-After": "60"}) from None
+
+
+@router.post(
+    "/identities/migrate",
+    response_model=IdentityMigrationResponse,
+    status_code=200,
+)
+async def migrate_identity(request: Request, body: IdentityLoginRequest):
+    try:
+        count, session = await run_in_threadpool(
+            migrate_owner_analyses,
+            lifecycle(request).repository,
+            request.state.owner_hash,
+            body.username,
+            body.secret,
+        )
+        return IdentityMigrationResponse(migrated_count=count, session=session)
     except IdentityLoginFailed:
         raise HTTPException(401) from None
     except OverflowError:

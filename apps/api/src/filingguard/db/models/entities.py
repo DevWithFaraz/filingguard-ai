@@ -146,6 +146,35 @@ class DocumentLocation:
     end_offset: Mapped[int | None] = mapped_column(Integer)
 
 
+class Matter(Base):
+    """Client matter grouping for multiple analyses."""
+
+    __tablename__ = "matters"
+    __table_args__ = (
+        CheckConstraint("length(owner_hash) = 64", name="matter_owner_hash_valid"),
+        CheckConstraint("length(name) >= 1 AND length(name) <= 255", name="matter_name_valid"),
+        UniqueConstraint("owner_hash", "name"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    owner_hash: Mapped[str] = mapped_column(String(64), index=True)
+    name: Mapped[str] = mapped_column(String(255))
+    case_number: Mapped[str | None] = mapped_column(String(64))
+    client_id: Mapped[str | None] = mapped_column(String(64))
+    description: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+
 class Analysis(Base):
     __tablename__ = "analyses"
     __table_args__ = (
@@ -192,6 +221,11 @@ class Analysis(Base):
     stage_states: Mapped[dict] = mapped_column(JSON_VALUE, default=dict, server_default="{}")
     overall_score: Mapped[int | None] = mapped_column(Integer)
     risk_level: Mapped[str | None] = mapped_column(String(32))
+    matter_id: Mapped[UUID | None] = mapped_column(
+        Uuid,
+        ForeignKey("matters.id", ondelete="SET NULL"),
+        index=True,
+    )
 
     segments: Mapped[list["DocumentSegment"]] = relationship(
         cascade="all, delete-orphan",
@@ -417,6 +451,41 @@ class Finding(AnalysisOwned, DocumentLocation, Base):
         foreign_keys="EvidenceRecord.finding_id",
         back_populates="finding",
     )
+    disposition_metadata: Mapped[dict] = mapped_column(
+        JSON_VALUE, default=dict, server_default="{}"
+    )
+
+
+class FindingComment(AnalysisOwned, Base):
+    """Attorney or reviewer collaboration comment on an extracted finding."""
+
+    __tablename__ = "finding_comments"
+    __table_args__ = (
+        UniqueConstraint("analysis_id", "id"),
+        scoped_fk("finding_id", "findings"),
+        CheckConstraint(
+            "length(author_name) >= 1 AND length(author_name) <= 64",
+            name="author_name_valid",
+        ),
+        CheckConstraint(
+            "length(author_role) >= 1 AND length(author_role) <= 64",
+            name="author_role_valid",
+        ),
+        CheckConstraint(
+            "length(content) >= 1 AND length(content) <= 2000",
+            name="comment_content_valid",
+        ),
+    )
+
+    finding_id: Mapped[UUID] = mapped_column(Uuid, index=True)
+    author_name: Mapped[str] = mapped_column(String(64))
+    author_role: Mapped[str] = mapped_column(String(64))
+    content: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+    )
 
 
 class EvidenceRecord(AnalysisOwned, DocumentLocation, Base):
@@ -474,3 +543,62 @@ def preserve_evidence_snapshot(mapper, connection, target):
     immutable = set(state.mapper.column_attrs.keys()) - {"finding_id"}
     if any(state.attrs[name].history.has_changes() for name in immutable):
         raise ValueError("Evidence provenance is immutable; append a new evidence record")
+
+
+class Batch(Base):
+    """Batch of analyses processed together under durable execution."""
+
+    __tablename__ = "batches"
+    __table_args__ = (
+        CheckConstraint("length(owner_hash) = 64", name="batch_owner_hash_valid"),
+        CheckConstraint("length(name) >= 1 AND length(name) <= 255", name="batch_name_valid"),
+        status_check(
+            "status",
+            ("queued", "running", "completed", "partial", "cancelled", "failed"),
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    owner_hash: Mapped[str] = mapped_column(String(64), index=True)
+    name: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(32), default="queued", server_default="queued")
+    total_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    completed_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    failed_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+
+class BatchItem(Base):
+    """Individual filing within an analysis batch."""
+
+    __tablename__ = "batch_items"
+    __table_args__ = (
+        status_check(
+            "status",
+            ("queued", "running", "completed", "partial", "cancelled", "failed"),
+        ),
+        ForeignKeyConstraint(["batch_id"], ["batches.id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["analysis_id"], ["analyses.id"], ondelete="CASCADE"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    batch_id: Mapped[UUID] = mapped_column(Uuid, index=True)
+    analysis_id: Mapped[UUID] = mapped_column(Uuid, index=True)
+    document_name: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(32), default="queued", server_default="queued")
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime,
+        default=lambda: datetime.now(UTC),
+        server_default=func.now(),
+    )
+

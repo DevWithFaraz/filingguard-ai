@@ -5,21 +5,25 @@ from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from filingguard.db.models import (
     Analysis,
     AnonymousSession,
     Authority,
+    Batch,
+    BatchItem,
     Citation,
     Claim,
     ClaimAuthorityLink,
     DocumentSegment,
     EvidenceRecord,
     Finding,
+    FindingComment,
     IdentitySession,
     LocalIdentity,
+    Matter,
     Quote,
 )
 from filingguard.db.models.entities import ANALYSIS_STATUSES, AnalysisOwned
@@ -202,16 +206,300 @@ class AnalysisRepository:
                 delete(IdentitySession).where(IdentitySession.expires_at <= datetime.now(UTC))
             )
 
-    def list_analyses(self, owner_hash: str) -> list[Analysis]:
+    def migrate_owner(self, from_owner_hash: str, to_owner_hash: str) -> int:
+        if from_owner_hash == to_owner_hash:
+            return 0
+        with transaction(self._factory) as session:
+            result = session.execute(
+                update(Analysis)
+                .where(
+                    Analysis.owner_hash == from_owner_hash,
+                    Analysis.expires_at > datetime.now(UTC),
+                )
+                .values(owner_hash=to_owner_hash)
+            )
+            return result.rowcount or 0
+
+    def create_matter(
+        self,
+        owner_hash: str,
+        name: str,
+        case_number: str | None = None,
+        client_id: str | None = None,
+        description: str | None = None,
+    ) -> Matter:
+        with transaction(self._factory) as session:
+            existing = session.scalar(
+                select(Matter).where(Matter.owner_hash == owner_hash, Matter.name == name)
+            )
+            if existing is not None:
+                raise ValueError("Matter name already exists")
+            matter = Matter(
+                owner_hash=owner_hash,
+                name=name,
+                case_number=case_number,
+                client_id=client_id,
+                description=description,
+            )
+            session.add(matter)
+            session.flush()
+            return matter
+
+    def list_matters(self, owner_hash: str) -> list[Matter]:
         with self._factory() as session:
             return list(
                 session.scalars(
+                    select(Matter)
+                    .where(Matter.owner_hash == owner_hash)
+                    .order_by(Matter.created_at.desc())
+                )
+            )
+
+    def get_matter(self, owner_hash: str, matter_id: UUID) -> tuple[Matter, list[Analysis]]:
+        with self._factory() as session:
+            matter = session.scalar(
+                select(Matter).where(Matter.owner_hash == owner_hash, Matter.id == matter_id)
+            )
+            if matter is None:
+                raise AnalysisNotFound("Matter not found")
+            analyses = list(
+                session.scalars(
                     select(Analysis)
                     .where(
-                        Analysis.owner_hash == owner_hash, Analysis.expires_at > datetime.now(UTC)
+                        Analysis.owner_hash == owner_hash,
+                        Analysis.matter_id == matter_id,
+                        Analysis.expires_at > datetime.now(UTC),
                     )
                     .order_by(Analysis.created_at.desc())
-                    .limit(20)
+                )
+            )
+            return matter, analyses
+
+    def assign_matter(
+        self, owner_hash: str, analysis_id: UUID, matter_id: UUID | None
+    ) -> None:
+        with transaction(self._factory) as session:
+            analysis = _owned_analysis(session, owner_hash, analysis_id)
+            if matter_id is not None:
+                matter = session.scalar(
+                    select(Matter).where(Matter.owner_hash == owner_hash, Matter.id == matter_id)
+                )
+                if matter is None:
+                    raise AnalysisNotFound("Matter not found")
+            analysis.matter_id = matter_id
+
+    def delete_matter(self, owner_hash: str, matter_id: UUID) -> None:
+        with transaction(self._factory) as session:
+            matter = session.scalar(
+                select(Matter).where(Matter.owner_hash == owner_hash, Matter.id == matter_id)
+            )
+            if matter is None:
+                raise AnalysisNotFound("Matter not found")
+            session.execute(
+                update(Analysis)
+                .where(Analysis.matter_id == matter_id)
+                .values(matter_id=None)
+            )
+            session.delete(matter)
+
+    def add_finding_comment(
+        self,
+        owner_hash: str,
+        analysis_id: UUID,
+        finding_id: UUID,
+        author_name: str,
+        author_role: str,
+        content: str,
+    ) -> FindingComment:
+        with transaction(self._factory) as session:
+            _owned_analysis(session, owner_hash, analysis_id)
+            finding = session.scalar(
+                select(Finding).where(
+                    Finding.analysis_id == analysis_id,
+                    Finding.id == finding_id,
+                )
+            )
+            if finding is None:
+                raise AnalysisNotFound("Finding not found")
+            comment = FindingComment(
+                analysis_id=analysis_id,
+                finding_id=finding_id,
+                author_name=author_name,
+                author_role=author_role,
+                content=content,
+            )
+            session.add(comment)
+            session.flush()
+            return comment
+
+    def list_finding_comments(
+        self, owner_hash: str, analysis_id: UUID, finding_id: UUID
+    ) -> list[FindingComment]:
+        with self._factory() as session:
+            _owned_analysis(session, owner_hash, analysis_id)
+            return list(
+                session.scalars(
+                    select(FindingComment)
+                    .where(
+                        FindingComment.analysis_id == analysis_id,
+                        FindingComment.finding_id == finding_id,
+                    )
+                    .order_by(FindingComment.created_at.asc())
+                )
+            )
+
+    def update_finding_disposition(
+        self,
+        owner_hash: str,
+        analysis_id: UUID,
+        finding_id: UUID,
+        status: str,
+        disposition_metadata: dict,
+    ) -> Finding:
+        with transaction(self._factory) as session:
+            _owned_analysis(session, owner_hash, analysis_id)
+            finding = session.scalar(
+                select(Finding).where(
+                    Finding.analysis_id == analysis_id,
+                    Finding.id == finding_id,
+                )
+            )
+            if finding is None:
+                raise AnalysisNotFound("Finding not found")
+            db_status = (
+                "resolved"
+                if status in {"accepted", "dismissed"}
+                else ("reviewed" if status == "needs_review" else "open")
+            )
+            finding.status = db_status
+            existing = dict(finding.disposition_metadata or {})
+            history = list(existing.get("history", []))
+            history.append(disposition_metadata)
+            meta = {**disposition_metadata, "history": history}
+            finding.disposition_metadata = meta
+            session.flush()
+            return finding
+
+    def create_batch(
+        self,
+        owner_hash: str,
+        name: str,
+        items: list[tuple[UUID, str]],
+    ) -> Batch:
+        with transaction(self._factory) as session:
+            batch = Batch(
+                owner_hash=owner_hash,
+                name=name,
+                status="queued" if items else "completed",
+                total_count=len(items),
+                completed_count=0,
+                failed_count=0,
+            )
+            session.add(batch)
+            session.flush()
+            for analysis_id, doc_name in items:
+                session.add(
+                    BatchItem(
+                        batch_id=batch.id,
+                        analysis_id=analysis_id,
+                        document_name=doc_name,
+                        status="queued",
+                    )
+                )
+            session.flush()
+            return batch
+
+    def list_batches(self, owner_hash: str) -> list[Batch]:
+        with self._factory() as session:
+            return list(
+                session.scalars(
+                    select(Batch)
+                    .where(Batch.owner_hash == owner_hash)
+                    .order_by(Batch.created_at.desc())
+                )
+            )
+
+    def get_batch(
+        self, owner_hash: str, batch_id: UUID
+    ) -> tuple[Batch, list[BatchItem]]:
+        with self._factory() as session:
+            batch = session.scalar(
+                select(Batch).where(Batch.owner_hash == owner_hash, Batch.id == batch_id)
+            )
+            if batch is None:
+                raise AnalysisNotFound("Batch not found")
+            items = list(
+                session.scalars(
+                    select(BatchItem)
+                    .where(BatchItem.batch_id == batch_id)
+                    .order_by(BatchItem.created_at.asc())
+                )
+            )
+            return batch, items
+
+    def update_batch_item_status(
+        self, batch_id: UUID, analysis_id: UUID, status: str
+    ) -> None:
+        with transaction(self._factory) as session:
+            item = session.scalar(
+                select(BatchItem).where(
+                    BatchItem.batch_id == batch_id,
+                    BatchItem.analysis_id == analysis_id,
+                )
+            )
+            if item is not None:
+                item.status = status
+            batch = session.scalar(select(Batch).where(Batch.id == batch_id))
+            if batch is not None:
+                items = list(
+                    session.scalars(select(BatchItem).where(BatchItem.batch_id == batch_id))
+                )
+                batch.completed_count = sum(
+                    1 for it in items if it.status in {"completed", "partial"}
+                )
+                batch.failed_count = sum(
+                    1 for it in items if it.status in {"failed", "cancelled"}
+                )
+                if all(
+                    it.status in {"completed", "partial", "failed", "cancelled"}
+                    for it in items
+                ):
+                    batch.status = (
+                        "completed"
+                        if batch.failed_count == 0
+                        else ("partial" if batch.completed_count > 0 else "failed")
+                    )
+                elif any(it.status == "running" for it in items):
+                    batch.status = "running"
+
+    def cancel_batch(self, owner_hash: str, batch_id: UUID) -> Batch:
+        with transaction(self._factory) as session:
+            batch = session.scalar(
+                select(Batch).where(Batch.owner_hash == owner_hash, Batch.id == batch_id)
+            )
+            if batch is None:
+                raise AnalysisNotFound("Batch not found")
+            batch.status = "cancelled"
+            session.execute(
+                update(BatchItem)
+                .where(BatchItem.batch_id == batch_id, BatchItem.status == "queued")
+                .values(status="cancelled")
+            )
+            return batch
+
+    def list_analyses(
+        self, owner_hash: str, matter_id: UUID | None = None
+    ) -> list[Analysis]:
+        with self._factory() as session:
+            stmt = select(Analysis).where(
+                Analysis.owner_hash == owner_hash,
+                Analysis.expires_at > datetime.now(UTC),
+            )
+            if matter_id is not None:
+                stmt = stmt.where(Analysis.matter_id == matter_id)
+            return list(
+                session.scalars(
+                    stmt.order_by(Analysis.created_at.desc()).limit(100)
                 )
             )
 

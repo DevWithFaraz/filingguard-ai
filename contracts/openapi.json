@@ -186,6 +186,44 @@
         }
       }
     },
+    "/api/v1/identities/migrate": {
+      "post": {
+        "summary": "Migrate Identity",
+        "operationId": "migrate_identity_api_v1_identities_migrate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMigrationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/identities/me": {
       "get": {
         "summary": "Identity Me",
@@ -197,6 +235,583 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IdentityClaimed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matters": {
+      "get": {
+        "tags": [
+          "Saved matters"
+        ],
+        "summary": "List Matters Route",
+        "operationId": "list_matters_route_api_v1_matters_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MatterSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Matters Route Api V1 Matters Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Saved matters"
+        ],
+        "summary": "Create Matter Route",
+        "operationId": "create_matter_route_api_v1_matters_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatterCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatterSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matters/{matter_id}": {
+      "get": {
+        "tags": [
+          "Saved matters"
+        ],
+        "summary": "Get Matter Route",
+        "operationId": "get_matter_route_api_v1_matters__matter_id__get",
+        "parameters": [
+          {
+            "name": "matter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Matter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatterDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Saved matters"
+        ],
+        "summary": "Delete Matter Route",
+        "operationId": "delete_matter_route_api_v1_matters__matter_id__delete",
+        "parameters": [
+          {
+            "name": "matter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Matter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matters/{matter_id}/analyses/{analysis_id}": {
+      "post": {
+        "tags": [
+          "Saved matters"
+        ],
+        "summary": "Assign Matter Route",
+        "operationId": "assign_matter_route_api_v1_matters__matter_id__analyses__analysis_id__post",
+        "parameters": [
+          {
+            "name": "matter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Matter Id"
+            }
+          },
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Saved matters"
+        ],
+        "summary": "Unassign Matter Route",
+        "operationId": "unassign_matter_route_api_v1_matters__matter_id__analyses__analysis_id__delete",
+        "parameters": [
+          {
+            "name": "matter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Matter Id"
+            }
+          },
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/comments": {
+      "post": {
+        "tags": [
+          "Finding collaboration"
+        ],
+        "summary": "Add Finding Comment Route",
+        "operationId": "add_finding_comment_route_api_v1_analyses__analysis_id__findings__finding_id__comments_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "finding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Finding Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindingCommentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingCommentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Finding collaboration"
+        ],
+        "summary": "List Finding Comments Route",
+        "operationId": "list_finding_comments_route_api_v1_analyses__analysis_id__findings__finding_id__comments_get",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "finding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Finding Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FindingCommentResponse"
+                  },
+                  "title": "Response List Finding Comments Route Api V1 Analyses  Analysis Id  Findings  Finding Id  Comments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/findings/{finding_id}/disposition": {
+      "post": {
+        "tags": [
+          "Finding collaboration"
+        ],
+        "summary": "Set Finding Disposition Route",
+        "operationId": "set_finding_disposition_route_api_v1_analyses__analysis_id__findings__finding_id__disposition_post",
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "finding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Finding Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindingDispositionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingDispositionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/batches": {
+      "get": {
+        "tags": [
+          "Batch review"
+        ],
+        "summary": "List Batches Route",
+        "operationId": "list_batches_route_api_v1_batches_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BatchSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Batches Route Api V1 Batches Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Batch review"
+        ],
+        "summary": "Create Batch Route",
+        "operationId": "create_batch_route_api_v1_batches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/batches/{batch_id}": {
+      "get": {
+        "tags": [
+          "Batch review"
+        ],
+        "summary": "Get Batch Route",
+        "operationId": "get_batch_route_api_v1_batches__batch_id__get",
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Batch Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/batches/{batch_id}/cancel": {
+      "post": {
+        "tags": [
+          "Batch review"
+        ],
+        "summary": "Cancel Batch Route",
+        "operationId": "cancel_batch_route_api_v1_batches__batch_id__cancel_post",
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Batch Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -414,17 +1029,46 @@
       "get": {
         "summary": "Activity",
         "operationId": "activity_api_v1_analyses_get",
+        "parameters": [
+          {
+            "name": "matter_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Matter Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/DocumentSummary"
                   },
-                  "type": "array",
                   "title": "Response Activity Api V1 Analyses Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1281,6 +1925,213 @@
         ],
         "title": "AnalysisSummary",
         "type": "object"
+      },
+      "BatchCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/BatchDocumentItem"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Documents"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "documents"
+        ],
+        "title": "BatchCreate"
+      },
+      "BatchDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "completed_count": {
+            "type": "integer",
+            "title": "Completed Count"
+          },
+          "failed_count": {
+            "type": "integer",
+            "title": "Failed Count"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BatchItemSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status",
+          "total_count",
+          "completed_count",
+          "failed_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "BatchDetail"
+      },
+      "BatchDocumentItem": {
+        "properties": {
+          "document_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Document Name"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 500000,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "court_profile_id": {
+            "type": "string",
+            "title": "Court Profile Id",
+            "default": "unverified"
+          },
+          "ai_used": {
+            "type": "boolean",
+            "title": "Ai Used",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document_name",
+          "text"
+        ],
+        "title": "BatchDocumentItem"
+      },
+      "BatchItemSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "document_name": {
+            "type": "string",
+            "title": "Document Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "analysis_id",
+          "document_name",
+          "status",
+          "created_at"
+        ],
+        "title": "BatchItemSummary"
+      },
+      "BatchSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "completed_count": {
+            "type": "integer",
+            "title": "Completed Count"
+          },
+          "failed_count": {
+            "type": "integer",
+            "title": "Failed Count"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status",
+          "total_count",
+          "completed_count",
+          "failed_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "BatchSummary"
       },
       "Capabilities": {
         "properties": {
@@ -2198,6 +3049,151 @@
         ],
         "title": "ExtractedDocument"
       },
+      "FindingCommentCreate": {
+        "properties": {
+          "author_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Author Name"
+          },
+          "author_role": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Author Role"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "author_name",
+          "author_role",
+          "content"
+        ],
+        "title": "FindingCommentCreate"
+      },
+      "FindingCommentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "finding_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Finding Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "author_role": {
+            "type": "string",
+            "title": "Author Role"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "analysis_id",
+          "finding_id",
+          "author_name",
+          "author_role",
+          "content",
+          "created_at"
+        ],
+        "title": "FindingCommentResponse"
+      },
+      "FindingDispositionRequest": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "accepted",
+              "dismissed",
+              "needs_review"
+            ],
+            "title": "Status"
+          },
+          "rationale": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Rationale"
+          },
+          "reviewer_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Reviewer Name"
+          },
+          "reviewer_role": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Reviewer Role"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "rationale",
+          "reviewer_name",
+          "reviewer_role"
+        ],
+        "title": "FindingDispositionRequest"
+      },
+      "FindingDispositionResponse": {
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Finding Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "disposition_metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Disposition Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "finding_id",
+          "status",
+          "disposition_metadata"
+        ],
+        "title": "FindingDispositionResponse"
+      },
       "GroundedAnswerResponse": {
         "additionalProperties": false,
         "properties": {
@@ -2429,6 +3425,24 @@
         "title": "IdentityLoginRequest",
         "type": "object"
       },
+      "IdentityMigrationResponse": {
+        "properties": {
+          "migrated_count": {
+            "type": "integer",
+            "title": "Migrated Count"
+          },
+          "session": {
+            "$ref": "#/components/schemas/IdentitySessionIssued"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "migrated_count",
+          "session"
+        ],
+        "title": "IdentityMigrationResponse"
+      },
       "IdentitySessionIssued": {
         "additionalProperties": false,
         "properties": {
@@ -2453,6 +3467,231 @@
         ],
         "title": "IdentitySessionIssued",
         "type": "object"
+      },
+      "MatterAnalysisItem": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "document_name": {
+            "type": "string",
+            "title": "Document Name"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "document_name",
+          "mode",
+          "status",
+          "created_at"
+        ],
+        "title": "MatterAnalysisItem"
+      },
+      "MatterCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "case_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Number"
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "MatterCreate"
+      },
+      "MatterDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "case_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Number"
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "analyses": {
+            "items": {
+              "$ref": "#/components/schemas/MatterAnalysisItem"
+            },
+            "type": "array",
+            "title": "Analyses"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "MatterDetail"
+      },
+      "MatterSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "case_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Number"
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "MatterSummary"
       },
       "PageSpan": {
         "properties": {

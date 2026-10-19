@@ -50,3 +50,18 @@ def current_identity(repository: AnalysisRepository, owner_hash: str):
     if row is None:
         raise IdentityLoginFailed("Identity unavailable")
     return IdentityClaimed(username=row.username)
+
+
+def migrate_owner_analyses(
+    repository: AnalysisRepository,
+    from_owner_hash: str,
+    username: str,
+    secret: str,
+):
+    session = login_owner(repository, username, secret)
+    identity = repository.get_local_identity_by_username(username)
+    if identity is None:
+        raise IdentityLoginFailed("Identity unavailable")
+    count = repository.migrate_owner(from_owner_hash, identity.owner_hash)
+    return count, session
+
