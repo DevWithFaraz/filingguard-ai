@@ -249,11 +249,13 @@ export function FindingCollaboration({ analysisId, finding }: FindingCollaborati
               value={commentAuthor}
               onChange={e => setCommentAuthor(e.target.value)}
               placeholder="Your name"
+              aria-label="Author name"
               className="collab-name-input"
             />
             <select
               value={commentRole}
               onChange={e => setCommentRole(e.target.value)}
+              aria-label="Author role"
               className="collab-role-select"
             >
               {ROLES.map(r => (
@@ -271,6 +273,7 @@ export function FindingCollaboration({ analysisId, finding }: FindingCollaborati
               value={commentContent}
               onChange={e => setCommentContent(e.target.value)}
               placeholder="Add a comment or verification note..."
+              aria-label="Comment content"
               className="collab-content-input"
             />
             <button

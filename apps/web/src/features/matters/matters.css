@@ -1,11 +1,10 @@
 .matters-bar-container {
   margin: 1.5rem 0 1rem;
   padding: 1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(250, 247, 255, 0.95);
+  border: 1px solid #dcd1ed;
   border-radius: 1rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(62, 15, 141, 0.04);
 }
 
 .matters-bar-header {
@@ -20,28 +19,32 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #e9d5ff;
+  font-weight: 700;
+  color: #2b1f3d;
+}
+
+.matters-bar-title svg {
+  color: #5d2f96;
 }
 
 .matters-new-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid rgba(168, 85, 247, 0.4);
-  background: rgba(168, 85, 247, 0.15);
-  color: #f3e8ff;
+  border: 1px solid #3e0f8d;
+  background: #3e0f8d;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .matters-new-btn:hover {
-  background: rgba(168, 85, 247, 0.25);
-  border-color: rgba(168, 85, 247, 0.6);
+  background: #5325a3;
+  border-color: #5325a3;
 }
 
 .matters-pill-list {
@@ -55,9 +58,9 @@
   border-radius: 9999px;
   font-size: 0.8125rem;
   font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid #dcd1ed;
+  background: #ffffff;
+  color: #4b3666;
   cursor: pointer;
   transition: all 0.15s ease;
   display: inline-flex;
@@ -66,13 +69,14 @@
 }
 
 .matter-pill:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: #f3ebfc;
+  border-color: #9c73d9;
+  color: #2b1f3d;
 }
 
 .matter-pill.active {
   background: #3e0f8d;
-  border-color: #6d28d9;
+  border-color: #3e0f8d;
   color: #fff;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(62, 15, 141, 0.35);
@@ -80,7 +84,7 @@
 
 .matter-pill-case {
   font-size: 0.75rem;
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
 .matter-modal-backdrop {
@@ -100,10 +104,10 @@
   width: 100%;
   max-width: 480px;
   background: #1e172a;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 1.25rem;
-  padding: 1.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  border-radius: 1.5rem;
+  padding: 1.75rem;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
   color: #f5f5f7;
 }
 
@@ -133,15 +137,16 @@
   border: none;
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  padding: 0.35rem;
-  border-radius: 50%;
+  padding: 0.45rem;
+  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.15s ease;
 }
 
 .matter-close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
@@ -163,18 +168,20 @@
 .matter-input-label input,
 .matter-input-label textarea {
   padding: 0.65rem 0.85rem;
-  border-radius: 0.625rem;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(192, 132, 252, 0.22);
   color: #fff;
   font-size: 0.875rem;
   outline: none;
   font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .matter-input-label input:focus,
 .matter-input-label textarea:focus {
   border-color: #c084fc;
+  box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.2);
 }
 
 .matter-input-row {
@@ -200,6 +207,8 @@
 
 .matter-form-actions button {
   flex: 1;
+  border-radius: 9999px;
+  min-height: 44px;
 }
 
 .activity-matter-assign {
@@ -207,18 +216,24 @@
   align-items: center;
   gap: 0.35rem;
   margin-top: 0.35rem;
-  color: #c084fc;
+  color: #5d2f96;
   font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .activity-matter-assign select {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1px solid #cfbede;
   border-radius: 0.375rem;
-  color: #e9d5ff;
+  color: #1a1622;
   font-size: 0.75rem;
-  padding: 0.2rem 0.4rem;
+  padding: 0.25rem 0.5rem;
   outline: none;
   cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.activity-matter-assign select:focus {
+  border-color: #6b3ba7;
+  box-shadow: 0 0 0 2px rgba(107, 59, 167, 0.15);
+}
