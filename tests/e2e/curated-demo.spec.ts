@@ -56,7 +56,7 @@ test('curated source demo: sample, choices, execution, saved views, evidence, re
   await expect(page.getByRole('heading', { name: 'Review results', exact: true })).toBeVisible();
   const saved = await savedResponse;
   const result = await saved.json() as components['schemas']['SavedResultsResponse'];
-  await expect(page.locator('.result-category-scores li')).toHaveCount(5);
+  await expect(page.locator('.result-category-scores li')).toHaveCount(6);
   const dashboardMs = Math.round(performance.now() - dashboardBegan);
   await info.attach('execution-receipt', { body: JSON.stringify({
     scope: live ? 'Cached public sources and genuine free-credit model' : 'Cached public sources; model disabled',
@@ -65,7 +65,7 @@ test('curated source demo: sample, choices, execution, saved views, evidence, re
     claim_issue_states: result.findings.filter(f => f.type === 'claim_support').map(f => f.title),
   }, null, 2), contentType: 'application/json' });
   expect(result.score.value).not.toBeNull();
-  await expect(page.locator('.result-category-scores li')).toHaveCount(5);
+  await expect(page.locator('.result-category-scores li')).toHaveCount(6);
   expect(result.citations.filter(c => c.verification_status === 'verified').length).toBeGreaterThanOrEqual(4);
   expect(result.citations.some(c => c.verification_status !== 'verified')).toBe(true);
   expect(result.quotes.map(q => q.match_status)).toEqual(expect.arrayContaining(['exact', 'close']));

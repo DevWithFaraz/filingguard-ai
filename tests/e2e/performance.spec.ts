@@ -34,7 +34,7 @@ for (const maximum of [false, true]) test(maximum ? 'maximum text review timing'
     const analysis = performance.now() - began;
     const dashboardBegan = performance.now();
     await page.getByRole('link', { name: 'Open review results' }).click();
-    await expect(page.locator('.result-category-scores li')).toHaveCount(5);
+    await expect(page.locator('.result-category-scores li')).toHaveCount(6);
     if (trial < 3) await expect(page.locator('.result-graph-list summary')).toBeVisible();
     else await expect(page.locator('#result-relationships')).toContainText('No persisted sections, claims or authorities');
     const dashboard = performance.now() - dashboardBegan;
