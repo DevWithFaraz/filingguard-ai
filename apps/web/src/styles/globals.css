@@ -7,6 +7,12 @@ body { margin: 0; }
 button, textarea { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .55; }
+input:disabled, textarea:disabled, select:disabled {
+  color: #1f2937;
+  background: #d1d5db;
+  border-color: #9ca3af;
+  opacity: 1;
+}
 a { color: #126d5e; }
 :focus-visible { outline: 3px solid #126d5e; outline-offset: 3px; }
 .workspace { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
